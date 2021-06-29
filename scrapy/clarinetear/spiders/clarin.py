@@ -14,6 +14,8 @@ class ClarinSpider(scrapy.Spider):
                 continue
             if not url.startswith('http'):
                 url = 'https://clarin.com' + url
+            article.css('.publishedDate::text')
+            article.css('.modificatedDate::text')
             maybe_img = article.css('figure img')
             yield {
                 'title': article.css('h1::text, h2::text').get(),
@@ -21,6 +23,7 @@ class ClarinSpider(scrapy.Spider):
                 'section': article.css('.section::text').get(),
                 'url': url,
                 'image': maybe_img.attrib['data-big'] if maybe_img else None,
+                'date':
             }
             request = scrapy.Request(url, callback=self.parse_article, cb_kwargs=dict(url=url))
             yield request
