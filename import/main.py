@@ -19,7 +19,7 @@ with jsonlines.open(sys.argv[1]) as reader:
                 obj['section'],
                 obj['url']
             ])
-        for f in 'title', 'volanta', 'image', 'content':
+        for f in 'title', 'volanta', 'image', 'content', 'date':
             if not f in obj:
                 continue
             cur.execute(f'''UPDATE news SET {f} = ? WHERE url = ?''',
