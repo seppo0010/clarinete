@@ -13,7 +13,7 @@ import type { RootState } from './store'
 
 function NewsList() {
   const theme = useTheme();
-  const matches = useMediaQuery(theme.breakpoints.up('sm'));
+  const matches = useMediaQuery(theme.breakpoints.up('md'));
 
   const dispatch = useDispatch()
   const news = useSelector(selectAllNews)

@@ -8,17 +8,10 @@ import { NewsItem } from './newsSlice'
 const useStyles = makeStyles({
   root: {
     minWidth: 275,
-  },
-  bullet: {
-    display: 'inline-block',
-    margin: '0 2px',
-    transform: 'scale(0.8)',
+    margin: 8,
   },
   title: {
     fontSize: 14,
-  },
-  pos: {
-    marginBottom: 12,
   },
 });
 
@@ -34,13 +27,8 @@ const NewsListItem: FC<{news: NewsItem}> = ({news}) => {
         <Typography variant="h5" component="h2">
           {news.title}
         </Typography>
-        <Typography className={classes.pos} color="textSecondary">
+        <Typography color="textSecondary">
           {news.section}
-        </Typography>
-        <Typography variant="body2" component="p">
-          well meaning and kindly.
-          <br />
-          {'"a benevolent smile"'}
         </Typography>
       </CardContent>
     </Card>
