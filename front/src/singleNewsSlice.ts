@@ -4,6 +4,7 @@ import type { RootState } from './store'
 export declare interface SingleNewsItem {
   "url": string
   "content": string
+  title: string
 }
 
 export const fetchSingleNews = createAsyncThunk('news/fetchSingleNews', async (url: string) => {

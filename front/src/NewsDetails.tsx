@@ -27,6 +27,7 @@ function NewsDetails() {
   }, [newsStatus, dispatch, url, news])
   return (<Container maxWidth='sm'>
     {news ? <div>
+      <h1>{news.title}</h1>
       <div className="content" dangerouslySetInnerHTML={{__html: news.content}}></div>
     </div> :
     <div></div>
