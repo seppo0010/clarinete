@@ -2,3 +2,4 @@ output.jl
 news.db
 import/yoyo.ini
 database.db
+__pycache__
