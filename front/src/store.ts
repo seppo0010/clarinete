@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit'
 import newsList from './newsSlice'
+import singleNews from './singleNewsSlice'
 
 const store = configureStore({
   reducer: {
     newsList,
+    singleNews,
   },
 })
 export default store

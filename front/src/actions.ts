@@ -1,4 +1,0 @@
-const fetchNewsList = () => {
-}
-
-export { fetchNewsList }

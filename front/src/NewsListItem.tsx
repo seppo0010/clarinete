@@ -3,6 +3,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
+import { Link } from "react-router-dom";
+
 import { NewsItem } from './newsSlice'
 
 const useStyles = makeStyles({
@@ -25,7 +27,7 @@ const NewsListItem: FC<{news: NewsItem}> = ({news}) => {
           {news.volanta}
         </Typography>
         <Typography variant="h5" component="h2">
-          {news.title}
+          <Link to={'/' + encodeURIComponent(news.url)}>{news.title}</Link>
         </Typography>
         <Typography color="textSecondary">
           {news.section}
