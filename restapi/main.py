@@ -31,7 +31,7 @@ def news_details():
     con = sqlite3.connect(dbpath)
     con.row_factory = dict_factory
     cur = con.cursor()
-    cur.execute('''SELECT title, volanta, section.name as section, date, content FROM news JOIN section ON news.section_id = section.id WHERE url = ?''', [url])
+    cur.execute('''SELECT url, title, volanta, section.name as section, date, content FROM news JOIN section ON news.section_id = section.id WHERE url = ?''', [url])
     row = cur.fetchone()
     if not url:
         return 404, ''
