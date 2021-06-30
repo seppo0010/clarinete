@@ -10,12 +10,14 @@ class ClarinSpider(scrapy.Spider):
     start_urls = ['http://clarin.com/']
 
     def parse(self, response):
+        urls = []
         for article in response.css('article a[onclick]'):
             url = article.attrib['href']
             if not url:
                 continue
             if not url.startswith('http'):
                 url = 'https://clarin.com' + url
+            urls.append(url)
 
             maybe_img = article.css('figure img')
             obj = {
@@ -29,6 +31,7 @@ class ClarinSpider(scrapy.Spider):
             yield obj
             request = scrapy.Request(url, callback=self.parse_article, cb_kwargs=dict(url=url))
             yield request
+        yield {'homepage': urls}
 
     def parse_article(self, response, url):
         html = ''.join(response.xpath('//div[@class="body-nota"]/*').extract())

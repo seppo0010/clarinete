@@ -20,7 +20,7 @@ def news_list():
     con = sqlite3.connect(dbpath)
     con.row_factory = dict_factory
     cur = con.cursor()
-    cur.execute('''SELECT url, title, volanta, section.name as section, date FROM news JOIN section ON news.section_id = section.id ORDER BY date DESC LIMIT 20''')
+    cur.execute('''SELECT url, title, volanta, section.name as section, date FROM news JOIN section ON news.section_id = section.id WHERE position IS NOT NULL ORDER BY position ASC''')
     return jsonify(cur.fetchall())
 
 @app.route("/news/details")
