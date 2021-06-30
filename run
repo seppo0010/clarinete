@@ -1,0 +1,18 @@
+#!/bin/bash
+set -Eeu
+
+pushd scrapy
+pipenv install --ignore-pipfile
+pipenv run scrapy runspider clarinetear/spiders/clarin.py -o ../output.jl
+popd
+
+pushd import
+pipenv install --ignore-pipfile
+pipenv run yoyo apply
+pipenv run python main.py ../output.jl ../news.db
+popd
+
+pushd restapi
+pipenv install --ignore-pipfile
+pipenv run python main.py ../news.db
+popd
