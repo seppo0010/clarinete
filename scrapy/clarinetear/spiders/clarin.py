@@ -38,7 +38,6 @@ class ClarinSpider(scrapy.Spider):
         if not modificated_date:
             raise ValueError('no modificated date')
         modificated_date_prefix = 'Actualizado al '
-        print(modificated_date)
         if not modificated_date.startswith(modificated_date_prefix):
             raise ValueError('modificated date does not start with ' + modificated_date_prefix)
         modificated_date = modificated_date[len(modificated_date_prefix):]
