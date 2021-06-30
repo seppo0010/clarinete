@@ -35,7 +35,7 @@ if __name__ == '__main__':
     con = sqlite3.connect(sys.argv[2])
     cur = con.cursor()
 
-    with jsonlines.open(sys.argv[1]) as reader:
+    with (jsonlines.open(sys.argv[1]) if sys.argv[1] != '-' else jsonlines.Reader(sys.stdin)) as reader:
         for obj in reader:
             if 'url' in obj:
                 update_article(cur, obj)
