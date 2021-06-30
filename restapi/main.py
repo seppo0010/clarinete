@@ -15,7 +15,7 @@ def dict_factory(cursor, row):
         d[col[0]] = row[idx]
     return d
 
-@app.route("/news")
+@app.route("/api/news")
 def news_list():
     con = sqlite3.connect(dbpath)
     con.row_factory = dict_factory
@@ -23,7 +23,7 @@ def news_list():
     cur.execute('''SELECT url, title, volanta, section.name as section, date FROM news JOIN section ON news.section_id = section.id WHERE position IS NOT NULL ORDER BY position ASC''')
     return jsonify(cur.fetchall())
 
-@app.route("/news/details")
+@app.route("/api/news/details")
 def news_details():
     url = request.args.get('url')
     if not url:
