@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react'
-
+import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux'
+import Container from '@material-ui/core/Container';
+
 import { fetchSingleNews, selectNews } from './singleNewsSlice'
 import {
   useParams
 } from "react-router-dom";
-
-import Container from '@material-ui/core/Container';
 
 import type { RootState } from './store'
 
@@ -27,6 +27,7 @@ function NewsDetails() {
   }, [newsStatus, dispatch, url, news])
   return (<Container maxWidth='sm'>
     {news ? <div>
+      <p><Link to="/">Volver</Link></p>
       <h1>{news.title}</h1>
       <div className="content" dangerouslySetInnerHTML={{__html: news.content}}></div>
     </div> :
