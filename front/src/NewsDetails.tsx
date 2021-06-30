@@ -7,12 +7,7 @@ import {
 } from "react-router-dom";
 
 import Container from '@material-ui/core/Container';
-import { useTheme } from '@material-ui/core/styles';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
-import GridList from '@material-ui/core/GridList';
-import GridListTile from '@material-ui/core/GridListTile';
 
-import NewsListItem from './NewsListItem'
 import type { RootState } from './store'
 
 function NewsDetails() {
@@ -28,7 +23,7 @@ function NewsDetails() {
     if (newsStatus === 'idle') {
       dispatch(fetchSingleNews(url))
     }
-  }, [newsStatus, dispatch])
+  }, [newsStatus, dispatch, url])
   return (<Container maxWidth='sm'>
     {news ? <div>
       <div className="content" dangerouslySetInnerHTML={{__html: news.content}}></div>
@@ -39,4 +34,3 @@ function NewsDetails() {
 }
 
 export default NewsDetails;
-
