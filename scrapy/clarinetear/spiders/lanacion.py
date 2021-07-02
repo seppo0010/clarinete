@@ -39,7 +39,7 @@ class LanacionSpider(scrapy.Spider):
         yield {'homepage': urls, 'source': SOURCE}
 
     def parse_article(self, response, url):
-        html = ''.join(response.xpath('//p[@class="com-paragraph   --s"]/*').extract())
+        html = ''.join(response.xpath('//div/*[p[@class="com-paragraph   --s"]]/*').extract())
         content = lxml.html.tostring(cleaner.clean_html(lxml.html.fromstring(html))).decode('utf-8')
 
         date = response.css('time.com-date::text').get().strip()
