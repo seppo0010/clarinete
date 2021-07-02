@@ -36,7 +36,7 @@ class ClarinSpider(scrapy.Spider):
         yield {'source': SOURCE, 'homepage': urls}
 
     def parse_article(self, response, url):
-        html = ''.join(response.xpath('//div[@class="body-nota"]/*').extract())
+        html = ''.join(response.xpath('//div[@class="body-nota"]/p').extract())
         content = lxml.html.tostring(cleaner.clean_html(lxml.html.fromstring(html))).decode('utf-8')
 
         modificated_date = response.css('.modificatedDate::text').get().strip()
