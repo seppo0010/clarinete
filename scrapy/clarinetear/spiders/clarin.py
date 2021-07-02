@@ -3,6 +3,7 @@ import scrapy
 import lxml
 from lxml.html.clean import Cleaner
 
+SOURCE = 'Clarín'
 cleaner = Cleaner(allow_tags=['p', 'br', 'b', 'a', 'strong', 'i', 'em'])
 class ClarinSpider(scrapy.Spider):
     name = 'clarin'
@@ -26,12 +27,13 @@ class ClarinSpider(scrapy.Spider):
                 'section': article.css('.section::text').get(),
                 'url': url,
                 'image': maybe_img.attrib['data-big'] if maybe_img else None,
+                'source': SOURCE,
             }
 
             yield obj
             request = scrapy.Request(url, callback=self.parse_article, cb_kwargs=dict(url=url))
             yield request
-        yield {'homepage': urls}
+        yield {'source': SOURCE, 'homepage': urls}
 
     def parse_article(self, response, url):
         html = ''.join(response.xpath('//div[@class="body-nota"]/*').extract())

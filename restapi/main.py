@@ -27,7 +27,13 @@ def news_list():
     con = sqlite3.connect(dbpath)
     con.row_factory = dict_factory
     cur = con.cursor()
-    cur.execute('''SELECT url, title, volanta, section.name as section, date FROM news JOIN section ON news.section_id = section.id WHERE position IS NOT NULL ORDER BY position ASC''')
+    cur.execute('''
+        SELECT url, title, volanta, section.name AS section, date, source.name AS source
+        FROM news
+            JOIN section ON news.section_id = section.id
+            JOIN source ON news.source_id = source.id
+        WHERE position IS NOT NULL
+        ORDER BY position ASC''')
     return jsonify(cur.fetchall())
 
 @app.route("/api/news/details")
@@ -38,7 +44,12 @@ def news_details():
     con = sqlite3.connect(dbpath)
     con.row_factory = dict_factory
     cur = con.cursor()
-    cur.execute('''SELECT url, title, volanta, section.name as section, date, content FROM news JOIN section ON news.section_id = section.id WHERE url = ?''', [url])
+    cur.execute('''
+        SELECT url, title, volanta, section.name AS section, date, content, source.name AS source
+        FROM news
+            JOIN section ON news.section_id = section.id
+            JOIN source ON news.source_id = source.id
+        WHERE url = ?''', [url])
     row = cur.fetchone()
     if not url:
         return 404, ''

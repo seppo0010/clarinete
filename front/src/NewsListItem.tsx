@@ -30,7 +30,7 @@ const NewsListItem: FC<{news: NewsItem}> = ({news}) => {
           <Link to={'/' + encodeURIComponent(news.url)}>{news.title}</Link>
         </Typography>
         <Typography color="textSecondary">
-          {news.section}
+          {news.section} | {news.source}
         </Typography>
       </CardContent>
     </Card>

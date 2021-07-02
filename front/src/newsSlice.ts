@@ -4,6 +4,7 @@ import type { RootState } from './store'
 export declare interface NewsItem {
   "date": string
   "section": string
+  "source": string
   "title": string
   "url": string
   "volanta": string

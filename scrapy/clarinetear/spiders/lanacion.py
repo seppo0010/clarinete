@@ -5,6 +5,7 @@ from lxml.html.clean import Cleaner
 import re
 
 
+SOURCE = 'La Nación'
 cleaner = Cleaner(allow_tags=['p', 'br', 'b', 'a', 'strong', 'i', 'em'])
 class LanacionSpider(scrapy.Spider):
     name = 'lanacion'
@@ -12,13 +13,15 @@ class LanacionSpider(scrapy.Spider):
     start_urls = ['http://www.lanacion.com.ar/']
 
     def parse(self, response):
+        urls = []
         for article in response.css('article'):
-            link = article.css('a.com-link')
+            link = article.css('a')
             url = link.attrib['href']
             if not url:
                 continue
             if not url.startswith('http'):
                 url = 'https://www.lanacion.com.ar' + url
+            urls.append(url)
 
             maybe_img = article.css('figure picture img')
             obj = {
@@ -27,17 +30,17 @@ class LanacionSpider(scrapy.Spider):
                 'section': url.split('/')[3],
                 'url': url,
                 'image': maybe_img.attrib['src'] if maybe_img else None,
+                'source': SOURCE,
             }
 
             yield obj
             request = scrapy.Request(url, callback=self.parse_article, cb_kwargs=dict(url=url))
             yield request
-            return
+        yield {'homepage': urls, 'source': SOURCE}
 
     def parse_article(self, response, url):
         html = ''.join(response.xpath('//p[@class="com-paragraph   --s"]/*').extract())
         content = lxml.html.tostring(cleaner.clean_html(lxml.html.fromstring(html))).decode('utf-8')
-        print(content)
 
         date = response.css('time.com-date::text').get().strip()
         date_fragments = re.match(r'^([0-9]{1,2}) de ([a-z]+) de ([0-9]{4})$', date)
