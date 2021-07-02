@@ -2,6 +2,9 @@ import React, { useEffect } from 'react'
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux'
 import Container from '@material-ui/core/Container';
+import Grid from '@material-ui/core/Grid';
+import OpenInNewIcon from '@material-ui/icons/OpenInNew';
+import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
 
 import { fetchSingleNews, selectNews } from './singleNewsSlice'
 import {
@@ -26,8 +29,21 @@ function NewsDetails() {
     }
   }, [newsStatus, dispatch, url, news])
   return (<Container maxWidth='sm'>
-    {news ? <div>
-      <p><Link to="/">Volver</Link></p>
+    {news ? <div style={{marginTop: 10, lineHeight: 1.2}}>
+      <Grid container>
+        <Grid item xs={6}>
+          <Link to="/">
+            <ArrowLeftIcon />
+            Volver
+          </Link>
+        </Grid>
+        <Grid item xs={6} style={{textAlign: 'right'}}>
+          <a href={news.url} rel="noreferrer" target="_blank">
+            Ver original
+            <OpenInNewIcon />
+          </a>
+        </Grid>
+      </Grid>
       <h1>{news.title}</h1>
       <div className="content" dangerouslySetInnerHTML={{__html: news.content}}></div>
     </div> :
