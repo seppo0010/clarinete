@@ -41,4 +41,5 @@ if __name__ == '__main__':
                 update_article(cur, obj)
             elif 'homepage' in obj:
                 update_hompage(cur, obj['homepage'])
+    cur.execute('''INSERT INTO updated (time) VALUES (strftime('%Y-%m-%d %H:%M:%S', datetime('now')))''')
     con.commit()

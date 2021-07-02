@@ -15,6 +15,13 @@ def dict_factory(cursor, row):
         d[col[0]] = row[idx]
     return d
 
+@app.route("/api/last_updated")
+def last_updated():
+    con = sqlite3.connect(dbpath)
+    cur = con.cursor()
+    cur.execute('''SELECT MAX(time) FROM updated''')
+    return jsonify(cur.fetchone())
+
 @app.route("/api/news")
 def news_list():
     con = sqlite3.connect(dbpath)
