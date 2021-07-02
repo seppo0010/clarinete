@@ -11,8 +11,8 @@ class ClarinSpider(scrapy.Spider):
 
     def parse(self, response):
         urls = []
-        for article in response.css('article a[onclick]'):
-            url = article.attrib['href']
+        for article in response.css('article'):
+            url = article.css('a').attrib['href']
             if not url:
                 continue
             if not url.startswith('http'):
