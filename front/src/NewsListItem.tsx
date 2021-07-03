@@ -25,10 +25,10 @@ const NewsListItem: FC<{news: NewsItem}> = ({news}) => {
       <CardContent>
         <Typography className={classes.title} color="textSecondary" gutterBottom>
           {news.volanta}
-          {news.sentiment === 0 && ' | ' + '🙏'}
-          {news.sentiment === 1 && ' | ' + '🙏'}
-          {news.sentiment === 2 && ' | ' + '😠'}
-          {news.sentiment === 3 && ' | ' + '😢'}
+          {news.sentiment === 0 && ' | 🙏'}
+          {news.sentiment === 1 && ' | 🙏'}
+          {news.sentiment === 2 && ' | 😠'}
+          {news.sentiment === 3 && ' | 😢'}
         </Typography>
         <Typography variant="h5" component="h2">
           <Link to={'/' + encodeURIComponent(news.url)} title={news.summary}>{news.title}</Link>
