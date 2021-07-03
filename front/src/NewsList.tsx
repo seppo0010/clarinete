@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 
 import { useSelector, useDispatch } from 'react-redux'
+import { useHistory } from "react-router-dom";
 
 import { GlobalHotKeys } from "react-hotkeys";
 
@@ -16,24 +17,37 @@ import type { RootState } from './store'
 const keyMap = {
   NEXT: "j",
   PREVIOUS: "k",
+  OPEN_NEWS: "enter",
 };
 
 function NewsList() {
   const theme = useTheme();
   const matches = useMediaQuery(theme.breakpoints.up('md'));
+  const history = useHistory()
 
   const [selected, setSelected] = useState(-1)
+
+  const dispatch = useDispatch()
+  const news = useSelector(selectAllNews)
+  const [lastNews, setLastNews] = useState(news)
+  if (JSON.stringify(lastNews) !== JSON.stringify(news)) {
+    setLastNews(news)
+  }
+  const newsStatus = useSelector((state: RootState) => state.newsList.status)
 
   const handlers = {
     NEXT: () => setSelected((selected) => selected + 1),
     PREVIOUS: () => setSelected((selected) => Math.max(0, selected - 1)),
+    OPEN_NEWS: () => setSelected((selected) => {
+        setLastNews((lastNews) => {
+          if (selected >= 0) {
+              setTimeout(() => history.push(encodeURIComponent(lastNews[selected].url)))
+          }
+          return lastNews
+        })
+        return selected
+    }),
   };
-
-
-  const dispatch = useDispatch()
-  const news = useSelector(selectAllNews)
-
-  const newsStatus = useSelector((state: RootState) => state.newsList.status)
 
   useEffect(() => {
     if (newsStatus === 'idle') {
