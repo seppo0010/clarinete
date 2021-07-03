@@ -1,11 +1,15 @@
 import React, { FC, useState, useRef } from "react";
+import { useDispatch } from 'react-redux'
 import { makeStyles } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import { Link } from "react-router-dom";
+import MoveToInboxIcon from '@material-ui/icons/MoveToInbox';
 
 import { NewsItem } from './newsSlice'
+import { addURL } from './archivedSlice'
 
 const useStyles = makeStyles({
   root: {
@@ -21,6 +25,7 @@ const useStyles = makeStyles({
 
 const NewsListItem: FC<{news: NewsItem, selected: boolean}> = ({news, selected}) => {
   const classes = useStyles();
+  const dispatch = useDispatch()
 
   const [wasSelected, setWasSelected] = useState(false)
   const ref = useRef(null)
@@ -50,6 +55,7 @@ const NewsListItem: FC<{news: NewsItem, selected: boolean}> = ({news, selected})
           {news.sentiment === 1 && ' | 🙏'}
           {news.sentiment === 2 && ' | 😠'}
           {news.sentiment === 3 && ' | 😢'}
+          <Button onClick={() => dispatch(addURL(news.url))}><MoveToInboxIcon /></Button>
         </Typography>
         <Typography variant="h5" component="h2">
           <Link to={'/' + encodeURIComponent(news.url)} title={news.summary}>{news.title}</Link>
