@@ -9,6 +9,7 @@ export declare interface NewsItem {
   "url": string
   "volanta": string
   sentiment: number
+  summary: string
 }
 
 export const fetchNews = createAsyncThunk('news/fetchNews', async () => {

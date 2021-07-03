@@ -31,7 +31,7 @@ const NewsListItem: FC<{news: NewsItem}> = ({news}) => {
           {news.sentiment === 3 && ' | ' + '😢'}
         </Typography>
         <Typography variant="h5" component="h2">
-          <Link to={'/' + encodeURIComponent(news.url)}>{news.title}</Link>
+          <Link to={'/' + encodeURIComponent(news.url)} title={news.summary}>{news.title}</Link>
         </Typography>
         <Typography color="textSecondary">
           {news.section} | {news.source}
