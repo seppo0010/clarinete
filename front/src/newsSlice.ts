@@ -1,4 +1,5 @@
-import { createSlice, nanoid, createAsyncThunk } from '@reduxjs/toolkit'
+import { createSlice, nanoid } from '@reduxjs/toolkit'
+import { fetchNews } from './fetchNewsSlice'
 import type { RootState } from './store'
 
 export declare interface NewsItem {
@@ -11,12 +12,6 @@ export declare interface NewsItem {
   sentiment: number
   summary: string
 }
-
-export const fetchNews = createAsyncThunk('news/fetchNews', async () => {
-  const req = await fetch('/api/news')
-  const res = await req.json()
-  return res
-})
 
 const initialState: {
   news: NewsItem[]

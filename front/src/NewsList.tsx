@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 
 import { useSelector, useDispatch } from 'react-redux'
 import { useHistory } from "react-router-dom";
@@ -10,7 +10,9 @@ import useMediaQuery from '@material-ui/core/useMediaQuery';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 
-import { fetchNews, selectAllNews } from './newsSlice'
+import { selectAllNews } from './newsSlice'
+import { fetchNews } from './fetchNewsSlice'
+import { selectedValue, increment, decrement } from './selectedSlice'
 import NewsListItem from './NewsListItem'
 import type { RootState } from './store'
 
@@ -24,29 +26,16 @@ function NewsList() {
   const theme = useTheme();
   const matches = useMediaQuery(theme.breakpoints.up('md'));
   const history = useHistory()
-
-  const [selected, setSelected] = useState(-1)
-
   const dispatch = useDispatch()
   const news = useSelector(selectAllNews)
-  const [lastNews, setLastNews] = useState(news)
-  if (JSON.stringify(lastNews) !== JSON.stringify(news)) {
-    setLastNews(news)
-  }
+  const selected = useSelector(selectedValue)
+
   const newsStatus = useSelector((state: RootState) => state.newsList.status)
 
   const handlers = {
-    NEXT: () => setSelected((selected) => selected + 1),
-    PREVIOUS: () => setSelected((selected) => Math.max(0, selected - 1)),
-    OPEN_NEWS: () => setSelected((selected) => {
-        setLastNews((lastNews) => {
-          if (selected >= 0) {
-              setTimeout(() => history.push(encodeURIComponent(lastNews[selected].url)))
-          }
-          return lastNews
-        })
-        return selected
-    }),
+    NEXT: () => dispatch(increment()),
+    PREVIOUS: () => dispatch(decrement()),
+    OPEN_NEWS: () => history.push(encodeURIComponent(news[selected].url)),
   };
 
   useEffect(() => {
@@ -56,7 +45,7 @@ function NewsList() {
   }, [newsStatus, dispatch])
 
   return (
-    <GlobalHotKeys handlers={handlers} keyMap={keyMap}>
+    <GlobalHotKeys handlers={handlers} keyMap={keyMap} allowChanges={true}>
       <GridList cols={2}>
           {news.map((n, i) => (
             <GridListTile key={`${i}`} cols={i > 0 && matches ? 1 : 2}>
