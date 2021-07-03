@@ -26,6 +26,9 @@ const NewsListItem: FC<{news: NewsItem, selected: boolean}> = ({news, selected})
   const ref = useRef(null)
   if (selected && !wasSelected) {
     setTimeout(() => {
+        if (!ref || !ref.current) {
+          return
+        }
         const bbox = (ref.current as any).getBoundingClientRect()
         if (bbox.top < 0) {
           window.scrollTo(window.scrollX, window.scrollY + bbox.top)
