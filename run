@@ -24,5 +24,7 @@ docker run clarinetear-scrapy scrapy runspider /scrapy/clarinetear/spiders/clari
 docker run clarinetear-scrapy scrapy runspider /scrapy/clarinetear/spiders/lanacion.py --nolog -o -:jl | docker run -i -v $(pwd)/database:/database clarinetear-import python3 /import/main.py - /database/news.db
 
 docker network create clarinetear || true
+docker rm clarinetear-restapi || true
 docker run -d --network=clarinetear --name clarinetear-restapi -v $(pwd)/database:/database clarinetear-restapi || true
+docker rm clarinetear-front || true
 docker run -d --network=clarinetear -p 3001:80 --name clarinetear-front clarinetear-front || true

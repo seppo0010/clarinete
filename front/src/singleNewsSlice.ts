@@ -5,6 +5,7 @@ export declare interface SingleNewsItem {
   "url": string
   "content": string
   title: string
+  summary: string
 }
 
 export const fetchSingleNews = createAsyncThunk('news/fetchSingleNews', async (url: string) => {

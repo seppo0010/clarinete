@@ -3,8 +3,10 @@ import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux'
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
+
 
 import { fetchSingleNews, selectNews } from './singleNewsSlice'
 import {
@@ -45,6 +47,7 @@ function NewsDetails() {
         </Grid>
       </Grid>
       <h1>{news.title}</h1>
+      {news.summary && <Paper elevation={3} style={{padding: 10}}>{news.summary}</Paper>}
       <div className="content" dangerouslySetInnerHTML={{__html: news.content}}></div>
     </div> :
     <div></div>

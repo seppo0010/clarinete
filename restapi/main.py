@@ -45,7 +45,7 @@ def news_details():
     con.row_factory = dict_factory
     cur = con.cursor()
     cur.execute('''
-        SELECT url, title, volanta, section.name AS section, date, content, source.name AS source
+        SELECT url, title, volanta, section.name AS section, date, content, source.name AS source, summary, sentiment
         FROM news
             JOIN section ON news.section_id = section.id
             JOIN source ON news.source_id = source.id
