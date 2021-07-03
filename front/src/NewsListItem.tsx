@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useState, useRef } from "react";
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
@@ -17,11 +17,29 @@ const useStyles = makeStyles({
   },
 });
 
-const NewsListItem: FC<{news: NewsItem}> = ({news}) => {
+
+
+const NewsListItem: FC<{news: NewsItem, selected: boolean}> = ({news, selected}) => {
   const classes = useStyles();
 
+  const [wasSelected, setWasSelected] = useState(false)
+  const ref = useRef(null)
+  if (selected && !wasSelected) {
+    setTimeout(() => {
+        const bbox = (ref.current as any).getBoundingClientRect()
+        if (bbox.top < 0) {
+          window.scrollTo(window.scrollX, window.scrollY + bbox.top)
+        }
+        if (bbox.bottom > window.innerHeight) {
+          window.scrollTo(window.scrollX, window.scrollY + bbox.bottom - window.innerHeight)
+        }
+    })
+  }
+  if (selected !== wasSelected) {
+    setWasSelected(selected)
+  }
   return (
-    <Card className={classes.root}>
+    <Card className={classes.root} style={{outline: selected ? 'solid': 'none'}} ref={ref}>
       <CardContent>
         <Typography className={classes.title} color="textSecondary" gutterBottom>
           {news.volanta}

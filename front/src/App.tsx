@@ -6,9 +6,9 @@ import {
   Route,
 } from "react-router-dom";
 
-
 import NewsList from './NewsList'
 import NewsDetails from './NewsDetails'
+
 
 function App() {
   return (
