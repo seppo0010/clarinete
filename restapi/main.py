@@ -28,7 +28,7 @@ def news_list():
     con.row_factory = dict_factory
     cur = con.cursor()
     cur.execute('''
-        SELECT url, title, volanta, section.name AS section, date, source.name AS source
+        SELECT url, title, volanta, section.name AS section, date, source.name AS source, sentiment
         FROM news
             JOIN section ON news.section_id = section.id
             JOIN source ON news.source_id = source.id
