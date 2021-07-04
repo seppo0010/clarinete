@@ -4,10 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-jsonlines = "*"
 yoyo-migrations = "*"
-transformers = {extras = ["torch"], version = "*"}
-sentencepiece = "*"
+pika = "*"
 
 [dev-packages]
 

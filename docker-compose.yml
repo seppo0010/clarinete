@@ -6,10 +6,10 @@ services:
       - "scrapy-queue"
   scrapy-queue:
     image: rabbitmq:3-management
-#  import:
-#    build: import
-#    volumes:
-#      - ./database:/database
+  import:
+    build: import
+    volumes:
+      - ./database:/database
 #  restapi:
 #    build: restapi
 #    volumes:
