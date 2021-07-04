@@ -86,3 +86,16 @@ ROBOTSTXT_OBEY = True
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+
+RABBITMQ_HOST = "scrapy-queue"
+RABBITMQ_PORT = 5672
+RABBITMQ_USER = "guest"
+RABBITMQ_PASSWORD = "guest"
+RABBITMQ_VIRTUAL_HOST = "/"
+RABBITMQ_EXCHANGE = "scrapy"
+RABBITMQ_ROUTING_KEY = "item"
+RABBITMQ_QUEUE = "item"
+
+ITEM_PIPELINES = {
+    "scrapy_rabbitmq_publisher.pipelines.RabbitMQItemPublisherPipeline": 1,
+}
