@@ -28,14 +28,14 @@ app.teardown_appcontext(close_db)
 @app.route("/api/last_updated")
 def last_updated():
     con = get_db()
-    cur = con.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute('''SELECT MAX(time) AS time FROM updated''')
     return jsonify(cur.fetchone())
 
 @app.route("/api/news")
 def news_list():
     con = get_db()
-    cur = con.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute('''
         SELECT url, title, volanta, section.name AS section, date, source.name AS source, sentiment, summary
         FROM news
@@ -51,7 +51,7 @@ def news_details():
     url = request.args.get('url')
     if not url:
         return 400, ''
-    cur = con.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute('''
         SELECT url, title, volanta, section.name AS section, date, content, source.name AS source, summary, sentiment
         FROM news
