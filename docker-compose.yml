@@ -8,11 +8,21 @@ services:
     image: rabbitmq:3-management
   import:
     build: import
-    volumes:
-      - ./database:/database
+    env_file: ./postgres-config
+    secrets:
+      - postgres-password
+  news-database:
+    image: postgres
+    env_file: ./postgres-config
+    secrets:
+      - postgres-password
 #  restapi:
 #    build: restapi
 #    volumes:
 #      - ./database:/database
 #  front:
 #    build: front
+#
+secrets:
+  postgres-password:
+    file: ./postgres-password

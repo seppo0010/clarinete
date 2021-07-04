@@ -4,3 +4,4 @@ import/yoyo.ini
 database.db
 __pycache__
 database
+postgres-password

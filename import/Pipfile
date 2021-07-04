@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 yoyo-migrations = "*"
 pika = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
 

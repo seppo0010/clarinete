@@ -8,7 +8,7 @@ __depends__ = {'20210629_02_ABiuI'}
 
 steps = [
     step(
-        'ALTER TABLE news ADD COLUMN date DATETIME',
+        'ALTER TABLE news ADD COLUMN date TIMESTAMP',
     ),
     step(
         'CREATE INDEX news_date ON news (date)',
