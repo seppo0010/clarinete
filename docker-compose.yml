@@ -16,10 +16,11 @@ services:
     env_file: ./postgres-config
     secrets:
       - postgres-password
-#  restapi:
-#    build: restapi
-#    volumes:
-#      - ./database:/database
+  restapi:
+    build: restapi
+    env_file: ./postgres-config
+    secrets:
+      - postgres-password
 #  front:
 #    build: front
 #
