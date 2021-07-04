@@ -26,9 +26,13 @@ services:
     env_file: ./postgres-config
     secrets:
       - postgres-password
-#  front:
-#    build: front
-#
+    depends_on:
+      - "news-database"
+  front:
+    build: front
+    depends_on:
+      - "restapi"
+
 secrets:
   postgres-password:
     file: ./postgres-password
