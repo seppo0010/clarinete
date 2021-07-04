@@ -6,11 +6,16 @@ services:
       - "scrapy-queue"
   scrapy-queue:
     image: rabbitmq:3-management
+    restart: on-failure
   import:
     build: import
     env_file: ./postgres-config
     secrets:
       - postgres-password
+    depends_on:
+      - "scrapy-queue"
+      - "news-database"
+    restart: on-failure
   news-database:
     image: postgres
     env_file: ./postgres-config

@@ -54,6 +54,7 @@ if __name__ == '__main__':
     pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='scrapy-queue'))
     channel = pika_connection.channel()
     pg_connection = psycopg2.connect(dsn)
+    channel.queue_declare(queue='item', durable=True)
     for method_frame, properties, body in channel.consume('item'):
         obj = json.loads(body.decode('utf-8'))
         cur = pg_connection.cursor()
