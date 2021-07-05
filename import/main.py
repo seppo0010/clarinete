@@ -7,6 +7,33 @@ from yoyo import read_migrations
 from yoyo import get_backend
 
 
+def enqueue_url(url, force=False):
+    if force:
+        cur.execute('SELECT title, content FROM news WHERE url = %s', [url])
+    else:
+        cur.execute('SELECT title, content FROM news WHERE url = %s AND summary IS NULL', [url])
+    res = cur.fetchone()
+    if res is not None:
+        title, content = res
+
+        pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='news-queue'))
+        channel = pika_connection.channel()
+        channel.queue_declare(queue='summary_item', durable=True)
+        channel.basic_publish(
+            exchange='',
+            routing_key='summary_item',
+            body=json.dumps({
+                'url': url,
+                'title': title,
+                'content': content,
+            }),
+            properties=pika.BasicProperties(
+                content_type='application/json',
+                delivery_mode=1,
+            )
+        )
+        cur.execute('UPDATE news SET summary = %s WHERE url = %s', ['', url])
+
 def update_article(cur, obj):
     cur.execute('''INSERT INTO news (url) VALUES (%s) ON CONFLICT DO NOTHING''', [obj['url']])
     for k in 'section', 'source':
@@ -28,29 +55,7 @@ def update_article(cur, obj):
                 obj[f],
             ]
         )
-
-    cur.execute('SELECT title, content FROM news WHERE url = %s AND summary IS NULL', [obj['url']])
-    res = cur.fetchone()
-    if res is not None:
-        title, content = res
-
-        pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='news-queue'))
-        channel = pika_connection.channel()
-        channel.queue_declare(queue='summary_item', durable=True)
-        channel.basic_publish(
-            exchange='',
-            routing_key='summary_item',
-            body=json.dumps({
-                'url': obj['url'],
-                'title': title,
-                'content': content,
-            }),
-            properties=pika.BasicProperties(
-                content_type='application/json',
-                delivery_mode=1,
-            )
-        )
-        cur.execute('UPDATE news SET summary = %s WHERE url = %s', ['', obj['url']])
+    enqueue_url(obj['url'])
 
 def update_homepage(cur, source, urls):
     cur.execute('SELECT id FROM source WHERE name = %s', [source])
