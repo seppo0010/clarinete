@@ -37,6 +37,8 @@ services:
     build: front
     depends_on:
       - "restapi"
+    ports:
+      - "8001:80"
 
 secrets:
   postgres-password:
