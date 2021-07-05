@@ -3,9 +3,20 @@ import pika
 import json
 import psycopg2
 import urllib
+import logging
 from yoyo import read_migrations
 from yoyo import get_backend
 
+def get_module_logger(mod_name):
+    logger = logging.getLogger(mod_name)
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter(
+        '%(asctime)s [%(name)-12s] %(levelname)-8s %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.DEBUG)
+    return logger
+logger = get_module_logger(__name__)
 
 def enqueue_url(url, force=False):
     if force:
@@ -35,6 +46,7 @@ def enqueue_url(url, force=False):
         cur.execute('UPDATE news SET summary = %s WHERE url = %s', ['', url])
 
 def update_article(cur, obj):
+    logger.info('updating article ' + obj['url'])
     cur.execute('''INSERT INTO news (url) VALUES (%s) ON CONFLICT DO NOTHING''', [obj['url']])
     for k in 'section', 'source':
         if k in obj and obj[k]:
@@ -58,6 +70,7 @@ def update_article(cur, obj):
     enqueue_url(obj['url'])
 
 def update_homepage(cur, source, urls):
+    logger.info('updating homepage')
     cur.execute('SELECT id FROM source WHERE name = %s', [source])
     source_id = cur.fetchone()[0]
     cur.execute(f'''UPDATE news SET position = NULL WHERE source_id = %s''', [source_id])
