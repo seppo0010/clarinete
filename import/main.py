@@ -18,7 +18,7 @@ def update_article(cur, obj):
             ])
 
     changed_text = False
-    for f in 'title', 'volanta', 'image', 'content', 'date':
+    for f in 'title', 'volanta', 'image', 'content', 'date', 'summary', 'sentiment':
         if obj.get(f, None) is None:
             continue
         cur.execute(f'''UPDATE news SET {f} = %s WHERE url = %s AND ({f} IS NULL OR {f} != %s)''',
@@ -27,6 +27,28 @@ def update_article(cur, obj):
                 obj['url'],
                 obj[f],
             ]
+        )
+        changed_text = changed_text or (cur.rowcount > 0 and f in 'title', 'content')
+
+    if changed_text:
+        cur.execute('SELECT title, content FROM news WHERE url = %s', [obj['url']])
+        title, content = cur.fetchone()
+
+        pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='news-queue'))
+        channel = pika_connection.channel()
+        channel.queue_declare(queue='summary_item', durable=True)
+        channel.basic_publish(
+            exchange='',
+            routing_key='summary_item',
+            body=json.dumps({
+                'url': obj['url'],
+                'title': title,
+                'content': content,
+            }),
+            properties=pika.BasicProperties(
+                content_type='application/json',
+                delivery_mode=1,
+            )
         )
 
 def update_homepage(cur, source, urls):
@@ -51,7 +73,7 @@ if __name__ == '__main__':
     with backend.lock():
         backend.apply_migrations(backend.to_apply(migrations))
 
-    pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='scrapy-queue'))
+    pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='news-queue'))
     channel = pika_connection.channel()
     pg_connection = psycopg2.connect(dsn)
     channel.queue_declare(queue='item', durable=True)

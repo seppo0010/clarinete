@@ -3,8 +3,8 @@ services:
   scrapy:
     build: scrapy
     depends_on:
-      - "scrapy-queue"
-  scrapy-queue:
+      - "news-queue"
+  news-queue:
     image: rabbitmq:3-management
     restart: on-failure
   import:
@@ -13,8 +13,13 @@ services:
     secrets:
       - postgres-password
     depends_on:
-      - "scrapy-queue"
+      - "news-queue"
       - "news-database"
+    restart: on-failure
+  summarizer:
+    build: summarizer
+    depends_on:
+      - "news-queue"
     restart: on-failure
   news-database:
     image: postgres

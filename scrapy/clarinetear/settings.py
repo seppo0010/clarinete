@@ -87,7 +87,7 @@ ROBOTSTXT_OBEY = True
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
-RABBITMQ_HOST = "scrapy-queue"
+RABBITMQ_HOST = "news-queue"
 RABBITMQ_PORT = 5672
 RABBITMQ_USER = "guest"
 RABBITMQ_PASSWORD = "guest"
