@@ -4,6 +4,7 @@ import json
 import psycopg2
 import urllib
 import logging
+import sys
 from yoyo import read_migrations
 from yoyo import get_backend
 
@@ -18,7 +19,7 @@ def get_module_logger(mod_name):
     return logger
 logger = get_module_logger(__name__)
 
-def enqueue_url(url, force=False):
+def enqueue_url(cur, url, force=False):
     if force:
         cur.execute('SELECT title, content FROM news WHERE url = %s', [url])
     else:
@@ -67,7 +68,7 @@ def update_article(cur, obj):
                 obj[f],
             ]
         )
-    enqueue_url(obj['url'])
+    enqueue_url(cur, obj['url'])
 
 def update_homepage(cur, source, urls):
     logger.info('updating homepage')
@@ -80,6 +81,10 @@ def update_homepage(cur, source, urls):
 
 
 if __name__ == '__main__':
+    pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='news-queue'))
+    channel = pika_connection.channel()
+    channel.queue_declare(queue='item', durable=True)
+
     pg_user = os.getenv("POSTGRES_USER")
     pg_host = 'news-database'
     pg_db = os.getenv("POSTGRES_DB")
@@ -88,14 +93,16 @@ if __name__ == '__main__':
     dsn = f'postgres://{pg_user}:{urllib.parse.quote(pg_password)}@{pg_host}/{pg_db}'
     backend = get_backend(dsn)
     migrations = read_migrations(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'migrations'))
-
     with backend.lock():
         backend.apply_migrations(backend.to_apply(migrations))
-
-    pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='news-queue'))
-    channel = pika_connection.channel()
     pg_connection = psycopg2.connect(dsn)
-    channel.queue_declare(queue='item', durable=True)
+
+    if len(sys.argv) == 2:
+        cur = pg_connection.cursor()
+        enqueue_url(cur, sys.argv[1], force=True)
+        sys.exit(0)
+
+
     for method_frame, properties, body in channel.consume('item'):
         obj = json.loads(body.decode('utf-8'))
         cur = pg_connection.cursor()
