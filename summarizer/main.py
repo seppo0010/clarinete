@@ -30,7 +30,7 @@ def summary_line(line):
     if len(line.split(' ')) < MAX_SUMMARY:
         return line
     else:
-        return summarizer(' '.join(line.split(' ')[:1024]), min_length=0, max_length=MAX_SUMMARY)[0]['summary_text']
+        return summarizer(line))[0]['summary_text']
 
 def summarize(text):
     lines_total = text.split('\n')
