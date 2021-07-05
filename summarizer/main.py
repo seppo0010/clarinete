@@ -2,6 +2,7 @@ import json
 import re
 import html
 import traceback
+import logging
 
 import pika
 from transformers import pipeline
@@ -10,6 +11,17 @@ sentiment_analysis = pipeline("sentiment-analysis", model="cardiffnlp/twitter-ro
 en_es_translator = pipeline("translation_en_to_es", model='Helsinki-NLP/opus-mt-en-es')
 es_en_translator = pipeline("translation_es_to_en", model='Helsinki-NLP/opus-mt-es-en')
 summarizer = pipeline("summarization")
+
+def get_module_logger(mod_name):
+    logger = logging.getLogger(mod_name)
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter(
+        '%(asctime)s [%(name)-12s] %(levelname)-8s %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.DEBUG)
+    return logger
+logger = get_module_logger(__name__)
 
 def cleanhtml(raw_html):
   cleantext = re.sub('<.*?>', '', re.sub('</p.*?>', '\n', raw_html))
@@ -45,8 +57,11 @@ def summarize(text):
 
 def get_summary_and_sentiment(text):
     en = es_en(cleanhtml(text))
+    logger.debug(f'en: {en}')
     summarized = summarize(en)
+    logger.debug(f'summarized: {summarized}')
     es = en_es_translator(summarized)[0]['translation_text']
+    logger.debug(f'es: {es}')
     sentiment = sentiment_analysis(summarized)[0]['label']
     s = {
         'LABEL_0': 1,
@@ -63,6 +78,7 @@ if __name__ == '__main__':
     channel.queue_declare(queue='summary_item', durable=True)
     for method_frame, properties, body in channel.consume('summary_item'):
         obj = json.loads(body.decode('utf-8'))
+        logger.info('summarizing ' + obj['url'])
         try:
             summary, sentiment = get_summary_and_sentiment(obj['title'] + '\n' + obj['content'])
             channel.basic_publish(
