@@ -14,15 +14,15 @@ const selectedSlice = createSlice({
   initialState,
   reducers: {
     increment(state) {
-      state.value++
+      state.value = Math.min(Math.max(state.value + 1, 0), state.max)
     },
     decrement(state) {
-      state.value--
+      state.value = Math.max(state.value - 1, 0)
     },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchNews.fulfilled, (state, action) => {
-      state.max = action.payload.length
+      state.max = action.payload.length - 1
     })
   }
 })
