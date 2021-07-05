@@ -28,11 +28,11 @@ def update_article(cur, obj):
                 obj[f],
             ]
         )
-        changed_text = changed_text or (cur.rowcount > 0 and f in 'title', 'content')
 
-    if changed_text:
-        cur.execute('SELECT title, content FROM news WHERE url = %s', [obj['url']])
-        title, content = cur.fetchone()
+    cur.execute('SELECT title, content FROM news WHERE url = %s AND summary IS NULL', [obj['url']])
+    res = cur.fetchone()
+    if res is not None:
+        title, content = res
 
         pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='news-queue'))
         channel = pika_connection.channel()
@@ -50,6 +50,7 @@ def update_article(cur, obj):
                 delivery_mode=1,
             )
         )
+        cur.execute('UPDATE news SET summary = %s WHERE url = %s', ['', obj['url']])
 
 def update_homepage(cur, source, urls):
     cur.execute('SELECT id FROM source WHERE name = %s', [source])
