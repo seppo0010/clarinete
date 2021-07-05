@@ -75,6 +75,7 @@ def get_summary_and_sentiment(text):
 if __name__ == '__main__':
     pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='news-queue', heartbeat=600, blocked_connection_timeout=6000))
     channel = pika_connection.channel()
+    channel.basic_qos(prefetch_count=1)
     channel.queue_declare(queue='summary_item', durable=True)
     for method_frame, properties, body in channel.consume('summary_item'):
         obj = json.loads(body.decode('utf-8'))
