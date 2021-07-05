@@ -3,6 +3,7 @@ import psycopg2
 import psycopg2.extras
 import urllib
 from flask import Flask, jsonify, request, g
+from waitress import serve
 
 
 def get_db():
@@ -64,4 +65,7 @@ def news_details():
     return jsonify(row)
 
 if __name__ == '__main__':
-  app.run('0.0.0.0', debug=True)
+    if os.getenv('FLASK_DEBUG', False):
+        app.run('0.0.0.0', debug=True)
+    else:
+        serve(app, host='0.0.0.0', port=5000)
