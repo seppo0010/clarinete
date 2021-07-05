@@ -37,6 +37,8 @@ class ClarinSpider(scrapy.Spider):
 
     def parse_article(self, response, url):
         html = ''.join(response.xpath('//div[@class="body-nota"]/p').extract())
+        if not html:
+            return
         content = lxml.html.tostring(cleaner.clean_html(lxml.html.fromstring(html))).decode('utf-8')
 
         modificated_date = response.css('.modificatedDate::text').get().strip()

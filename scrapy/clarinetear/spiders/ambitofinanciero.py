@@ -25,11 +25,11 @@ class LanacionSpider(scrapy.Spider):
 
             maybe_img = article.css('figure img')
             obj = {
-                'title': article.css('h1::text, h2::text, .title *::text').get(),
+                'title': article.css('.title a::text').get(),
                 'volanta': (article.css('span.article-kicker::text').get() or '').strip(),
                 'section': url.split('/')[3],
                 'url': url,
-                'image': maybe_img.attrib.get('data-td-src-property', None) if maybe_img else None,
+                'image': maybe_img.attrib.get('data-td-src-property', maybe_img.attrib.get('src', None)) if maybe_img else None,
                 'source': SOURCE,
             }
 
