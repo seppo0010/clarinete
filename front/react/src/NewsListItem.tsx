@@ -1,4 +1,4 @@
-import React, { FC, useState, useRef } from "react";
+import React, { FC, useState, useRef, useEffect } from "react";
 import { useDispatch } from 'react-redux'
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
@@ -22,12 +22,28 @@ const useStyles = makeStyles({
 });
 
 
-
+const MAX_TITLE_HEIGHT = 65
 const NewsListItem: FC<{news: NewsItem, selected: boolean}> = ({news, selected}) => {
   const classes = useStyles();
   const dispatch = useDispatch()
 
   const [wasSelected, setWasSelected] = useState(false)
+
+  const titleRef = useRef(null)
+  const [fontSize, setFontSize] = useState(0)
+  useEffect(() => {
+    if (!titleRef.current) return
+    if (fontSize !== 0) return
+    const node = titleRef.current as unknown as HTMLElement
+    if (!node.parentNode) return
+    let heightTitle = node.getBoundingClientRect().height
+    let f = 24
+    while (heightTitle > MAX_TITLE_HEIGHT) {
+      node.style.fontSize = (--f) + 'px'
+      heightTitle = node.getBoundingClientRect().height
+    }
+    setFontSize(f)
+  }, [fontSize])
   const ref = useRef(null)
   if (selected && !wasSelected) {
     setTimeout(() => {
@@ -60,7 +76,7 @@ const NewsListItem: FC<{news: NewsItem, selected: boolean}> = ({news, selected})
           {top}
           <Button onClick={() => dispatch(addURL(news.url))}><MoveToInboxIcon /></Button>
         </Typography>
-        <Typography variant="h5" component="h2">
+        <Typography variant="h5" component="h2" ref={titleRef} style={{fontSize: fontSize || 24}}>
           <Link to={'/' + encodeURIComponent(news.url)} title={news.summary}>{news.title}</Link>
         </Typography>
         <Typography color="textSecondary">
