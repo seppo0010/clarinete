@@ -27,6 +27,8 @@ def enqueue_url(cur, url, force=False):
     res = cur.fetchone()
     if res is not None:
         title, content = res
+        if not title or not content:
+            return
 
         pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='news-queue'))
         channel = pika_connection.channel()
