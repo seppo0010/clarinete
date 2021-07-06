@@ -110,7 +110,7 @@ def update_article(cur, obj):
     enqueue_url(cur, obj['url'])
 
 def update_homepage(cur, source, urls):
-    logger.info('updating homepage')
+    logger.info(f'updating homepage for source {source} with {len(urls)} elements')
     cur.execute('SELECT id FROM source WHERE name = %s', [source])
     source_id = cur.fetchone()[0]
     cur.execute(f'''UPDATE news SET position = NULL WHERE source_id = %s''', [source_id])
