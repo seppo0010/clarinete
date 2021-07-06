@@ -42,7 +42,8 @@ def news_list():
         FROM news
             JOIN section ON news.section_id = section.id
             JOIN source ON news.source_id = source.id
-        WHERE position IS NOT NULL
+        WHERE position IS NOT NULL AND
+            canonical_url IS NULL
         ORDER BY position ASC''')
     return jsonify(cur.fetchall())
 
@@ -58,11 +59,10 @@ def news_details():
         FROM news
             JOIN section ON news.section_id = section.id
             JOIN source ON news.source_id = source.id
-        WHERE url = %s''', [url])
-    row = cur.fetchone()
-    if not url:
-        return 404, ''
-    return jsonify(row)
+        WHERE url = %s OR canonical_url = %s
+        ORDER BY canonical_url IS NULL DESC
+        ''', [url, url])
+    return jsonify(cur.fetchall())
 
 if __name__ == '__main__':
     if os.getenv('FLASK_DEBUG', False):

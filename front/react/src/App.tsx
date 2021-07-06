@@ -21,6 +21,9 @@ function App() {
           <Route path="/:url" exact>
             <NewsDetails />
           </Route>
+          <Route path="/:url/:source" exact>
+            <NewsDetails />
+          </Route>
         </Switch>
       </Container>
     </Router>

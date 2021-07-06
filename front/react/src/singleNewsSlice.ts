@@ -5,6 +5,7 @@ export declare interface SingleNewsItem {
   "url": string
   "content": string
   title: string
+  source: string
   summary: string
 }
 
@@ -15,19 +16,27 @@ export const fetchSingleNews = createAsyncThunk('news/fetchSingleNews', async (u
 })
 
 const initialState: {
-  news: SingleNewsItem | undefined
+  news: SingleNewsItem[] | undefined
   status: 'idle' | 'succeeded' | 'loading' | 'failed'
   error: string | undefined | null
+  deduplicatedIndex: number
 } = {
-  news: undefined,
+  news: [],
   status: 'idle',
-  error: null
+  error: null,
+  deduplicatedIndex: 0
 }
 
 const singleNewsSlice = createSlice({
   name: 'news',
   initialState,
   reducers: {
+    deduplicatedIndex: {
+      reducer(state, action) {
+        state.deduplicatedIndex = action.payload
+      },
+      prepare(data: any) { return { id: nanoid(), payload: data } as any },
+    },
     newsFetched: {
       reducer(state, action) {
         state.news = action.payload
@@ -51,6 +60,7 @@ const singleNewsSlice = createSlice({
 })
 
 export const { newsFetched } = singleNewsSlice.actions
-export const selectNews = (state: RootState) => state.singleNews.news
+export const { deduplicatedIndex } = singleNewsSlice.actions
+export const selectNews = (state: RootState) => state.singleNews
 
 export default singleNewsSlice.reducer
