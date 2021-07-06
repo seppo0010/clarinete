@@ -7,6 +7,7 @@ import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import { Link } from "react-router-dom";
 import MoveToInboxIcon from '@material-ui/icons/MoveToInbox';
+import { Textfit } from 'react-textfit';
 
 import { NewsItem } from './newsSlice'
 import { addURL } from './archivedSlice'
@@ -58,7 +59,9 @@ const NewsListItem: FC<{news: NewsItem, selected: boolean}> = ({news, selected})
           <Button onClick={() => dispatch(addURL(news.url))}><MoveToInboxIcon /></Button>
         </Typography>
         <Typography variant="h5" component="h2">
-          <Link to={'/' + encodeURIComponent(news.url)} title={news.summary}>{news.title}</Link>
+          <Textfit style={{height: 64}} max={24}>
+            <Link to={'/' + encodeURIComponent(news.url)} title={news.summary}>{news.title}</Link>
+          </Textfit>
         </Typography>
         <Typography color="textSecondary">
           {news.section} | {news.source}
