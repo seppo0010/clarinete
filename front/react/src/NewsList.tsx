@@ -38,7 +38,11 @@ function NewsList() {
   const handlers = {
     NEXT: () => dispatch(increment()),
     PREVIOUS: () => dispatch(decrement()),
-    OPEN_NEWS: () => history.push(encodeURIComponent(news[selected].url)),
+    OPEN_NEWS: () => {
+      if (!['BUTTON', 'A'].includes((document.activeElement || {}).tagName || '')) {
+        history.push(encodeURIComponent(news[selected].url))
+      }
+    },
     ARCHIVE: () => {
       dispatch(addURL(news[selected].url))
     },
