@@ -80,13 +80,17 @@ def find_duplicates(cur, url):
 def update_article(cur, obj):
     logger.info('updating article ' + obj['url'])
     cur.execute('''INSERT INTO news (url) VALUES (%s) ON CONFLICT DO NOTHING''', [obj['url']])
+    changed = set()
     for k in 'section', 'source':
         if k in obj and obj[k]:
             cur.execute(f'''INSERT INTO {k} (name) VALUES (%s) ON CONFLICT DO NOTHING''', [obj[k]])
-            cur.execute(f'''UPDATE news SET {k}_id = (SELECT id FROM {k} WHERE name = %s) WHERE url = %s''', [
+            cur.execute(f'''UPDATE news SET {k}_id = (SELECT id FROM {k} WHERE name = %s) WHERE url = %s AND {k}_id != (SELECT id FROM {k} WHERE name = %s)''', [
                 obj[k],
-                obj['url']
+                obj['url'],
+                obj[k],
             ])
+            if cur.rowcount > 0:
+                changed.add(k)
 
     changed_text = False
     for f in 'title', 'volanta', 'image', 'content', 'date', 'summary', 'sentiment':
@@ -99,7 +103,9 @@ def update_article(cur, obj):
                 obj[f],
             ]
         )
-    if 'title' in obj or 'date' in obj or 'source' in obj:
+        if cur.rowcount > 0:
+            changed.add(f)
+    if 'title' in changed or 'date' in changed or 'source' in changed:
         find_duplicates(cur, obj['url'])
     enqueue_url(cur, obj['url'])
 
