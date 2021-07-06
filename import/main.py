@@ -84,7 +84,7 @@ def update_article(cur, obj):
     for k in 'section', 'source':
         if k in obj and obj[k]:
             cur.execute(f'''INSERT INTO {k} (name) VALUES (%s) ON CONFLICT DO NOTHING''', [obj[k]])
-            cur.execute(f'''UPDATE news SET {k}_id = (SELECT id FROM {k} WHERE name = %s) WHERE url = %s AND {k}_id != (SELECT id FROM {k} WHERE name = %s)''', [
+            cur.execute(f'''UPDATE news SET {k}_id = (SELECT id FROM {k} WHERE name = %s) WHERE url = %s AND ({k}_id IS NULL OR {k}_id != (SELECT id FROM {k} WHERE name = %s))''', [
                 obj[k],
                 obj['url'],
                 obj[k],
