@@ -2,6 +2,6 @@
 set -Eeux
 
 while true; do
-    /scrapy/runonce.sh
+    /scrapy/run-once.sh
     sleep 900
 done
