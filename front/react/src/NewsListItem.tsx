@@ -47,15 +47,18 @@ const NewsListItem: FC<{news: NewsItem, selected: boolean}> = ({news, selected})
   if (selected !== wasSelected) {
     setWasSelected(selected)
   }
+  const top = [news.volanta, {
+    0: '😄',
+    1: '🙏',
+    2: '😠',
+    3: '😢',
+  }[news.sentiment]].filter((x) => !!x).join(' | ')
+  const bottom = [news.section, news.source].filter((x) => !!x).join(' | ')
   return (
     <Card className={classes.root} style={{outline: selected ? 'solid': 'none'}} ref={ref}>
       <CardContent>
         <Typography className={classes.title} color="textSecondary" gutterBottom>
-          {news.volanta}
-          {news.sentiment === 0 && ' | 🙏'}
-          {news.sentiment === 1 && ' | 🙏'}
-          {news.sentiment === 2 && ' | 😠'}
-          {news.sentiment === 3 && ' | 😢'}
+          {top}
           <Button onClick={() => dispatch(addURL(news.url))}><MoveToInboxIcon /></Button>
         </Typography>
         <Typography variant="h5" component="h2">
@@ -64,7 +67,7 @@ const NewsListItem: FC<{news: NewsItem, selected: boolean}> = ({news, selected})
           </Textfit>
         </Typography>
         <Typography color="textSecondary">
-          {news.section} | {news.source}
+          {bottom}
         </Typography>
       </CardContent>
     </Card>
