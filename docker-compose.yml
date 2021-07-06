@@ -13,6 +13,10 @@ services:
       - queue
     environment:
       - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log_levels [{connection,error}]
+  deduplicator:
+    build: deduplicator
+    networks:
+      - deduplicator
   import:
     build: import
     env_file: ./postgres-config
@@ -21,10 +25,12 @@ services:
     depends_on:
       - "news-queue"
       - "news-database"
+      - "deduplicator"
     restart: on-failure
     networks:
       - queue
       - database
+      - deduplicator
   summarizer:
     build: summarizer
     depends_on:
@@ -66,3 +72,4 @@ networks:
   database:
   queue:
   web:
+  deduplicator:

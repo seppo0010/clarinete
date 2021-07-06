@@ -5,6 +5,7 @@ import psycopg2
 import urllib
 import logging
 import sys
+import requests
 from yoyo import read_migrations
 from yoyo import get_backend
 
@@ -48,6 +49,34 @@ def enqueue_url(cur, url, force=False):
         )
         cur.execute('UPDATE news SET summary = %s WHERE url = %s', ['', url])
 
+def find_duplicates(cur, url):
+    cur.execute('SELECT title, source_id, date, canonical_url FROM news WHERE url = %s', [url])
+    res = cur.fetchone()
+    if not res:
+        return
+    title, source, date, canonical_url = res
+    if canonical_url or not date or not source:
+        return
+    cur.execute('''
+        SELECT COALESCE(canonical_url, url) AS url, title
+        FROM news
+        WHERE
+            source_id != %s AND
+            date > %s - INTERVAL '1 DAY' AND
+            date < %s
+    ''', [source, date, date])
+    titles = cur.fetchall()
+    req = requests.post('http://deduplicator:5000/api/deduplicator', json={
+        'title': title,
+        'alternatives': [x[1] for x in titles],
+    })
+    res = req.json()
+    if 'sentence' in res and res['sentence']:
+        for durl, title in titles:
+            if title == res['sentence']:
+                cur.execute('UPDATE news SET canonical_url = %s WHERE url = %s', [durl, url])
+                break
+
 def update_article(cur, obj):
     logger.info('updating article ' + obj['url'])
     cur.execute('''INSERT INTO news (url) VALUES (%s) ON CONFLICT DO NOTHING''', [obj['url']])
@@ -70,6 +99,8 @@ def update_article(cur, obj):
                 obj[f],
             ]
         )
+    if 'title' in obj or 'date' in obj or 'source' in obj:
+        find_duplicates(cur, obj['url'])
     enqueue_url(cur, obj['url'])
 
 def update_homepage(cur, source, urls):

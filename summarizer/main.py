@@ -34,7 +34,7 @@ def es_en(text):
     if len(lines_es) == 0:
         return ''
     lines_es = [' '.join(x.split(' ')[:512]) for x in lines_es]
-    lines_en = es_en_translator(lines_es)
+    lines_en = es_en_translator(lines_es, truncation=True)
     return '\n'.join(x['translation_text'] for x in lines_en)
 
 def summary_line(line):
@@ -42,7 +42,7 @@ def summary_line(line):
     if len(line.split(' ')) < MAX_SUMMARY:
         return line
     else:
-        return summarizer(line)[0]['summary_text']
+        return summarizer(line, truncation=True)[0]['summary_text']
 
 def summarize(text):
     lines_total = text.split('\n')
@@ -60,7 +60,7 @@ def get_summary_and_sentiment(text):
     logger.debug(f'en: {en}')
     summarized = summarize(en)
     logger.debug(f'summarized: {summarized}')
-    es = en_es_translator(summarized)[0]['translation_text']
+    es = en_es_translator(summarized, truncation=True)[0]['translation_text']
     logger.debug(f'es: {es}')
     sentiment = sentiment_analysis(summarized)[0]['label']
     s = {

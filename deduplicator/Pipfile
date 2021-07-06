@@ -4,10 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-yoyo-migrations = "*"
-pika = "*"
-psycopg2-binary = "*"
-requests = "*"
+flask = "*"
+waitress = "*"
+sentence-transformers = "*"
 
 [dev-packages]
 
