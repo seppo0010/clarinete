@@ -38,9 +38,9 @@ def news_list():
     con = get_db()
     cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute('''
-        SELECT url, title, volanta, section.name AS section, date, source.name AS source, sentiment, summary
+        SELECT url, title, volanta, COALESCE(section.name, '') AS section, date, source.name AS source, sentiment, summary
         FROM news
-            JOIN section ON news.section_id = section.id
+            LEFT JOIN section ON news.section_id = section.id
             JOIN source ON news.source_id = source.id
         WHERE position IS NOT NULL AND
             canonical_url IS NULL
