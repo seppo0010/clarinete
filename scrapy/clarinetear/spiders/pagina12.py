@@ -25,7 +25,7 @@ class Pagina12Spider(scrapy.Spider):
 
             maybe_img = article.css('img.show-for-large-only')
             obj = {
-                'title': article.css('.article-title a::text').get(),
+                'title': article.css('.article-title a::text, a .title::text').get(),
                 'volanta': (article.css('.article-title a .title-prefix::text').get() or '').strip(),
                 'url': url,
                 'image': maybe_img.attrib['src'] if maybe_img else None,
