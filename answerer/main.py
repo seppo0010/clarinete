@@ -2,8 +2,7 @@ import logging
 import os
 
 from transformers import pipeline
-from waitress import serve
-from flask import Flask, jsonify, request
+import pika
 
 en_es_translator = pipeline("translation_en_to_es", model='Helsinki-NLP/opus-mt-en-es')
 es_en_translator = pipeline("translation_es_to_en", model='Helsinki-NLP/opus-mt-es-en')
@@ -16,7 +15,12 @@ def get_module_logger(mod_name):
         '%(asctime)s [%(name)-12s] %(levelname)-8s %(message)s')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel({
+        'DEBUG': logging.DEBUG,
+        'INFO': logging.INFO,
+        'WARNING': logging.WARNING,
+        'DEBUG': logging.DEBUG,
+    }[os.getenv('LOG_LEVEL', 'WARNING')])
     return logger
 logger = get_module_logger(__name__)
 
@@ -39,17 +43,29 @@ def answerer(title, text):
 
 app = Flask(__name__)
 
-@app.route("/api/answerer", methods=['POST'])
-def api_answerer():
-    data = request.get_json()
-    title = data.get('title', None)
-    text = data.get('text', None)
-    if not title or not text or not isinstance(title, str) or not isinstance(text, str):
-        return '{}', 400
-    return jsonify({'answer': answerer(title, text)})
-
 if __name__ == '__main__':
-    if os.getenv('FLASK_DEBUG', False):
-        app.run('0.0.0.0', debug=True)
-    else:
-        serve(app, host='0.0.0.0', port=5000)
+    pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='news-queue', heartbeat=600, blocked_connection_timeout=6000))
+    channel = pika_connection.channel()
+    channel.basic_qos(prefetch_count=1)
+    channel.queue_declare(queue='answer_item', durable=True)
+    for method_frame, properties, body in channel.consume('answer_item'):
+        obj = json.loads(body.decode('utf-8'))
+        logger.info('answering ' + obj['url'])
+        try:
+            answer = answerer(obj['title'], obj['content'])
+            if answer:
+                channel.basic_publish(
+                    exchange='',
+                    routing_key='item',
+                    body=json.dumps({
+                        'url': obj['url'],
+                        'answer': answer,
+                    }),
+                    properties=pika.BasicProperties(
+                        content_type='application/json',
+                        delivery_mode=1,
+                    )
+                )
+        except:
+            traceback.print_exc()
+        channel.basic_ack(method_frame.delivery_tag)

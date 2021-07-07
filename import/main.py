@@ -16,7 +16,12 @@ def get_module_logger(mod_name):
         '%(asctime)s [%(name)-12s] %(levelname)-8s %(message)s')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel({
+        'DEBUG': logging.DEBUG,
+        'INFO': logging.INFO,
+        'WARNING': logging.WARNING,
+        'DEBUG': logging.DEBUG,
+    }[os.getenv('LOG_LEVEL', 'WARNING')])
     return logger
 logger = get_module_logger(__name__)
 
@@ -49,7 +54,7 @@ def enqueue_url(cur, url, force=False):
         )
         cur.execute('UPDATE news SET summary = %s WHERE url = %s', ['', url])
 
-def find_answers(cur, url):
+def enqueue_answerer(cur, url):
     cur.execute('SELECT title, content FROM news WHERE url = %s', [url])
     res = cur.fetchone()
     if not res:
@@ -57,13 +62,22 @@ def find_answers(cur, url):
     title, content = res
     if not title or not content or '?' not in title:
         return
-    req = requests.post('http://answerer:5000/api/answerer', json={
-        'title': title,
-        'text': content,
-    })
-    res = req.json()
-    if 'answer' in res and res['answer']:
-        cur.execute('INSERT INTO answer (url, answer) VALUES (%s, %s) ON CONFLICT (key) DO UPDATE', [url, res['answer']])
+    pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='news-queue'))
+    channel = pika_connection.channel()
+    channel.queue_declare(queue='answer_item', durable=True)
+    channel.basic_publish(
+        exchange='',
+        routing_key='answer_item',
+        body=json.dumps({
+            'url': url,
+            'title': title,
+            'content': content,
+        }),
+        properties=pika.BasicProperties(
+            content_type='application/json',
+            delivery_mode=1,
+        )
+    )
 
 def find_duplicates(cur, url):
     cur.execute('SELECT title, source_id, date, canonical_url FROM news WHERE url = %s', [url])
@@ -122,10 +136,13 @@ def update_article(cur, obj):
         )
         if cur.rowcount > 0:
             changed.add(f)
+    for f in 'answer',
+        cur.execute('INSERT INTO answer (url, answer) VALUES (%s, %s) ON CONFLICT (key) DO UPDATE', [obj['url'], obj['answer']])
+
     if 'title' in changed or 'date' in changed or 'source' in changed:
         find_duplicates(cur, obj['url'])
     if 'title' in changed or 'content' in changed:
-        find_answers(cur, obj['url'])
+        enqueue_answerer(cur, obj['url'])
     enqueue_url(cur, obj['url'])
 
 def update_homepage(cur, source, urls):
@@ -159,7 +176,7 @@ if __name__ == '__main__':
         cur = pg_connection.cursor()
         enqueue_url(cur, sys.argv[1], force=True)
         find_duplicates(cur, sys.argv[1])
-        find_answers(cur, sys.argv[1])
+        enqueue_answerer(cur, sys.argv[1])
         sys.exit(0)
 
 
