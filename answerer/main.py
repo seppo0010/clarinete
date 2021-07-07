@@ -1,5 +1,6 @@
 import logging
 import os
+import json
 
 from transformers import pipeline
 import pika
@@ -40,8 +41,6 @@ def answerer(title, text):
     if score > 0.1:
         return answer
     return None
-
-app = Flask(__name__)
 
 if __name__ == '__main__':
     pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='news-queue', heartbeat=600, blocked_connection_timeout=6000))

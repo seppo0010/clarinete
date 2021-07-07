@@ -1,10 +1,26 @@
 import os
+import json
+import logging
 
-from waitress import serve
-from flask import Flask, jsonify, request
+import pika
+
 from deduplicator import deduplicator
 
-app = Flask(__name__)
+def get_module_logger(mod_name):
+    logger = logging.getLogger(mod_name)
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter(
+        '%(asctime)s [%(name)-12s] %(levelname)-8s %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel({
+        'DEBUG': logging.DEBUG,
+        'INFO': logging.INFO,
+        'WARNING': logging.WARNING,
+        'DEBUG': logging.DEBUG,
+    }[os.getenv('LOG_LEVEL', 'WARNING')])
+    return logger
+logger = get_module_logger(__name__)
 
 if __name__ == '__main__':
     pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='news-queue', heartbeat=600, blocked_connection_timeout=6000))

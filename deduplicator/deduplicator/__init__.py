@@ -1,7 +1,6 @@
 import logging
 
 from sentence_transformers import SentenceTransformer, util
-from flask import Flask, jsonify, request
 
 sentence_encoder = None
 
