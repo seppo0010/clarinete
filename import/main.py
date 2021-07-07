@@ -61,6 +61,7 @@ def find_duplicates(cur, url):
         SELECT COALESCE(canonical_url, url) AS url, title
         FROM news
         WHERE
+            title IS NOT NULL AND
             source_id != %s AND
             date > %s - INTERVAL '1 DAY' AND
             date < %s

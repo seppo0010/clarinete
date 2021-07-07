@@ -20,9 +20,10 @@ def cos_simer(title, alternatives):
     global sentence_encoder
     if sentence_encoder is None:
         sentence_encoder = SentenceTransformer('sentence-transformers/paraphrase-xlm-r-multilingual-v1')
+    logger.debug('encoding title: ' + title)
     title_embeddings = sentence_encoder.encode(title)
+    logger.debug('encoding alternatives:\n  ' + '\n  '.join(alternatives))
     embeddings = sentence_encoder.encode(alternatives)
-    print(util.cos_sim(title_embeddings, embeddings)[0])
     return util.cos_sim(title_embeddings, embeddings)[0]
 
 def deduplicator(title, alternatives, cos_simer=cos_simer):
