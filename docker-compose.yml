@@ -17,6 +17,10 @@ services:
     build: deduplicator
     networks:
       - deduplicator
+  answerer:
+    build: answerer
+    networks:
+      - answerer
   import:
     build: import
     env_file: ./postgres-config
@@ -26,11 +30,13 @@ services:
       - "news-queue"
       - "news-database"
       - "deduplicator"
+      - "answerer"
     restart: on-failure
     networks:
       - queue
       - database
       - deduplicator
+      - answerer
   summarizer:
     build: summarizer
     depends_on:
@@ -73,3 +79,4 @@ networks:
   queue:
   web:
   deduplicator:
+  answerer:
