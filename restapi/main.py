@@ -57,7 +57,7 @@ def news_details():
     cur.execute('''
         SELECT url, title, volanta, section.name AS section, date, content, source.name AS source, summary, sentiment
         FROM news
-            JOIN section ON news.section_id = section.id
+            LEFT JOIN section ON news.section_id = section.id
             JOIN source ON news.source_id = source.id
         WHERE url = %s OR canonical_url = %s
         ORDER BY canonical_url IS NULL DESC
