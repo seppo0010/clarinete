@@ -79,7 +79,7 @@ def enqueue_answerer(cur, url):
         )
     )
 
-def find_duplicates(cur, url):
+def enqueue_deduplicator(cur, url):
     cur.execute('SELECT title, source_id, date, canonical_url FROM news WHERE url = %s', [url])
     res = cur.fetchone()
     if not res:
@@ -96,17 +96,23 @@ def find_duplicates(cur, url):
             date > %s - INTERVAL '1 DAY' AND
             date < %s
     ''', [source, date, date])
-    titles = cur.fetchall()
-    req = requests.post('http://deduplicator:5000/api/deduplicator', json={
-        'title': title,
-        'alternatives': [x[1] for x in titles],
-    })
-    res = req.json()
-    if 'sentence' in res and res['sentence']:
-        for durl, title in titles:
-            if title == res['sentence']:
-                cur.execute('UPDATE news SET canonical_url = %s WHERE url = %s', [durl, url])
-                break
+    alternatives = cur.fetchall()
+    channel = pika_connection.channel()
+    channel.queue_declare(queue='deduplicator_item', durable=True)
+    channel.basic_publish(
+        exchange='',
+        routing_key='deduplicator_item',
+        body=json.dumps({
+            'url': url,
+            'title': title,
+            'alternatives': alternatives,
+            'canonical_url': canonical_url,
+        }),
+        properties=pika.BasicProperties(
+            content_type='application/json',
+            delivery_mode=1,
+        )
+    )
 
 def update_article(cur, obj):
     logger.info('updating article ' + obj['url'])
@@ -124,7 +130,7 @@ def update_article(cur, obj):
                 changed.add(k)
 
     changed_text = False
-    for f in 'title', 'volanta', 'image', 'content', 'date', 'summary', 'sentiment':
+    for f in 'title', 'volanta', 'image', 'content', 'date', 'summary', 'sentiment', 'canonical_url':
         if obj.get(f, None) is None:
             continue
         cur.execute(f'''UPDATE news SET {f} = %s WHERE url = %s AND ({f} IS NULL OR {f} != %s)''',
@@ -140,7 +146,7 @@ def update_article(cur, obj):
         cur.execute('INSERT INTO answer (url, answer) VALUES (%s, %s) ON CONFLICT (key) DO UPDATE', [obj['url'], obj['answer']])
 
     if 'title' in changed or 'date' in changed or 'source' in changed:
-        find_duplicates(cur, obj['url'])
+        enqueue_deduplicator(cur, obj['url'])
     if 'title' in changed or 'content' in changed:
         enqueue_answerer(cur, obj['url'])
     enqueue_url(cur, obj['url'])
@@ -175,7 +181,7 @@ if __name__ == '__main__':
     if len(sys.argv) == 2:
         cur = pg_connection.cursor()
         enqueue_url(cur, sys.argv[1], force=True)
-        find_duplicates(cur, sys.argv[1])
+        enqueue_deduplicator(cur, sys.argv[1])
         enqueue_answerer(cur, sys.argv[1])
         sys.exit(0)
 

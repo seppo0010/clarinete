@@ -4,9 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-flask = "*"
-waitress = "*"
 sentence-transformers = "*"
+pika = "*"
 
 [dev-packages]
 

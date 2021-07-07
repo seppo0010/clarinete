@@ -6,17 +6,29 @@ from deduplicator import deduplicator
 
 app = Flask(__name__)
 
-@app.route("/api/deduplicator", methods=['POST'])
-def api_deduplicator():
-    data = request.get_json()
-    title = data.get('title', None)
-    alternatives = data.get('alternatives', None)
-    if not title or not alternatives or not isinstance(title, str) or not isinstance(alternatives, list):
-        return '{}', 400
-    return jsonify({'sentence': deduplicator(title, alternatives)})
-
 if __name__ == '__main__':
-    if os.getenv('FLASK_DEBUG', False):
-        app.run('0.0.0.0', debug=True)
-    else:
-        serve(app, host='0.0.0.0', port=5000)
+    pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='news-queue', heartbeat=600, blocked_connection_timeout=6000))
+    channel = pika_connection.channel()
+    channel.basic_qos(prefetch_count=1)
+    channel.queue_declare(queue='answer_item', durable=True)
+    for method_frame, properties, body in channel.consume('answer_item'):
+        obj = json.loads(body.decode('utf-8'))
+        logger.info('deduplicator ' + obj['title'])
+        try:
+            rep = deduplicator(title, [x[1] for x in alternatives])
+            if rep:
+                channel.basic_publish(
+                    exchange='',
+                    routing_key='item',
+                    body=json.dumps({
+                        'url': [x for x in alternatives if x == rep][0]['canonical_url'],
+                        'canonical_url': canonical_url,
+                    }),
+                    properties=pika.BasicProperties(
+                        content_type='application/json',
+                        delivery_mode=1,
+                    )
+                )
+        except:
+            traceback.print_exc()
+        channel.basic_ack(method_frame.delivery_tag)
