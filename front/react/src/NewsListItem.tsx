@@ -68,7 +68,12 @@ const NewsListItem: FC<{news: NewsItem, selected: boolean}> = ({news, selected})
     2: '😠',
     3: '😢',
   }[news.sentiment]].filter((x) => !!x).join(' | ')
-  const bottom = [news.section, news.source].filter((x) => !!x).join(' | ')
+
+  const bottom = [
+    news.section,
+    news.source,
+    news.date ? new Intl.DateTimeFormat('es').format(new Date(news.date)) : '',
+  ].filter((x) => !!x).join(' | ')
   return (
     <Card className={classes.root} style={{outline: selected ? 'solid': 'none'}} ref={ref}>
       <CardContent>
