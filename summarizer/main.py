@@ -7,7 +7,7 @@ import logging
 import pika
 from transformers import pipeline
 
-sentiment_analysis = pipeline("sentiment-analysis", model="cardiffnlp/twitter-roberta-base-emotion")
+sentiment_analysis = pipeline("sentiment-analysis", model="distilbert-base-uncased-finetuned-sst-2-english")
 en_es_translator = pipeline("translation_en_to_es", model='Helsinki-NLP/opus-mt-en-es')
 es_en_translator = pipeline("translation_es_to_en", model='Helsinki-NLP/opus-mt-es-en')
 summarizer = pipeline("summarization")
@@ -62,13 +62,11 @@ def get_summary_and_sentiment(text):
     logger.debug(f'summarized: {summarized}')
     es = en_es_translator(summarized, truncation=True)[0]['translation_text']
     logger.debug(f'es: {es}')
-    sentiment = sentiment_analysis(summarized)[0]['label']
-    s = {
-        'LABEL_0': 1,
-        'LABEL_1': 2,
-        'LABEL_2': 3,
-        'LABEL_3': 4,
-    }.get(sentiment, 0)
+    sentiment = sentiment_analysis(summarized)[0]
+    s = ({
+        'NEGATIVE': -1,
+        'POSITIVE': +1,
+    }.get(sentiment['label'], 0)) if sentiment['score'] > 0.7 else None
 
     return ''.join(es), s
 
