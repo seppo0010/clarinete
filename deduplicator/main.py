@@ -44,8 +44,8 @@ if __name__ == '__main__':
                         exchange='',
                         routing_key='item',
                         body=json.dumps({
-                            'url': [x for x in alternatives if x == rep][0]['canonical_url'],
-                            'canonical_url': canonical_url,
+                            'url': [x[0] for x in alternatives if x[1] == rep][0],
+                            'canonical_url': obj['url'],
                         }),
                         properties=pika.BasicProperties(
                             content_type='application/json',
@@ -53,6 +53,6 @@ if __name__ == '__main__':
                         )
                     )
             except:
-                logger.info('error deduplicting')
+                logger.error('error deduplicting')
                 traceback.print_exc()
         channel.basic_ack(method_frame.delivery_tag)
