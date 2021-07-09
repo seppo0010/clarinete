@@ -7,7 +7,6 @@ import logging
 import pika
 from transformers import pipeline
 
-sentiment_analysis = pipeline("sentiment-analysis", model="distilbert-base-uncased-finetuned-sst-2-english")
 en_es_translator = pipeline("translation_en_to_es", model='Helsinki-NLP/opus-mt-en-es')
 es_en_translator = pipeline("translation_es_to_en", model='Helsinki-NLP/opus-mt-es-en')
 summarizer = pipeline("summarization")
@@ -55,18 +54,13 @@ def summarize(text):
     text_summary = ' '.join([summary_line(line) for line in lines_total])
     return summary_line(text_summary)
 
-def get_summary_and_sentiment(text):
+def get_summary(text):
     en = es_en(cleanhtml(text))
     logger.debug(f'en: {en}')
     summarized = summarize(en)
     logger.debug(f'summarized: {summarized}')
     es = en_es_translator(summarized, truncation=True)[0]['translation_text']
     logger.debug(f'es: {es}')
-    sentiment = sentiment_analysis(summarized)[0]
-    s = ({
-        'NEGATIVE': -1,
-        'POSITIVE': +1,
-    }.get(sentiment['label'], 0)) if sentiment['score'] > 0.7 else None
 
     return ''.join(es), s
 
@@ -79,14 +73,13 @@ if __name__ == '__main__':
         obj = json.loads(body.decode('utf-8'))
         logger.info('summarizing ' + obj['url'])
         try:
-            summary, sentiment = get_summary_and_sentiment(obj['title'] + '\n' + obj['content'])
+            summary = get_summary(obj['title'] + '\n' + obj['content'])
             channel.basic_publish(
                 exchange='',
                 routing_key='item',
                 body=json.dumps({
                     'url': obj['url'],
                     'summary': summary,
-                    'sentiment': sentiment,
                 }),
                 properties=pika.BasicProperties(
                     content_type='application/json',

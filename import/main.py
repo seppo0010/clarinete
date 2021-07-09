@@ -130,7 +130,7 @@ def update_article(cur, obj):
                 changed.add(k)
 
     changed_text = False
-    for f in 'title', 'volanta', 'image', 'content', 'date', 'summary', 'sentiment', 'canonical_url':
+    for f in 'title', 'volanta', 'image', 'content', 'date', 'summary', 'canonical_url':
         if obj.get(f, None) is None:
             continue
         cur.execute(f'''UPDATE news SET {f} = %s WHERE url = %s AND ({f} IS NULL OR {f} != %s)''',

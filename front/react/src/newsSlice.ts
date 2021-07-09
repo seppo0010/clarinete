@@ -9,7 +9,6 @@ export declare interface NewsItem {
   "title": string
   "url": string
   "volanta": string
-  sentiment: number
   summary: string
 }
 
