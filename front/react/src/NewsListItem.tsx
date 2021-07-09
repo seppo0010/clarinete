@@ -72,9 +72,9 @@ const NewsListItem: FC<{news: NewsItem, selected: boolean}> = ({news, selected})
   return (
     <Card className={classes.root} style={{outline: selected ? 'solid': 'none'}} ref={ref}>
       <CardContent>
-        <Typography className={classes.title} color="textSecondary" gutterBottom>
-          {top}
-          <Button onClick={() => dispatch(addURL(news.url))}><MoveToInboxIcon /></Button>
+        <Typography className={classes.title} color="textSecondary" gutterBottom style={{display: 'flex'}}>
+          <div style={{width: 'calc(100% - 100px)', height: '1.2rm', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{top}</div>
+          <Button onClick={() => dispatch(addURL(news.url))} style={{marginTop: -8}}><MoveToInboxIcon /></Button>
         </Typography>
         <Typography variant="h5" component="h2" ref={titleRef} style={{fontSize: fontSize || 24}}>
           <Link to={'/' + encodeURIComponent(news.url)} title={news.summary}>{news.title}</Link>
