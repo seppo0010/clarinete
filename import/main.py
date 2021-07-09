@@ -145,7 +145,7 @@ def update_article(cur, obj):
     for f in ('answer',):
         if obj.get(f, None) is None:
             continue
-        cur.execute('INSERT INTO answer (url, answer) VALUES (%s, %s) ON CONFLICT (key) DO UPDATE', [obj['url'], obj['answer']])
+        cur.execute('INSERT INTO answer (url, answer) VALUES (%s, %s) ON CONFLICT (url) DO UPDATE SET answer = %s', [obj['url'], obj['answer'], obj['answer']])
 
     if 'title' in changed or 'date' in changed or 'source' in changed:
         enqueue_deduplicator(cur, obj['url'])
