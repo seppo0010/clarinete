@@ -39,7 +39,8 @@ class Pagina12Spider(scrapy.Spider):
 
     def parse_article(self, response, url):
         html = ''.join(response.xpath('//div[@class="article-main-content article-text "]/p').extract())
-        if not html: return
+        if not html:
+            return
         content = lxml.html.tostring(cleaner.clean_html(lxml.html.fromstring(html))).decode('utf-8')
 
         date = response.css('div.date span::text').get().strip()

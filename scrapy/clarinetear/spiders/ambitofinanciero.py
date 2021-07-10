@@ -40,6 +40,8 @@ class LanacionSpider(scrapy.Spider):
 
     def parse_article(self, response, url):
         html = ''.join(response.xpath('//section[contains(@class, \'detail-body\')]').extract())
+        if not html:
+            return
         content = lxml.html.tostring(cleaner.clean_html(lxml.html.fromstring(html))).decode('utf-8')
 
         date = response.css('time.date::text').get().strip()

@@ -5,12 +5,12 @@ from lxml.html.clean import Cleaner
 import re
 
 
-SOURCE = 'La Nación'
+SOURCE = 'La Tercera'
 cleaner = Cleaner(allow_tags=['p', 'br', 'b', 'a', 'strong', 'i', 'em'])
 class LanacionSpider(scrapy.Spider):
-    name = 'lanacion'
-    allowed_domains = ['www.lanacion.com.ar']
-    start_urls = ['http://www.lanacion.com.ar/']
+    name = 'latercera'
+    allowed_domains = ['www.latercera.com']
+    start_urls = ['https://www.latercera.com/']
 
     def parse(self, response):
         urls = []
@@ -20,14 +20,16 @@ class LanacionSpider(scrapy.Spider):
             if not url:
                 continue
             if not url.startswith('http'):
-                url = 'https://www.lanacion.com.ar' + url
+                url = 'https://www.latercera.com' + url
             urls.append(url)
 
             maybe_img = article.css('figure picture img')
+            title = lxml.html.fromstring(article.css('.headline a').get(''))
+            cleaner = Cleaner(allow_tags=[''], remove_unknown_tags=False)
+            truetitle = cleaner.clean_html(title).text_content().strip()
             obj = {
-                'title': article.css('h1 a::text, h2 a::text').get(),
-                'volanta': article.css('h1 em::text, h2 em::text').get().strip(),
-                'section': url.split('/')[3],
+                'title': truetitle,
+                'volanta': article.css('.headline a span::text').get('').strip(),
                 'url': url,
                 'image': maybe_img.attrib['src'] if maybe_img else None,
                 'source': SOURCE,
@@ -39,34 +41,32 @@ class LanacionSpider(scrapy.Spider):
         yield {'homepage': urls, 'source': SOURCE}
 
     def parse_article(self, response, url):
-        html = ''.join(response.xpath('//div/p[@class="com-paragraph   --s" or @class="com-paragraph  --capital --s"]').extract())
+        html = ''.join(response.xpath('//div[@class="single-content"]/p').extract())
         if not html:
             return
         content = lxml.html.tostring(cleaner.clean_html(lxml.html.fromstring(html))).decode('utf-8')
 
-        date = response.css('time.com-date::text').get().strip()
-        date_fragments = re.match(r'^([0-9]{1,2}) de ([a-z]+) de ([0-9]{4})$', date)
-        time = response.css('time.com-hour::text').get().strip()
-        time_fragments = re.match(r'^([0-9]{1,2}):([0-9]{2})$', time)
+        date = response.css('time').attrib['datetime']
+        date_fragments = re.match(r'^.{3} ([A-Za-z]+) ([0-9]{1,2}) ([0-9]{4}) ([0-9]{1,2}):([0-9]{2})', date)
         months = {
-            'enero': 1,
-            'febrero': 2,
-            'marzo': 3,
-            'abril': 4,
-            'mayo': 5,
-            'junio': 6,
-            'julio': 7,
-            'agosto': 8,
-            'septiembre': 9,
-            'octubre': 10,
-            'noviembre': 11,
-            'diciembre': 12,
+            'Jan': 1,
+            'Feb': 2,
+            'Mar': 3,
+            'Apr': 4,
+            'May': 5,
+            'Jun': 6,
+            'Jul': 7,
+            'Aug': 8,
+            'Sep': 9,
+            'Oct': 10,
+            'Nov': 11,
+            'Dec': 12,
         }
-        day = int(date_fragments.group(1))
-        month = months[date_fragments.group(2)]
+        day = int(date_fragments.group(2))
+        month = months[date_fragments.group(1)]
         year = int(date_fragments.group(3))
-        hour = int(time_fragments.group(1))
-        minute = int(time_fragments.group(2))
+        hour = int(date_fragments.group(4))
+        minute = int(date_fragments.group(5))
         date = datetime(year, month, day, hour, minute)
 
         obj = {
