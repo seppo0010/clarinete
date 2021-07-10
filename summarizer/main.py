@@ -62,7 +62,7 @@ def get_summary(text):
     es = en_es_translator(summarized, truncation=True)[0]['translation_text']
     logger.debug(f'es: {es}')
 
-    return ''.join(es), s
+    return ''.join(es)
 
 if __name__ == '__main__':
     pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='news-queue', heartbeat=600, blocked_connection_timeout=6000))

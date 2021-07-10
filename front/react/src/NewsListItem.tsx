@@ -62,7 +62,10 @@ const NewsListItem: FC<{news: NewsItem, selected: boolean}> = ({news, selected})
   if (selected !== wasSelected) {
     setWasSelected(selected)
   }
-  const top = [news.volanta].filter((x) => !!x).join(' | ')
+  const top = [({
+    'AR': '🇦🇷',
+    'UY': '🇺🇾',
+  } as {[key: string]: string})[news.country], news.volanta].filter((x) => !!x).join(' | ')
 
   const bottom = [
     news.section,

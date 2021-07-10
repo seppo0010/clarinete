@@ -38,7 +38,7 @@ def news_list():
     con = get_db()
     cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute('''
-        SELECT url, title, volanta, COALESCE(section.name, '') AS section, date, source.name AS source, summary
+        SELECT url, title, volanta, COALESCE(section.name, '') AS section, date, source.name AS source, source.country, summary
         FROM news
             LEFT JOIN section ON news.section_id = section.id
             JOIN source ON news.source_id = source.id
@@ -55,7 +55,7 @@ def news_details():
         return 400, ''
     cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute('''
-        SELECT url, title, volanta, section.name AS section, date, content, source.name AS source, summary
+        SELECT url, title, volanta, section.name AS section, date, content, source.name AS source, source.country, summary
         FROM news
             LEFT JOIN section ON news.section_id = section.id
             JOIN source ON news.source_id = source.id

@@ -14,7 +14,7 @@ NEWSPIDER_MODULE = 'clarinetear.spiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'clarinetear (+http://www.yourdomain.com)'
+USER_AGENT = 'clarinetear'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True

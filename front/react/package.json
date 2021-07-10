@@ -2,7 +2,7 @@
   "name": "clarinetear",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://clarinete.seppo.com.ar/",
+  "proxy": "http://restapi:5000/",
   "dependencies": {
     "@material-ui/core": "^4.11.4",
     "@material-ui/icons": "^4.11.2",
