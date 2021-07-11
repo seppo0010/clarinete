@@ -22,7 +22,7 @@ const selectedSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(fetchNews.fulfilled, (state, action) => {
-      state.max = action.payload.length - 1
+      state.max = action.payload.newsList.length - 1
     })
   }
 })

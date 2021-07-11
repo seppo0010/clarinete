@@ -42,6 +42,7 @@ function NewsList() {
   const selected = useSelector(selectedValue)
 
   const newsStatus = useSelector((state: RootState) => state.newsList.status)
+  const lastUpdate = useSelector((state: RootState) => state.newsList.updateDate)
 
   const handlers = {
     NEXT: () => dispatch(increment()),
@@ -57,10 +58,10 @@ function NewsList() {
   };
 
   useEffect(() => {
-    if (newsStatus === 'idle') {
+    if (newsStatus === 'idle' || (newsStatus === 'succeeded' && lastUpdate < Date.now() - 60 * 1000)) {
       dispatch(fetchNews())
     }
-  }, [newsStatus, dispatch])
+  }, [newsStatus, dispatch, lastUpdate])
 
   return (
     <GlobalHotKeys handlers={handlers} keyMap={keyMap} allowChanges={true}>

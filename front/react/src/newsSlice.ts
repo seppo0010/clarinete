@@ -18,12 +18,14 @@ export interface State {
   status: 'idle' | 'succeeded' | 'loading' | 'failed'
   error: string | undefined | null
   hiddenSections: string[]
+  updateDate: number
 }
 const initialState: State = {
   news: [],
   status: 'idle',
   error: null,
   hiddenSections: [],
+  updateDate: 0,
 }
 
 const newsSlice = createSlice({
@@ -55,7 +57,8 @@ const newsSlice = createSlice({
     })
     builder.addCase(fetchNews.fulfilled, (state, action) => {
       state.status = 'succeeded'
-      state.news = state.news.concat(action.payload)
+      state.news = state.news.concat(action.payload.newsList)
+      state.updateDate = action.payload.date
     })
     builder.addCase(fetchNews.rejected, (state, action) => {
       state.status = 'failed'
