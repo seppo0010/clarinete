@@ -17,6 +17,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Switch from '@material-ui/core/Switch';
 
+import { NewsItem } from './newsSlice'
 import { others, images, mapSection } from './sections'
 import { selectAllNews, hiddenSections, addHiddenSection, removeHiddenSection } from './newsSlice'
 
@@ -41,11 +42,11 @@ function Menu() {
     }
   }
   const sections = useSelector(selectAllNews).map(
-    (n) => n.section.toLowerCase().trim()
+    (n: NewsItem) => n.section.toLowerCase().trim()
   ).filter(
-    (s) => (!others.includes(s))
+    (s: string) => (!others.includes(s))
   ).map(mapSection).filter(
-    (s, i, sections) => sections.indexOf(s) === i && s
+    (s: string, i: number, sections: string[]) => sections.indexOf(s) === i && s
   ).sort().concat(['otros'])
   return (<div>
     <AppBar position="fixed">
@@ -75,7 +76,7 @@ function Menu() {
       </div>
       <Divider />
       <List>
-        {sections.map((text, index) => (
+        {sections.map((text: string, index: number) => (
           <ListItem button key={text}>
             <ListItemIcon><img src={images[text]} style={{height: 40}} alt="" /></ListItemIcon>
             <ListItemText primary={text} style={{paddingRight: 30}}

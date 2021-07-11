@@ -13,12 +13,13 @@ export declare interface NewsItem {
   summary: string
 }
 
-const initialState: {
+export interface State {
   news: NewsItem[]
   status: 'idle' | 'succeeded' | 'loading' | 'failed'
   error: string | undefined | null
   hiddenSections: string[]
-} = {
+}
+const initialState: State = {
   news: [],
   status: 'idle',
   error: null,

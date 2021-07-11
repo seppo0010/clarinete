@@ -19,7 +19,10 @@ import selected from './selectedSlice'
 import archived from './archivedSlice'
 
 const reducer = combineReducers({
-  newsList,
+  newsList: persistReducer({
+    key: 'newsList',
+    storage
+  }, newsList),
   singleNews,
   selected,
   archived: persistReducer({

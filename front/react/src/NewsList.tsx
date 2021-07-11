@@ -10,7 +10,7 @@ import useMediaQuery from '@material-ui/core/useMediaQuery';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 
-import { selectAllNews, hiddenSections } from './newsSlice'
+import { NewsItem, selectAllNews, hiddenSections } from './newsSlice'
 import { fetchNews } from './fetchNewsSlice'
 import { selectedValue, increment, decrement } from './selectedSlice'
 import { archivedURLs, addURL } from './archivedSlice'
@@ -32,7 +32,7 @@ function NewsList() {
   const dispatch = useDispatch()
   const archived = useSelector(archivedURLs)
   const selectedSections = useSelector(hiddenSections)
-  const news = useSelector(selectAllNews).filter((n) => (
+  const news = useSelector(selectAllNews).filter((n: NewsItem) => (
     (
       !archived.includes(n.url) &&
       !selectedSections.includes(mapSection(n.section))
@@ -65,7 +65,7 @@ function NewsList() {
   return (
     <GlobalHotKeys handlers={handlers} keyMap={keyMap} allowChanges={true}>
       <GridList cols={2} style={{paddingTop: 80}}>
-          {news.map((n, i) => (
+          {news.map((n: NewsItem, i: number) => (
             <GridListTile key={n.url} cols={i > 0 && matches ? 1 : 2}>
                 <NewsListItem news={n} selected={i === selected} />
             </GridListTile>
