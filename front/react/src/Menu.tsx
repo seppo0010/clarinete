@@ -20,12 +20,14 @@ import Switch from '@material-ui/core/Switch';
 import { NewsItem } from './newsSlice'
 import { others, images, mapSection } from './sections'
 import { selectAllNews, hiddenSections, addHiddenSection, removeHiddenSection } from './newsSlice'
+import type { RootState } from './store'
 
 function Menu() {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const selected = useSelector(hiddenSections)
   const dispatch = useDispatch()
+  const lastUpdate = useSelector((state: RootState) => state.newsList.updateDate)
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -89,6 +91,9 @@ function Menu() {
               />
           </ListItem>
         ))}
+        <ListItem>
+          Last update {new Date(lastUpdate).toISOString()}
+        </ListItem>
       </List>
     </Drawer>
   </div>)
