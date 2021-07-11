@@ -65,7 +65,7 @@ def get_summary(text):
     return ''.join(es)
 
 if __name__ == '__main__':
-    pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='news-queue', heartbeat=600, blocked_connection_timeout=6000))
+    pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='news-queue', heartbeat=600, blocked_connection_timeout=30000))
     channel = pika_connection.channel()
     channel.basic_qos(prefetch_count=1)
     channel.queue_declare(queue='summary_item', durable=True)
