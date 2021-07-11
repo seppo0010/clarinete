@@ -26,7 +26,7 @@ class LanacionSpider(scrapy.Spider):
             maybe_img = article.css('figure picture img')
             obj = {
                 'title': article.css('h1 a::text, h2 a::text').get(),
-                'volanta': article.css('h1 em::text, h2 em::text').get().strip(),
+                'volanta': article.css('h1 em::text, h2 em::text').get('').strip(),
                 'section': url.split('/')[3],
                 'url': url,
                 'image': maybe_img.attrib['src'] if maybe_img else None,
