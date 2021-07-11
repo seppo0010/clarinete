@@ -30,7 +30,7 @@ function NewsList() {
   const history = useHistory()
   const dispatch = useDispatch()
   const archived = useSelector(archivedURLs)
-  const news = useSelector(selectAllNews).filter((n) => !archived.includes(n.url))
+  const news = useSelector(selectAllNews).filter((n) => !archived.includes(n.url)).slice(0, 50)
   const selected = useSelector(selectedValue)
 
   const newsStatus = useSelector((state: RootState) => state.newsList.status)
