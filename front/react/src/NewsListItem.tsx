@@ -52,7 +52,7 @@ const NewsListItem: FC<{news: NewsItem, selected: boolean}> = ({news, selected})
         }
         const bbox = (ref.current as any).getBoundingClientRect()
         if (bbox.top < 0) {
-          window.scrollTo(window.scrollX, window.scrollY + bbox.top)
+          window.scrollTo(window.scrollX, window.scrollY + bbox.top - 80)
         }
         if (bbox.bottom > window.innerHeight) {
           window.scrollTo(window.scrollX, window.scrollY + bbox.bottom - window.innerHeight)
