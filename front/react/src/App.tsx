@@ -8,12 +8,14 @@ import {
 
 import NewsList from './NewsList'
 import NewsDetails from './NewsDetails'
+import Menu from './Menu'
 
 
 function App() {
   return (
     <Router>
       <Container fixed>
+        <Menu />
         <Switch>
           <Route path="/" exact>
             <NewsList />

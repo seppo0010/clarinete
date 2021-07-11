@@ -30,7 +30,7 @@ function NewsList() {
   const history = useHistory()
   const dispatch = useDispatch()
   const archived = useSelector(archivedURLs)
-  const news = useSelector(selectAllNews).filter((n) => !archived.includes(n.url)).slice(0, 50)
+  const news = useSelector(selectAllNews).filter((n) => !archived.includes(n.url)).slice(0, 51)
   const selected = useSelector(selectedValue)
 
   const newsStatus = useSelector((state: RootState) => state.newsList.status)
@@ -56,7 +56,7 @@ function NewsList() {
 
   return (
     <GlobalHotKeys handlers={handlers} keyMap={keyMap} allowChanges={true}>
-      <GridList cols={2}>
+      <GridList cols={2} style={{paddingTop: 80}}>
           {news.map((n, i) => (
             <GridListTile key={n.url} cols={i > 0 && matches ? 1 : 2}>
                 <NewsListItem news={n} selected={i === selected} />
