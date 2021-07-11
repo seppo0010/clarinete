@@ -48,7 +48,7 @@ function NewsDetails() {
     }
   }, [newsStatus, dispatch, url, news])
   return (<Container maxWidth='sm'>
-    {news ? <div style={{marginTop: 10, lineHeight: 1.2}}>
+    {news ? <div style={{marginTop: 10, lineHeight: 1.2, paddingTop: 80}}>
       <Grid container>
         <Grid item xs={6}>
           <Link to="/">
