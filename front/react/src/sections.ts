@@ -15,8 +15,7 @@ import technology from './images/technology.svg'
 import world from './images/world.svg'
 
 
-
-export const filter = [
+export const others = [
   'qué pasa',
   'noticias',
   'domingo',
@@ -74,4 +73,14 @@ export const images: {[f: string]: string} = {
   otros: question,
   tecnología: technology,
   internacional: world,
+}
+
+export const mapSection = (s: string) => {
+  s = s.toLowerCase()
+  return map[s] || s
+}
+
+export const isOther = (s: string) => {
+  s = s.toLowerCase()
+  return others.includes(s)
 }

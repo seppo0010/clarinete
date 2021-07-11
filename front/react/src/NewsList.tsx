@@ -10,11 +10,12 @@ import useMediaQuery from '@material-ui/core/useMediaQuery';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 
-import { selectAllNews } from './newsSlice'
+import { selectAllNews, hiddenSections } from './newsSlice'
 import { fetchNews } from './fetchNewsSlice'
 import { selectedValue, increment, decrement } from './selectedSlice'
 import { archivedURLs, addURL } from './archivedSlice'
 import NewsListItem from './NewsListItem'
+import { isOther, mapSection } from './sections'
 import type { RootState } from './store'
 
 const keyMap = {
@@ -30,7 +31,14 @@ function NewsList() {
   const history = useHistory()
   const dispatch = useDispatch()
   const archived = useSelector(archivedURLs)
-  const news = useSelector(selectAllNews).filter((n) => !archived.includes(n.url)).slice(0, 51)
+  const selectedSections = useSelector(hiddenSections)
+  const news = useSelector(selectAllNews).filter((n) => (
+    (
+      !archived.includes(n.url) &&
+      !selectedSections.includes(mapSection(n.section))
+    ) &&
+    (!selectedSections.includes('otros') || !isOther(n.section))
+  )).slice(0, 51)
   const selected = useSelector(selectedValue)
 
   const newsStatus = useSelector((state: RootState) => state.newsList.status)

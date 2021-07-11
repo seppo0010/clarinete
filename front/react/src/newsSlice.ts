@@ -17,16 +17,30 @@ const initialState: {
   news: NewsItem[]
   status: 'idle' | 'succeeded' | 'loading' | 'failed'
   error: string | undefined | null
+  hiddenSections: string[]
 } = {
   news: [],
   status: 'idle',
-  error: null
+  error: null,
+  hiddenSections: [],
 }
 
 const newsSlice = createSlice({
   name: 'news',
   initialState,
   reducers: {
+    addHiddenSection: {
+      reducer(state, action) {
+        state.hiddenSections.push(action.payload)
+      },
+      prepare(data: any) { return { id: nanoid(), payload: data } as any },
+    },
+    removeHiddenSection: {
+      reducer(state, action) {
+        state.hiddenSections.splice(state.hiddenSections.indexOf(action.payload), 1)
+      },
+      prepare(data: any) { return { id: nanoid(), payload: data } as any },
+    },
     newsFetched: {
       reducer(state, action) {
         state.news = action.payload
@@ -49,7 +63,9 @@ const newsSlice = createSlice({
   },
 })
 
-export const { newsFetched } = newsSlice.actions
+export const { newsFetched, addHiddenSection, removeHiddenSection } = newsSlice.actions
 export const selectAllNews = (state: RootState) => state.newsList.news
+export const hiddenSections  = (state: RootState) => state.newsList.hiddenSections
+
 
 export default newsSlice.reducer

@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { useTheme } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
@@ -17,12 +17,14 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Switch from '@material-ui/core/Switch';
 
-import { filter, map, images } from './sections'
-import { selectAllNews } from './newsSlice'
+import { others, images, mapSection } from './sections'
+import { selectAllNews, hiddenSections, addHiddenSection, removeHiddenSection } from './newsSlice'
 
 function Menu() {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
+  const selected = useSelector(hiddenSections)
+  const dispatch = useDispatch()
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -32,8 +34,19 @@ function Menu() {
     setOpen(false);
   };
   const toggleSection = (text: string) => {
+    if (!selected.includes(text)) {
+      dispatch(addHiddenSection(text))
+    } else {
+      dispatch(removeHiddenSection(text))
+    }
   }
-  const sections = useSelector(selectAllNews).map((n) => n.section.toLowerCase().trim()).filter((s) => (!filter.includes(s))).map((s) => (map[s] || s)).filter((s, i, sections) => sections.indexOf(s) === i && s).sort().concat(['otros'])
+  const sections = useSelector(selectAllNews).map(
+    (n) => n.section.toLowerCase().trim()
+  ).filter(
+    (s) => (!others.includes(s))
+  ).map(mapSection).filter(
+    (s, i, sections) => sections.indexOf(s) === i && s
+  ).sort().concat(['otros'])
   return (<div>
     <AppBar position="fixed">
       <Toolbar>
@@ -70,6 +83,7 @@ function Menu() {
               />
             <Switch
               color="primary"
+              checked={!selected.includes(text)}
               onClick={() => toggleSection(text)}
               />
           </ListItem>
