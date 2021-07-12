@@ -67,6 +67,9 @@ if __name__ == '__main__':
                         delivery_mode=1,
                     )
                 )
+                channel.basic_ack(method_frame.delivery_tag)
+            else:
+                channel.basic_nack(method_frame.delivery_tag, requeue=False)
         except:
             traceback.print_exc()
-        channel.basic_ack(method_frame.delivery_tag)
+            channel.basic_nack(method_frame.delivery_tag, requeue=False)

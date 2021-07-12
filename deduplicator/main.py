@@ -36,25 +36,27 @@ if __name__ == '__main__':
         alternatives = obj['alternatives']
         if not title:
             logger.warning('no title in object ' + json.dumps(obj))
-        else:
-            logger.info('deduplicator ' + title)
-            try:
-                rep = deduplicator(title, [x[1] for x in alternatives])
-                logger.info('rep: ' + (rep or 'None'))
-                if rep:
-                    channel.basic_publish(
-                        exchange='',
-                        routing_key='item',
-                        body=json.dumps({
-                            'url': [x[0] for x in alternatives if x[1] == rep][0],
-                            'canonical_url': obj['url'],
-                        }),
-                        properties=pika.BasicProperties(
-                            content_type='application/json',
-                            delivery_mode=1,
-                        )
+            channel.basic_ack(method_frame.delivery_tag)
+            continue
+        logger.info('deduplicator ' + title)
+        try:
+            rep = deduplicator(title, [x[1] for x in alternatives])
+            logger.info('rep: ' + (rep or 'None'))
+            if rep:
+                channel.basic_publish(
+                    exchange='',
+                    routing_key='item',
+                    body=json.dumps({
+                        'url': [x[0] for x in alternatives if x[1] == rep][0],
+                        'canonical_url': obj['url'],
+                    }),
+                    properties=pika.BasicProperties(
+                        content_type='application/json',
+                        delivery_mode=1,
                     )
-            except:
-                logger.error('error deduplicting')
-                traceback.print_exc()
-        channel.basic_ack(method_frame.delivery_tag)
+                )
+            channel.basic_ack(method_frame.delivery_tag)
+        except:
+            logger.error('error deduplicting')
+            traceback.print_exc()
+            channel.basic_nack(method_frame.delivery_tag, requeue=False)
