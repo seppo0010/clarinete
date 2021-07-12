@@ -71,7 +71,11 @@ if __name__ == '__main__':
     channel.queue_declare(queue='summary_item', durable=True, arguments={
         "x-dead-letter-exchange" : 'summary_item-dlx',
     })
+    # at most once delivery
+    # Many times it fails to ack due to timeout, but it does set
+    # the summary. If it truly fails, we are OK missing it.
     for method_frame, properties, body in channel.consume('summary_item'):
+        channel.basic_ack(method_frame.delivery_tag)
         obj = json.loads(body.decode('utf-8'))
         logger.info('summarizing ' + obj['url'])
         try:
@@ -88,7 +92,5 @@ if __name__ == '__main__':
                     delivery_mode=1,
                 )
             )
-            channel.basic_ack(method_frame.delivery_tag)
         except:
             traceback.print_exc()
-            channel.basic_nack(method_frame.delivery_tag, requeue=False)
