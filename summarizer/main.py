@@ -54,7 +54,12 @@ def summarize(text):
     text_summary = ' '.join([summary_line(line) for line in lines_total])
     return summary_line(text_summary)
 
-def get_summary(text):
+def get_summary(url, text):
+    r = redis.Redis(host='news-cache')
+    cache_key = f'summary-{url}'
+    cache = r.get(cache_key)
+    if cache is not None:
+        return cache.encode('utf-8')
     en = es_en(cleanhtml(text))
     logger.debug(f'en: {en}')
     summarized = summarize(en)
@@ -62,7 +67,9 @@ def get_summary(text):
     es = en_es_translator(summarized, truncation=True)[0]['translation_text']
     logger.debug(f'es: {es}')
 
-    return ''.join(es)
+    result = ''.join(es)
+    cache = r.set(cache_key, result, ex=24 * 60 * 60)
+    return result
 
 if __name__ == '__main__':
     pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='news-queue', heartbeat=600, blocked_connection_timeout=30000))
@@ -75,7 +82,7 @@ if __name__ == '__main__':
         obj = json.loads(body.decode('utf-8'))
         logger.info('summarizing ' + obj['url'])
         try:
-            summary = get_summary(obj['title'] + '\n' + obj['content'])
+            summary = get_summary(obj['url'], obj['title'] + '\n' + obj['content'])
             channel.basic_publish(
                 exchange='',
                 routing_key='item',

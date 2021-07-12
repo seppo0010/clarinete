@@ -6,6 +6,11 @@ services:
       - "news-queue"
     networks:
       - queue
+  news-cache:
+    image: redis
+    restart: on-failure
+    networks:
+      - cache
   news-queue:
     image: rabbitmq:3-management
     restart: on-failure
@@ -44,6 +49,7 @@ services:
     restart: on-failure
     networks:
       - queue
+      - cache
   news-database:
     image: postgres
     env_file: ./postgres-config
@@ -78,3 +84,4 @@ networks:
   database:
   queue:
   web:
+  cache:
