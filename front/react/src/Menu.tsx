@@ -18,7 +18,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Switch from '@material-ui/core/Switch';
 
 import { NewsItem } from './newsSlice'
-import { others, images, mapSection } from './sections'
+import { images } from './sections'
 import { selectAllNews, hiddenSections, addHiddenSection, removeHiddenSection } from './newsSlice'
 import type { RootState } from './store'
 
@@ -44,12 +44,10 @@ function Menu() {
     }
   }
   const sections = useSelector(selectAllNews).map(
-    (n: NewsItem) => n.section.toLowerCase().trim()
+    (n: NewsItem) => n.section.trim()
   ).filter(
-    (s: string) => (!others.includes(s))
-  ).map(mapSection).filter(
-    (s: string, i: number, sections: string[]) => sections.indexOf(s) === i && s
-  ).sort().concat(['otros'])
+    (s: string, i: number, sections: string[]) => s !== 'Otros' && sections.indexOf(s) === i && s
+  ).sort().concat(['Otros'])
   return (<div>
     <AppBar position="fixed">
       <Toolbar>

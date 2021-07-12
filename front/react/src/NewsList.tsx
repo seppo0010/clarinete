@@ -15,7 +15,6 @@ import { fetchNews } from './fetchNewsSlice'
 import { selectedValue, increment, decrement } from './selectedSlice'
 import { archivedURLs, addURL } from './archivedSlice'
 import NewsListItem from './NewsListItem'
-import { isOther, mapSection } from './sections'
 import type { RootState } from './store'
 
 const keyMap = {
@@ -33,11 +32,8 @@ function NewsList() {
   const archived = useSelector(archivedURLs)
   const selectedSections = useSelector(hiddenSections)
   const news = useSelector(selectAllNews).filter((n: NewsItem) => (
-    (
-      !archived.includes(n.url) &&
-      !selectedSections.includes(mapSection(n.section))
-    ) &&
-    (!selectedSections.includes('otros') || !isOther(n.section))
+    !archived.includes(n.url) &&
+    !selectedSections.includes(n.section)
   )).slice(0, 51)
   const selected = useSelector(selectedValue)
 

@@ -57,7 +57,7 @@ const newsSlice = createSlice({
     })
     builder.addCase(fetchNews.fulfilled, (state, action) => {
       state.status = 'succeeded'
-      state.news = state.news.concat(action.payload.newsList)
+      state.news = action.payload.newsList
       state.updateDate = action.payload.date
     })
     builder.addCase(fetchNews.rejected, (state, action) => {

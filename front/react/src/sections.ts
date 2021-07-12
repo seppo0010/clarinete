@@ -8,79 +8,28 @@ import popcorn from './images/popcorn.svg'
 import science from './images/science.svg'
 import society from './images/society.svg'
 import sports from './images/sports.svg'
-import court from './images/court.svg'
 import energy from './images/energy.svg'
 import question from './images/question.svg'
 import technology from './images/technology.svg'
 import world from './images/world.svg'
-
-
-export const others = [
-  'qué pasa',
-  'noticias',
-  'domingo',
-  'sábado show',
-  'secciones-especiales',
-]
-
-export const map: {[f: string]: string} = {
-  'columnistas': 'opinión',
-  'opiniones': 'opinión',
-  'editorial': 'opinión',
-  'politica': 'política',
-  'negocios': 'finanzas',
-  'economia': 'finanzas',
-  'economía': 'finanzas',
-  'el empresario': 'finanzas',
-  'internacionales': 'internacional',
-  'mundo': 'internacional',
-  'tecnologia': 'tecnología',
-  'informacion-general': 'sociedad',
-  'fútbol': 'deportes',
-  'vida actual': 'sociedad',
-  'cultural': 'sociedad',
-  'buena vida': 'salud',
-  'vida-sana-nutricion': 'salud',
-  'astros': 'ciencia',
-  'moda': 'lifestyle',
-  'viajes': 'lifestyle',
-  'series': 'entretenimiento',
-  'música': 'entretenimiento',
-  'cine': 'entretenimiento',
-  'espectaculos': 'entretenimiento',
-  'ciudades': 'sociedad',
-  'libros': 'sociedad',
-  'personajes': 'entretenimiento',
-  'rurales': 'finanzas',
-  'rural': 'finanzas',
-  'servicios': 'finanzas',
-  'energia': 'energía',
-}
+import classroom from './images/classroom.svg'
+import theatre from './images/theatre.svg'
 
 export const images: {[f: string]: string} = {
-  ciencia: science,
-  deportes: sports,
-  salud: health,
-  lifestyle: lifestyle,
-  finanzas: money,
-  opinión: opinion,
-  policiales: police,
-  política: politics,
-  entretenimiento: popcorn,
-  sociedad: society,
-  judiciales: court,
-  energía: energy,
-  otros: question,
-  tecnología: technology,
-  internacional: world,
-}
-
-export const mapSection = (s: string) => {
-  s = s.toLowerCase()
-  return map[s] || s
-}
-
-export const isOther = (s: string) => {
-  s = s.toLowerCase()
-  return others.includes(s)
+  Servicios: energy,
+  Deportes: sports,
+  Tecnología: technology,
+  Entretenimiento: popcorn,
+  Otros: question,
+  Economía: money,
+  Policiales: police,
+  Sociedad: society,
+  Salud: health,
+  Ciencia: science,
+  Opinión: opinion,
+  Internacionales: world,
+  Espectáculos: theatre,
+  Lifestyle: lifestyle,
+  Política: politics,
+  Educación: classroom,
 }
