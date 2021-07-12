@@ -25,6 +25,26 @@ def get_module_logger(mod_name):
     return logger
 logger = get_module_logger(__name__)
 
+def publish_to_queue(key, value):
+    pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='news-queue'))
+    channel = pika_connection.channel()
+    dlx = key + '-dlx'
+    channel.queue_declare(queue=dlx, durable=True)
+    channel.exchange_declare(exchange=dlx, exchange_type='fanout')
+    channel.queue_bind(exchange=dlx, queue=dlx)
+    channel.queue_declare(queue=key, durable=True, arguments={
+        "x-dead-letter-exchange" : dlx,
+    })
+    channel.basic_publish(
+        exchange='',
+        routing_key=key,
+        body=json.dumps(value),
+        properties=pika.BasicProperties(
+            content_type='application/json',
+            delivery_mode=1,
+        )
+    )
+
 def enqueue_url(cur, url, force=False):
     if force:
         cur.execute('SELECT title, content FROM news WHERE url = %s', [url])
@@ -36,22 +56,11 @@ def enqueue_url(cur, url, force=False):
         if not title or not content:
             return
 
-        pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='news-queue'))
-        channel = pika_connection.channel()
-        channel.queue_declare(queue='summary_item', durable=True)
-        channel.basic_publish(
-            exchange='',
-            routing_key='summary_item',
-            body=json.dumps({
-                'url': url,
-                'title': title,
-                'content': content,
-            }),
-            properties=pika.BasicProperties(
-                content_type='application/json',
-                delivery_mode=1,
-            )
-        )
+        publish_to_queue('summary_item', {
+            'url': url,
+            'title': title,
+            'content': content,
+        })
         cur.execute('UPDATE news SET summary = %s WHERE url = %s', ['', url])
 
 def enqueue_answerer(cur, url):
@@ -62,22 +71,11 @@ def enqueue_answerer(cur, url):
     title, content = res
     if not title or not content or '?' not in title:
         return
-    pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='news-queue'))
-    channel = pika_connection.channel()
-    channel.queue_declare(queue='answer_item', durable=True)
-    channel.basic_publish(
-        exchange='',
-        routing_key='answer_item',
-        body=json.dumps({
-            'url': url,
-            'title': title,
-            'content': content,
-        }),
-        properties=pika.BasicProperties(
-            content_type='application/json',
-            delivery_mode=1,
-        )
-    )
+    publish_to_queue('answer_item', {
+        'url': url,
+        'title': title,
+        'content': content,
+    })
 
 def enqueue_deduplicator(cur, url):
     cur.execute('SELECT title, source_id, date, canonical_url FROM news WHERE url = %s', [url])
@@ -97,22 +95,12 @@ def enqueue_deduplicator(cur, url):
             date < %s
     ''', [source, date, date])
     alternatives = cur.fetchall()
-    channel = pika_connection.channel()
-    channel.queue_declare(queue='deduplicator_item', durable=True)
-    channel.basic_publish(
-        exchange='',
-        routing_key='deduplicator_item',
-        body=json.dumps({
-            'url': url,
-            'title': title,
-            'alternatives': alternatives,
-            'canonical_url': canonical_url,
-        }),
-        properties=pika.BasicProperties(
-            content_type='application/json',
-            delivery_mode=1,
-        )
-    )
+    publish_to_queue('deduplicator_item', {
+        'url': url,
+        'title': title,
+        'alternatives': alternatives,
+        'canonical_url': canonical_url,
+    })
 
 def update_article(cur, obj):
     logger.info('updating article ' + obj['url'])

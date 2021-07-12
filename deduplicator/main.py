@@ -27,7 +27,9 @@ if __name__ == '__main__':
     pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='news-queue', heartbeat=600, blocked_connection_timeout=6000))
     channel = pika_connection.channel()
     channel.basic_qos(prefetch_count=1)
-    channel.queue_declare(queue='deduplicator_item', durable=True)
+    channel.queue_declare(queue='deduplicator_item', durable=True, arguments={
+        "x-dead-letter-exchange" : 'deduplicator_item-dlx',
+    })
     for method_frame, properties, body in channel.consume('deduplicator_item'):
         obj = json.loads(body.decode('utf-8'))
         title = obj['title']
