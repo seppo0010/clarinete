@@ -26,19 +26,6 @@ services:
           - driver: nvidia
             count: 1
             capabilities: [gpu]
-  answerer:
-    build: answerer
-    networks:
-      - queue
-    depends_on:
-      - "news-queue"
-    deploy:
-      resources:
-        reservations:
-          devices:
-          - driver: nvidia
-            count: 1
-            capabilities: [gpu]
   import:
     build: import
     env_file: ./postgres-config

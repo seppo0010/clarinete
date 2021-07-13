@@ -63,20 +63,6 @@ def enqueue_url(cur, url, force=False):
         })
         cur.execute('UPDATE news SET summary = %s WHERE url = %s', ['', url])
 
-def enqueue_answerer(cur, url):
-    cur.execute('SELECT title, content FROM news WHERE url = %s', [url])
-    res = cur.fetchone()
-    if not res:
-        return
-    title, content = res
-    if not title or not content or '?' not in title:
-        return
-    publish_to_queue('answer_item', {
-        'url': url,
-        'title': title,
-        'content': content,
-    })
-
 def enqueue_deduplicator(cur, url):
     cur.execute('SELECT title, source_id, date, canonical_url FROM news WHERE url = %s', [url])
     res = cur.fetchone()
@@ -130,15 +116,9 @@ def update_article(cur, obj):
         )
         if cur.rowcount > 0:
             changed.add(f)
-    for f in ('answer',):
-        if obj.get(f, None) is None:
-            continue
-        cur.execute('INSERT INTO answer (url, answer) VALUES (%s, %s) ON CONFLICT (url) DO UPDATE SET answer = %s', [obj['url'], obj['answer'], obj['answer']])
 
     if 'title' in changed or 'date' in changed or 'source' in changed:
         enqueue_deduplicator(cur, obj['url'])
-    if 'title' in changed or 'content' in changed:
-        enqueue_answerer(cur, obj['url'])
     enqueue_url(cur, obj['url'])
 
 def update_homepage(cur, source, urls):
@@ -172,7 +152,6 @@ if __name__ == '__main__':
         cur = pg_connection.cursor()
         enqueue_url(cur, sys.argv[1], force=True)
         enqueue_deduplicator(cur, sys.argv[1])
-        enqueue_answerer(cur, sys.argv[1])
         sys.exit(0)
 
 
