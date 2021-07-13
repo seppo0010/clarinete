@@ -58,15 +58,23 @@ def summarize(text):
     text_summary = ' '.join([summary_line(line) for line in lines_total])
     return summary_line(text_summary)
 
-def get_summary(text):
-    en = es_en(cleanhtml(text))
+def get_summary(text, language='es'):
+    cleaned = cleanhtml(text)
+    if language == 'es':
+        en = es_en(cleaned)
+    elif language == 'en':
+        en = cleaned
+    else:
+        raise Exception(f'unexpected language {language}')
     logger.debug(f'en: {en}')
     summarized = summarize(en)
     logger.debug(f'summarized: {summarized}')
-    es = en_es(summarized)
-    logger.debug(f'es: {es}')
 
-    return ''.join(es)
+    if language == 'es':
+        es = en_es(summarized)
+        logger.debug(f'es: {es}')
+    else:
+        return summarized
 
 if __name__ == '__main__':
     pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='news-queue', heartbeat=600, blocked_connection_timeout=30000))
@@ -83,7 +91,7 @@ if __name__ == '__main__':
         obj = json.loads(body.decode('utf-8'))
         logger.info('summarizing ' + obj['url'])
         try:
-            summary = get_summary(obj['title'] + '\n' + obj['content'])
+            summary = get_summary(obj['title'] + '\n' + obj['content'], obj['language'])
             channel.basic_publish(
                 exchange='',
                 routing_key='item',

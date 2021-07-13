@@ -47,12 +47,12 @@ def publish_to_queue(key, value):
 
 def enqueue_url(cur, url, force=False):
     if force:
-        cur.execute('SELECT title, content FROM news WHERE url = %s', [url])
+        cur.execute('SELECT title, content, source.language FROM news JOIN source ON news.source_id = source.id WHERE url = %s', [url])
     else:
-        cur.execute('SELECT title, content FROM news WHERE url = %s AND summary IS NULL', [url])
+        cur.execute('SELECT title, content, source.language FROM news JOIN source ON news.source_id = source.id WHERE url = %s AND summary IS NULL', [url])
     res = cur.fetchone()
     if res is not None:
-        title, content = res
+        title, content, language = res
         if not title or not content:
             return
 
@@ -60,15 +60,16 @@ def enqueue_url(cur, url, force=False):
             'url': url,
             'title': title,
             'content': content,
+            'language': language
         })
         cur.execute('UPDATE news SET summary = %s WHERE url = %s', ['', url])
 
 def enqueue_deduplicator(cur, url):
-    cur.execute('SELECT title, source_id, date, canonical_url FROM news WHERE url = %s', [url])
+    cur.execute('SELECT title, source_id, date, canonical_url, language FROM news WHERE url = %s', [url])
     res = cur.fetchone()
     if not res:
         return
-    title, source, date, canonical_url = res
+    title, source, date, canonical_url, language = res
     if canonical_url or not date or not source:
         return
     cur.execute('''
@@ -86,6 +87,7 @@ def enqueue_deduplicator(cur, url):
         'title': title,
         'alternatives': alternatives,
         'canonical_url': canonical_url,
+        'language': language,
     })
 
 def update_article(cur, obj):
@@ -102,6 +104,8 @@ def update_article(cur, obj):
             ])
             if cur.rowcount > 0:
                 changed.add(k)
+    if 'source' in obj and 'source_language' in obj:
+        cur.execute(f'''UPDATE source SET language = %s WHERE name = %s''', [obj['source'], obj['source_language']])
 
     changed_text = False
     for f in 'title', 'volanta', 'image', 'content', 'date', 'summary', 'canonical_url':

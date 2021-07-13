@@ -6,6 +6,7 @@ import re
 
 
 SOURCE = 'Ambito Financiero'
+LANGUAGE = 'es'
 cleaner = Cleaner(allow_tags=['p', 'br', 'b', 'a', 'strong', 'i', 'em'])
 class LanacionSpider(scrapy.Spider):
     name = 'ambitofinanciero'
@@ -31,6 +32,7 @@ class LanacionSpider(scrapy.Spider):
                 'url': url,
                 'image': maybe_img.attrib.get('data-td-src-property', maybe_img.attrib.get('src', None)) if maybe_img else None,
                 'source': SOURCE,
+                'source_language': LANGUAGE,
             }
 
             yield obj

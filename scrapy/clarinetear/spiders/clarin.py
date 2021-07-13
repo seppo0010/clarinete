@@ -4,6 +4,7 @@ import lxml
 from lxml.html.clean import Cleaner
 
 SOURCE = 'Clarín'
+LANGUAGE = 'es'
 cleaner = Cleaner(allow_tags=['p', 'br', 'b', 'a', 'strong', 'i', 'em'])
 class ClarinSpider(scrapy.Spider):
     name = 'clarin'
@@ -28,6 +29,7 @@ class ClarinSpider(scrapy.Spider):
                 'url': url,
                 'image': maybe_img.attrib['data-big'] if maybe_img else None,
                 'source': SOURCE,
+                'source_language': LANGUAGE,
             }
 
             yield obj

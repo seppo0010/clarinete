@@ -6,6 +6,7 @@ import re
 
 
 SOURCE = 'El País'
+LANGUAGE = 'es'
 cleaner = Cleaner(allow_tags=['p', 'br', 'b', 'a', 'strong', 'i', 'em'])
 class LanacionSpider(scrapy.Spider):
     name = 'elpais'
@@ -31,6 +32,7 @@ class LanacionSpider(scrapy.Spider):
                 'url': url,
                 'image': maybe_img.attrib['src'] if maybe_img else None,
                 'source': SOURCE,
+                'source_language': LANGUAGE,
             }
 
             yield obj

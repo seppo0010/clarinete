@@ -6,6 +6,7 @@ import re
 
 
 SOURCE = 'Página 12'
+LANGUAGE = 'es'
 cleaner = Cleaner(allow_tags=['p', 'br', 'b', 'a', 'strong', 'i', 'em'])
 class Pagina12Spider(scrapy.Spider):
     name = 'pagina12'
@@ -30,6 +31,7 @@ class Pagina12Spider(scrapy.Spider):
                 'url': url,
                 'image': maybe_img.attrib['src'] if maybe_img else None,
                 'source': SOURCE,
+                'source_language': LANGUAGE,
             }
 
             yield obj

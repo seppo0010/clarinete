@@ -40,7 +40,7 @@ if __name__ == '__main__':
             continue
         logger.info('deduplicator ' + title)
         try:
-            rep = deduplicator(title, [x[1] for x in alternatives])
+            rep = deduplicator(title, [x[1] for x in alternatives], language=obj['language'])
             logger.info('rep: ' + (rep or 'None'))
             if rep:
                 channel.basic_publish(

@@ -15,7 +15,7 @@ def get_module_logger(mod_name):
     return logger
 logger = get_module_logger(__name__)
 
-def cos_simer(title, alternatives):
+def cos_simer(title, alternatives, language='es'):
     global sentence_encoder
     if sentence_encoder is None:
         sentence_encoder = SentenceTransformer('sentence-transformers/paraphrase-xlm-r-multilingual-v1')
@@ -24,8 +24,8 @@ def cos_simer(title, alternatives):
     embeddings = sentence_encoder.encode(alternatives)
     return util.cos_sim(title_embeddings, embeddings)[0]
 
-def deduplicator(title, alternatives, cos_simer=cos_simer):
-    cos_sim = cos_simer(title, alternatives)
+def deduplicator(title, alternatives, cos_simer=cos_simer, language='es'):
+    cos_sim = cos_simer(title, alternatives, language=language)
     max_cos_sim = max(cos_sim)
     if float(max_cos_sim) > 0.65:
         for a, s in zip(alternatives, cos_sim):
