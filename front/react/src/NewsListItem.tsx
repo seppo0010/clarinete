@@ -7,9 +7,11 @@ import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import { Link } from "react-router-dom";
 import MoveToInboxIcon from '@material-ui/icons/MoveToInbox';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import { NewsItem } from './newsSlice'
 import { addURL } from './archivedSlice'
+import brief from './images/brief.svg'
 
 const useStyles = makeStyles({
   root: {
@@ -76,13 +78,20 @@ const NewsListItem: FC<{news: NewsItem, selected: boolean}> = ({news, selected})
   return (
     <Card className={classes.root} style={{outline: selected ? 'solid': 'none'}} ref={ref}>
       <CardContent>
-        <Typography className={classes.title} color="textSecondary" gutterBottom style={{display: 'flex'}}>
+        <Typography className={classes.title} color="textSecondary" gutterBottom style={{display: 'flex', height: 28}}>
           <div style={{width: 'calc(100% - 100px)', height: '1.2rm', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{top}</div>
+          {news.summary && (
+            <Tooltip disableFocusListener title={news.summary} aria-label="add">
+              <Button><img src={brief} alt='Leer resumen' style={{height: 26}} /></Button>
+            </Tooltip>
+          )}
           <Button onClick={() => dispatch(addURL(news.url))} style={{marginTop: -8}}><MoveToInboxIcon /></Button>
         </Typography>
-        <Typography variant="h5" component="h2" ref={titleRef} style={{fontSize: fontSize || 24}}>
-          <Link to={'/' + encodeURIComponent(news.url)} title={news.summary}>{news.title}</Link>
-        </Typography>
+        <div style={{height: 72}}>
+          <Typography variant="h5" component="h2" ref={titleRef} style={{fontSize: fontSize || 24}}>
+            <Link to={'/' + encodeURIComponent(news.url)} title={news.summary}>{news.title}</Link>
+          </Typography>
+        </div>
         <Typography color="textSecondary">
           {bottom}
         </Typography>
