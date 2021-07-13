@@ -54,7 +54,7 @@ function NewsList() {
   };
 
   useEffect(() => {
-    if (newsStatus === 'idle' || (newsStatus === 'succeeded' && lastUpdate < Date.now() - 60 * 1000)) {
+    if (newsStatus === 'idle' || lastUpdate < Date.now() - 60 * 1000) {
       dispatch(fetchNews())
     }
   }, [newsStatus, dispatch, lastUpdate])
