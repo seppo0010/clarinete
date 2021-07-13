@@ -23,7 +23,7 @@ def es_en(t):
 def en_es(t):
     return translate(t, 'en', 'es')
 
-summarizer = pipeline("summarization", model='facebook/bart-large-cnn')
+summarizer = pipeline("summarization", model='sshleifer/distilbart-xsum-6-6')
 
 def get_module_logger(mod_name):
     logger = logging.getLogger(mod_name)
