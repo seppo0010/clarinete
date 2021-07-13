@@ -5,11 +5,25 @@ import traceback
 import logging
 
 import pika
+import requests
 from transformers import pipeline
 
-en_es_translator = pipeline("translation_en_to_es", model='Helsinki-NLP/opus-mt-en-es')
-es_en_translator = pipeline("translation_es_to_en", model='Helsinki-NLP/opus-mt-es-en')
-summarizer = pipeline("summarization")
+def translate(t, source, target):
+    r = requests.post('http://translator/api/translate', json={
+        'from': source,
+        'to': target,
+        'source': t.replace('\n', ' '),
+    })
+    r.raise_for_status()
+    return r.json()['translation']
+
+def es_en(t):
+    return translate(t, 'es', 'en')
+
+def en_es(t):
+    return translate(t, 'en', 'es')
+
+summarizer = pipeline("summarization", model='facebook/bart-large-cnn')
 
 def get_module_logger(mod_name):
     logger = logging.getLogger(mod_name)
@@ -26,22 +40,12 @@ def cleanhtml(raw_html):
   cleantext = re.sub('<.*?>', '', re.sub('</p.*?>', '\n', raw_html))
   return html.unescape(cleantext)
 
-def es_en(text):
-    lines_es = text.split('\n')
-    lines_es = [x.strip() for x in lines_es]
-    lines_es = [x for x in lines_es if x != '']
-    if len(lines_es) == 0:
-        return ''
-    lines_es = [' '.join(x.split(' ')[:512]) for x in lines_es]
-    lines_en = es_en_translator(lines_es, truncation=True)
-    return '\n'.join(x['translation_text'] for x in lines_en)
-
 def summary_line(line):
     MAX_SUMMARY = 40
     if len(line.split(' ')) < MAX_SUMMARY:
         return line
     else:
-        return summarizer(line, truncation=True)[0]['summary_text']
+        return summarizer(line)[0]['summary_text']
 
 def summarize(text):
     lines_total = text.split('\n')
@@ -59,7 +63,7 @@ def get_summary(text):
     logger.debug(f'en: {en}')
     summarized = summarize(en)
     logger.debug(f'summarized: {summarized}')
-    es = en_es_translator(summarized, truncation=True)[0]['translation_text']
+    es = en_es(summarized)
     logger.debug(f'es: {es}')
 
     return ''.join(es)

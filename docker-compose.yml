@@ -55,9 +55,11 @@ services:
     build: summarizer
     depends_on:
       - "news-queue"
+      - "translator"
     restart: on-failure
     networks:
       - queue
+      - translator-summarizer
     deploy:
       resources:
         reservations:
@@ -97,6 +99,15 @@ services:
       - donotstart
   translator:
     build: translator
+    networks:
+      - translator-summarizer
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            count: 1
+            capabilities: [gpu]
 
 secrets:
   postgres-password:
@@ -106,3 +117,4 @@ networks:
   database:
   queue:
   web:
+  translator-summarizer:
