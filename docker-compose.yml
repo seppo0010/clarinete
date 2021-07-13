@@ -40,6 +40,7 @@ services:
       - database
   summarizer:
     build: summarizer
+    image: summarizer
     depends_on:
       - "news-queue"
       - "translator"
@@ -54,6 +55,17 @@ services:
           - driver: nvidia
             count: 1
             capabilities: [gpu]
+  summarizer_test:
+    build: summarizer
+    image: summarizer_test
+    depends_on:
+      - "news-queue"
+    restart: "no"
+    networks:
+      - queue
+    profiles:
+      - donotstart
+
   news-database:
     image: postgres
     env_file: ./postgres-config

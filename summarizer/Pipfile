@@ -10,6 +10,7 @@ pika = "*"
 requests = "*"
 
 [dev-packages]
+timeout-decorator = "*"
 
 [requires]
 python_version = "3.8"
