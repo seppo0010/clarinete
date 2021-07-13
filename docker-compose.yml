@@ -90,6 +90,13 @@ services:
       - "8001:80"
     networks:
       - web
+  opus-mt:
+    build: Opus-MT
+    image: opus-mt-base
+    profiles:
+      - donotstart
+  translator:
+    build: translator
 
 secrets:
   postgres-password:
