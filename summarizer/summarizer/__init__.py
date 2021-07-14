@@ -109,9 +109,11 @@ def run_once(channel):
         break
 
 def run():
-    channel = setup_channel()
+    conn, channel = setup_channel()
     while True:
         run_once(channel)
+    channel.close()
+    conn.close()
 
 def setup_channel():
     pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='news-queue', heartbeat=600, blocked_connection_timeout=30000))
@@ -120,4 +122,4 @@ def setup_channel():
     channel.queue_declare(queue=QUEUE_KEY, durable=True, arguments={
         "x-dead-letter-exchange" : f'{QUEUE_KEY}-dlx',
     })
-    return channel
+    return pika_connection, channel
