@@ -65,7 +65,7 @@ def enqueue_url(cur, url, force=False):
         cur.execute('UPDATE news SET summary = %s WHERE url = %s', ['', url])
 
 def enqueue_deduplicator(cur, url):
-    cur.execute('SELECT title, source_id, date, canonical_url, language FROM news WHERE url = %s', [url])
+    cur.execute('SELECT title, source_id, date, canonical_url, source.language FROM news JOIN source ON news.source_id = source.id WHERE url = %s', [url])
     res = cur.fetchone()
     if not res:
         return

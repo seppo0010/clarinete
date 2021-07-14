@@ -51,6 +51,7 @@ class TestSummarizer(unittest.TestCase):
         )
         run_once(channel)
         channel = setup_channel()
+        channel.queue_declare(queue=RESPONSE_KEY, durable=True)
         for method_frame, properties, body in channel.consume(RESPONSE_KEY):
             obj = json.loads(body.decode('utf-8'))
             self.assertEqual(obj['url'], url)

@@ -91,6 +91,7 @@ def run_once(channel):
             obj = json.loads(body.decode('utf-8'))
             logger.info('summarizing ' + obj['url'])
             summary = get_summary(obj['title'] + '\n' + obj['content'], obj['language'])
+            channel.queue_declare(queue=RESPONSE_KEY, durable=True)
             channel.basic_publish(
                 exchange='',
                 routing_key=RESPONSE_KEY,
@@ -116,7 +117,7 @@ def setup_channel():
     pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='news-queue', heartbeat=600, blocked_connection_timeout=30000))
     channel = pika_connection.channel()
     channel.basic_qos(prefetch_count=1)
-    channel.queue_declare(queue='summary_item', durable=True, arguments={
-        "x-dead-letter-exchange" : 'summary_item-dlx',
+    channel.queue_declare(queue=QUEUE_KEY, durable=True, arguments={
+        "x-dead-letter-exchange" : f'{QUEUE_KEY}-dlx',
     })
     return channel
