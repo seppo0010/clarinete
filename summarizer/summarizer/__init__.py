@@ -7,18 +7,19 @@ import logging
 import pika
 from transformers import pipeline
 import requests
-]
 
 QUEUE_KEY = 'summary_item'
 RESPONSE_KEY = 'item'
 summarizer = pipeline("summarization", model='sshleifer/distilbart-xsum-6-6')
 
 def translate(t, source, target):
+    logger.debug('will request translation')
     r = requests.post('http://translator/api/translate', json={
         'from': source,
         'to': target,
         'source': t.replace('\n', ' '),
     })
+    logger.debug('did request translation')
     r.raise_for_status()
     return r.json()['translation']
 
@@ -74,7 +75,7 @@ def get_summary(text, language='es'):
     summarized = summarize(en)
     logger.debug(f'summarized: {summarized}')
     if language == 'es':
-        es = en_es(summarized, truncation=True)
+        es = en_es(summarized)
         logger.debug(f'es: {es}')
         return es
     else:

@@ -27,7 +27,9 @@ class TestSummarizer(unittest.TestCase):
         raise Exception('wait for queue timed out')
 
 
+    @timeout_decorator.timeout(120)
     def test_summary_es(self):
+        url = 'http://fake-url/'
         title = 'PREAMBULO'
         content = 'Nos los representantes del pueblo de la Nación Argentina, reunidos en Congreso General Constituyente por voluntad y elección de las provincias que la componen, en cumplimiento de pactos preexistentes, con el objeto de constituir la unión nacional, afianzar la justicia, consolidar la paz interior, proveer a la defensa común, promover el bienestar general, y asegurar los beneficios de la libertad, para nosotros, para nuestra posteridad, y para todos los hombres del mundo que quieran habitar en el suelo argentino: invocando la protección de Dios, fuente de toda razón y justicia: ordenamos, decretamos y establecemos esta Constitución, para la Nación Argentina.'
         language = 'es'
@@ -37,7 +39,7 @@ class TestSummarizer(unittest.TestCase):
             exchange='',
             routing_key=QUEUE_KEY,
             body=json.dumps({
-                'url': 'http://fake-url/',
+                'url': url,
                 'title': title,
                 'content': content,
                 'language': language,
@@ -48,7 +50,9 @@ class TestSummarizer(unittest.TestCase):
             )
         )
         run_once(channel)
+        channel = setup_channel()
         for method_frame, properties, body in channel.consume(RESPONSE_KEY):
-            log(body.decode('utf-8'))
+            obj = json.loads(body.decode('utf-8'))
+            self.assertEqual(obj['url'], url)
+            self.assertIn('constitución', obj['summary'].lower())
             break
-        assert(False)

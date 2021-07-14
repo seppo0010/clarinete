@@ -60,9 +60,11 @@ services:
     image: summarizer_test
     depends_on:
       - "news-queue"
+      - "translator"
     restart: "no"
     networks:
       - queue
+      - translator-summarizer
     profiles:
       - donotstart
 

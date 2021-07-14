@@ -105,7 +105,7 @@ def update_article(cur, obj):
             if cur.rowcount > 0:
                 changed.add(k)
     if 'source' in obj and 'source_language' in obj:
-        cur.execute(f'''UPDATE source SET language = %s WHERE name = %s''', [obj['source'], obj['source_language']])
+        cur.execute(f'''UPDATE source SET language = %s WHERE name = %s''', [obj['source_language'], obj['source']])
 
     changed_text = False
     for f in 'title', 'volanta', 'image', 'content', 'date', 'summary', 'canonical_url':
