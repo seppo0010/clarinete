@@ -6,7 +6,7 @@ RUN pip install pipenv && cd /summarizer && pipenv install --system --deploy --i
 RUN python3 -c "from transformers import pipeline;pipeline('summarization')"
 
 COPY main.py /summarizer
-COPY summarizer /summarizer
+COPY summarizer /summarizer/summarizer
 
 CMD python3 /summarizer/main.py
 

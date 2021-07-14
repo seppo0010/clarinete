@@ -39,7 +39,9 @@ services:
       - queue
       - database
   summarizer:
-    build: summarizer
+    build:
+      context: ./summarizer
+      target: summarizer
     image: summarizer
     depends_on:
       - "news-queue"
