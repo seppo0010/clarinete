@@ -10,7 +10,7 @@ import requests
 
 QUEUE_KEY = 'summary_item'
 RESPONSE_KEY = 'item'
-summarizer = pipeline("summarization", model='sshleifer/distilbart-xsum-6-6')
+summarizer = pipeline("summarization")
 
 def translate(t, source, target):
     logger.debug('will request translation')
@@ -50,7 +50,7 @@ def summary_line(line):
     if len(line.split(' ')) < MAX_SUMMARY:
         return line
     else:
-        return summarizer(line, truncation=True)[0]['summary_text']
+        return summarizer(line, truncation=True, max_length=50)[0]['summary_text']
 
 def summarize(text):
     lines_total = text.split('\n')
