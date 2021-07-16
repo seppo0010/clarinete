@@ -11,6 +11,5 @@ COPY summarizer /summarizer/summarizer
 CMD python3 /summarizer/main.py
 
 FROM summarizer AS summarizer_test
-RUN cd /summarizer && pipenv install -d --system --deploy --ignore-pipfile
 COPY . /summarizer
 CMD cd /summarizer && python3 -m unittest discover

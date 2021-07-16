@@ -6,7 +6,6 @@ import traceback
 import socket
 import json
 import pika
-import timeout_decorator
 import torch
 
 # logging in test seems hard and I'm tired
@@ -36,7 +35,6 @@ class TestSummarizer(unittest.TestCase):
                 traceback.print_exc()
         raise Exception('wait for queue timed out')
 
-    @timeout_decorator.timeout(240)
     def test_summary_es(self):
         url = 'http://fake-url/es'
         title = 'PREAMBULO'
@@ -62,7 +60,7 @@ class TestSummarizer(unittest.TestCase):
         conn.close()
         conn, channel = setup_channel()
         channel.queue_declare(queue=RESPONSE_KEY, durable=True)
-        for method_frame, properties, body in channel.consume(RESPONSE_KEY):
+        for method_frame, properties, body in channel.consume(RESPONSE_KEY, inactivity_timeout=1):
             obj = json.loads(body.decode('utf-8'))
             self.assertEqual(obj['url'], url)
             self.assertIn('representantes', obj['summary'].lower())
@@ -70,7 +68,6 @@ class TestSummarizer(unittest.TestCase):
         channel.close()
         conn.close()
 
-    @timeout_decorator.timeout(120)
     def test_summary_en(self):
         url = 'http://fake-url/en'
         title = 'Preamble'
@@ -96,7 +93,7 @@ class TestSummarizer(unittest.TestCase):
         conn.close()
         conn, channel = setup_channel()
         channel.queue_declare(queue=RESPONSE_KEY, durable=True)
-        for method_frame, properties, body in channel.consume(RESPONSE_KEY):
+        for method_frame, properties, body in channel.consume(RESPONSE_KEY, inactivity_timeout=1):
             obj = json.loads(body.decode('utf-8'))
             self.assertEqual(obj['url'], url)
             self.assertIn('union', obj['summary'].lower())
