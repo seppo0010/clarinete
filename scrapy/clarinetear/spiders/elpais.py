@@ -62,17 +62,22 @@ class LanacionSpider(scrapy.Spider):
             'noviembre': 11,
             'diciembre': 12,
         }
-        day = int(date_fragments.group(1))
-        month = months[date_fragments.group(2)]
-        year = int(date_fragments.group(3))
-        hour = int(date_fragments.group(4))
-        minute = int(date_fragments.group(5))
-        date = datetime(year, month, day, hour, minute)
-
-        obj = {
-            'url': url,
-            'content': content,
-            'date': date.isoformat()
-        }
+        if data_fragments is not None:
+            day = int(date_fragments.group(1))
+            month = months[date_fragments.group(2)]
+            year = int(date_fragments.group(3))
+            hour = int(date_fragments.group(4))
+            minute = int(date_fragments.group(5))
+            date = datetime(year, month, day, hour, minute)
+            obj = {
+                'url': url,
+                'content': content,
+                'date': date.isoformat()
+            }
+        else:
+            obj = {
+                'url': url,
+                'content': content,
+            }
 
         yield obj
