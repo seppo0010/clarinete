@@ -11,6 +11,5 @@ COPY deduplicator /deduplicator/deduplicator
 CMD python3 /deduplicator/main.py
 
 FROM deduplicator AS deduplicator_test
-RUN cd /deduplicator && pipenv install -d --system --deploy --ignore-pipfile
 COPY . /deduplicator
 CMD cd /deduplicator && python3 -m unittest discover
