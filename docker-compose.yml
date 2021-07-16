@@ -13,6 +13,8 @@ services:
       - queue
     environment:
       - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log_levels [{connection,error}]
+    volumes:
+      - rabbitmqdata:/var/lib/rabbitmq
   deduplicator:
     build: deduplicator
     networks:
@@ -133,3 +135,4 @@ networks:
 
 volumes:
   pgdata:
+  rabbitmqdata:
