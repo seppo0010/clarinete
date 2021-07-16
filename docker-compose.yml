@@ -16,11 +16,31 @@ services:
     volumes:
       - rabbitmqdata:/var/lib/rabbitmq
   deduplicator:
-    build: deduplicator
+    build:
+      context: ./deduplicator
+      target: deduplicator
     networks:
       - queue
     depends_on:
       - "news-queue"
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            count: 1
+            capabilities: [gpu]
+  deduplicator_test:
+    build: deduplicator
+    image: deduplicator_test
+    depends_on:
+      - "news-queue"
+      - "translator"
+    restart: "no"
+    networks:
+      - queue
+    profiles:
+      - donotstart
     deploy:
       resources:
         reservations:
