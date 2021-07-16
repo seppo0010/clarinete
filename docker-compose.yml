@@ -84,6 +84,8 @@ services:
       - postgres-password
     networks:
       - database
+    volumes:
+      - pgdata:/var/lib/postgresql/data
   restapi:
     build: restapi
     env_file: ./postgres-config
@@ -128,3 +130,6 @@ networks:
   queue:
   web:
   translator-summarizer:
+
+volumes:
+  pgdata:
