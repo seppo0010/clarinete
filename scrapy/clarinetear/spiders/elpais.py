@@ -62,7 +62,7 @@ class LanacionSpider(scrapy.Spider):
             'noviembre': 11,
             'diciembre': 12,
         }
-        if data_fragments is not None:
+        if date_fragments is not None:
             day = int(date_fragments.group(1))
             month = months[date_fragments.group(2)]
             year = int(date_fragments.group(3))
