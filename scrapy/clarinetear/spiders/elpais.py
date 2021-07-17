@@ -13,6 +13,11 @@ class LanacionSpider(scrapy.Spider):
     allowed_domains = ['elpais.com.uy']
     start_urls = ['http://elpais.com.uy']
 
+    def start_requests(self):
+        url = getattr(self, 'article_url', None)
+        if url is not None:
+            yield scrapy.Request(url, callback=self.parse_article, cb_kwargs=dict(url=url))
+
     def parse(self, response):
         urls = []
         for article in response.css('article'):

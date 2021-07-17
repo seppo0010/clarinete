@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 scrapy = "*"
 scrapy-rabbitmq-publisher = "*"
+pika = "*"
 
 [dev-packages]
 

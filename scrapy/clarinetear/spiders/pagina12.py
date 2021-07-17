@@ -13,6 +13,11 @@ class Pagina12Spider(scrapy.Spider):
     allowed_domains = ['www.pagina12.com.ar']
     start_urls = ['https://www.pagina12.com.ar/']
 
+    def start_requests(self):
+        url = getattr(self, 'article_url', None)
+        if url is not None:
+            yield scrapy.Request(url, callback=self.parse_article, cb_kwargs=dict(url=url))
+
     def parse(self, response):
         urls = []
         for article in response.css('article'):
