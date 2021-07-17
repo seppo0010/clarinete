@@ -5,12 +5,14 @@ services:
     depends_on:
       - "news-queue"
     networks:
-      - queue
+      - queue:
+        alias: scrapy
   news-queue:
     image: rabbitmq:3-management
     restart: on-failure
     networks:
-      - queue
+      - queue:
+        alias: news-queue
     environment:
       - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log_levels [{connection,error}]
     volumes:
@@ -20,7 +22,8 @@ services:
       context: ./deduplicator
       target: deduplicator
     networks:
-      - queue
+      - queue:
+        alias: deduplicator
     depends_on:
       - "news-queue"
     deploy:
@@ -38,7 +41,8 @@ services:
       - "translator"
     restart: "no"
     networks:
-      - queue
+      - queue:
+        alias: deduplicator_test
     profiles:
       - donotstart
     deploy:
@@ -58,8 +62,10 @@ services:
       - "news-database"
     restart: on-failure
     networks:
-      - queue
-      - database
+      - queue:
+        alias: import_on_queue
+      - database:
+        alias: import_on_database
   summarizer:
     build:
       context: ./summarizer
@@ -70,8 +76,10 @@ services:
       - "translator"
     restart: on-failure
     networks:
-      - queue
-      - translator-summarizer
+      - queue:
+        alias: summarizer_on_queue
+      - translator-summarizer:
+        alias: summarizer_on_translator_summarizer
     deploy:
       resources:
         reservations:
@@ -87,8 +95,10 @@ services:
       - "translator"
     restart: "no"
     networks:
-      - queue
-      - translator-summarizer
+      - queue:
+        alias: summarizer_test_on_queue
+      - translator-summarizer:
+        alias: summarizer_on_translator_summarizer
     profiles:
       - donotstart
     deploy:
@@ -105,7 +115,8 @@ services:
     secrets:
       - postgres-password
     networks:
-      - database
+      - database:
+        alias: news_database
     volumes:
       - pgdata:/var/lib/postgresql/data
   restapi:
@@ -116,8 +127,10 @@ services:
     depends_on:
       - "news-database"
     networks:
-      - database
-      - web
+      - database:
+        alias: restapi_on_database
+      - web:
+        alias: restapi_on_web
   front:
     build: front
     depends_on:
@@ -125,7 +138,8 @@ services:
     ports:
       - "8001:80"
     networks:
-      - web
+      - web:
+        alias: front
   opus-mt:
     build: Opus-MT
     image: opus-mt-base
@@ -134,7 +148,8 @@ services:
   translator:
     build: translator
     networks:
-      - translator-summarizer
+      - translator-summarizer:
+        alias: translator
     deploy:
       resources:
         reservations:
