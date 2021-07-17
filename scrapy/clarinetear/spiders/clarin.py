@@ -9,12 +9,13 @@ cleaner = Cleaner(allow_tags=['p', 'br', 'b', 'a', 'strong', 'i', 'em'])
 class ClarinSpider(scrapy.Spider):
     name = 'clarin'
     allowed_domains = ['clarin.com']
-    start_urls = ['http://clarin.com/']
 
     def start_requests(self):
         url = getattr(self, 'article_url', None)
         if url is not None:
             yield scrapy.Request(url, callback=self.parse_article, cb_kwargs=dict(url=url))
+        else:
+            yield scrapy.Request('http://clarin.com/')
 
     def parse(self, response):
         urls = []

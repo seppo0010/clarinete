@@ -11,12 +11,13 @@ cleaner = Cleaner(allow_tags=['p', 'br', 'b', 'a', 'strong', 'i', 'em'])
 class LanacionSpider(scrapy.Spider):
     name = 'ambitofinanciero'
     allowed_domains = ['www.ambito.com']
-    start_urls = ['https://www.ambito.com/']
 
     def start_requests(self):
         url = getattr(self, 'article_url', None)
         if url is not None:
             yield scrapy.Request(url, callback=self.parse_article, cb_kwargs=dict(url=url))
+        else:
+            yield scrapy.Request('https://www.ambito.com/')
 
     def parse(self, response):
         urls = []
