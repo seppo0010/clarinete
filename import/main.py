@@ -183,11 +183,19 @@ if __name__ == '__main__':
         backend.apply_migrations(backend.to_apply(migrations))
     pg_connection = psycopg2.connect(dsn)
 
+    def update_url(cur, url, force=False):
+        enqueue_summary(cur, url, force=force)
+        enqueue_deduplicator(cur, url)
+        enqueue_ner(cur, url)
+
     if len(sys.argv) == 2:
         cur = pg_connection.cursor()
-        enqueue_summary(cur, sys.argv[1], force=True)
-        enqueue_deduplicator(cur, sys.argv[1])
-        enqueue_ner(cur, sys.argv[1])
+        if sys.argv[1] == 'all':
+            cur.execute('SELECT url FROM news')
+            for (url,) in cur.fetchall():
+                update_url(cur, url)
+        else:
+            update_url(cur, sys.argv[1], force=True)
         sys.exit(0)
 
     for method_frame, properties, body in channel.consume('item'):
