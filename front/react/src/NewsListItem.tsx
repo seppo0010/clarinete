@@ -1,4 +1,4 @@
-import React, { FC, useState, useRef, useEffect } from "react";
+import React, { FC, useState, useRef } from "react";
 import { useDispatch } from 'react-redux'
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
@@ -24,28 +24,12 @@ const useStyles = makeStyles({
 });
 
 
-const MAX_TITLE_HEIGHT = 65
 const NewsListItem: FC<{news: NewsItem, selected: boolean, position: number}> = ({news, selected, position}) => {
   const classes = useStyles();
   const dispatch = useDispatch()
 
   const [wasSelected, setWasSelected] = useState(false)
 
-  const titleRef = useRef(null)
-  const [fontSize, setFontSize] = useState(0)
-  useEffect(() => {
-    if (!titleRef.current) return
-    if (fontSize !== 0) return
-    const node = titleRef.current as unknown as HTMLElement
-    if (!node.parentNode) return
-    let heightTitle = node.getBoundingClientRect().height
-    let f = 24
-    while (heightTitle > MAX_TITLE_HEIGHT) {
-      node.style.fontSize = (--f) + 'px'
-      heightTitle = node.getBoundingClientRect().height
-    }
-    setFontSize(f)
-  }, [fontSize])
   const ref = useRef(null)
   if (selected && !wasSelected) {
     setTimeout(() => {
@@ -81,7 +65,7 @@ const NewsListItem: FC<{news: NewsItem, selected: boolean, position: number}> = 
         <Typography color="textSecondary">
           {bottom}
         </Typography>
-        <Typography variant="h5" component="h2" ref={titleRef} style={{fontSize: fontSize || 24, height: 72, overflow: 'hidden'}}>
+        <Typography variant="h5" component="h2" style={{height: 72, overflow: 'hidden'}}>
           <Link to={'/' + encodeURIComponent(news.url)} title={news.summary} id={position === 0 ? 'firstLink' : undefined}>{news.title}</Link>
         </Typography>
         <Typography className={classes.title} color="textSecondary" gutterBottom style={{display: 'flex', height: 28}}>
