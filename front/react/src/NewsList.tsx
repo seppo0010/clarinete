@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 
 import { useSelector, useDispatch } from 'react-redux'
 import { useHistory } from "react-router-dom";
@@ -11,6 +11,10 @@ import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 import TextField from '@material-ui/core/TextField';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import SearchIcon from '@material-ui/icons/Search';
+import ClearIcon from '@material-ui/icons/Clear';
+import IconButton from '@material-ui/core/IconButton';
+import InputAdornment from '@material-ui/core/InputAdornment';
 
 import { NewsItem, selectAllNews, hiddenSections, selectSearchNews, search } from './newsSlice'
 import { fetchNews, fetchSearchNews } from './fetchNewsSlice'
@@ -58,12 +62,18 @@ function NewsList() {
       dispatch(addURL(news[selected].url))
     },
   };
+  const [searchCriteriaInput, setSearchCriteriaInput] = useState('')
 
   useEffect(() => {
     if (newsStatus === 'idle' || lastUpdate < Date.now() - 60 * 1000) {
       dispatch(fetchNews())
     }
   }, [newsStatus, dispatch, lastUpdate])
+
+  const clearSearch = () => {
+      setSearchCriteriaInput('')
+      dispatch(search(''))
+  }
 
   const keyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter'){
@@ -78,7 +88,29 @@ function NewsList() {
   return (
     <GlobalHotKeys handlers={handlers} keyMap={keyMap} allowChanges={true}>
       <div style={{marginTop: 80, marginLeft: 10, marginRight: 10}}>
-        <TextField fullWidth label="Search" onKeyPress={keyPress} />
+        <TextField
+            fullWidth
+            label="Search"
+            value={searchCriteriaInput}
+            onKeyPress={keyPress}
+            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setSearchCriteriaInput((e.target as any).value)}
+            InputProps={{
+                endAdornment: (
+                    <InputAdornment position="end">
+                        {searchCriteria && 
+                            <IconButton
+                                onClick={clearSearch}
+                                >
+                                <ClearIcon />
+                            </IconButton>
+                        }
+                        {!searchCriteria && 
+                            <SearchIcon />
+                        }
+                    </InputAdornment>
+                ),
+            }}
+            />
       </div>
       {searchCriteria !== '' && searchNewsStatus === 'loading' && (<div style={{textAlign: 'center'}}>
         <CircularProgress style={{marginTop: 50}} />
