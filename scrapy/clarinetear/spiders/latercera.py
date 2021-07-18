@@ -8,7 +8,7 @@ import re
 SOURCE = 'La Tercera'
 LANGUAGE = 'es'
 cleaner = Cleaner(allow_tags=['p', 'br', 'b', 'a', 'strong', 'i', 'em'])
-class LanacionSpider(scrapy.Spider):
+class LaterceraSpider(scrapy.Spider):
     name = 'latercera'
     allowed_domains = ['www.latercera.com']
 

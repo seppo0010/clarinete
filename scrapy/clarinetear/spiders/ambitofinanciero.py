@@ -8,7 +8,7 @@ import re
 SOURCE = 'Ambito Financiero'
 LANGUAGE = 'es'
 cleaner = Cleaner(allow_tags=['p', 'br', 'b', 'a', 'strong', 'i', 'em'])
-class LanacionSpider(scrapy.Spider):
+class AmbitofinancieroSpider(scrapy.Spider):
     name = 'ambitofinanciero'
     allowed_domains = ['www.ambito.com']
 

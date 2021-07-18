@@ -8,7 +8,7 @@ import re
 SOURCE = 'El País'
 LANGUAGE = 'es'
 cleaner = Cleaner(allow_tags=['p', 'br', 'b', 'a', 'strong', 'i', 'em'])
-class LanacionSpider(scrapy.Spider):
+class ElpaisSpider(scrapy.Spider):
     name = 'elpais'
     allowed_domains = ['elpais.com.uy']
 
