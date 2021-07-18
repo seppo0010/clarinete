@@ -77,23 +77,23 @@ const NewsListItem: FC<{news: NewsItem, selected: boolean, position: number}> = 
   ].filter((x) => !!x).join(' | ')
   return (
     <Card className={classes.root} style={{outline: selected ? 'solid': 'none'}} ref={ref}>
-      <CardContent>
-        <Typography className={classes.title} color="textSecondary" gutterBottom style={{display: 'flex', height: 28}}>
-          <div style={{width: 'calc(100% - 100px)', height: '1.2rm', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{top}</div>
-          {news.summary && (
-            <Tooltip disableFocusListener title={news.summary} aria-label="add">
-              <Button aria-label="Leer resumen" tabIndex={position * 3 + 6}><img src={brief} alt='Leer resumen' style={{height: 26}} /></Button>
-            </Tooltip>
-          )}
-          <Button onClick={() => dispatch(addURL(news.url))} style={{marginTop: -8}} aria-label="archivar" tabIndex={position * 3 + 5}><MoveToInboxIcon /></Button>
-        </Typography>
-        <div style={{height: 72}}>
-          <Typography variant="h5" component="h2" ref={titleRef} style={{fontSize: fontSize || 24}}>
-            <Link to={'/' + encodeURIComponent(news.url)} title={news.summary} id={position === 0 ? 'firstLink' : undefined} tabIndex={position * 3 + 4}>{news.title}</Link>
-          </Typography>
-        </div>
+      <CardContent style={{display: 'flex', flexDirection: 'column-reverse'}}>
         <Typography color="textSecondary">
           {bottom}
+        </Typography>
+        <Typography variant="h5" component="h2" ref={titleRef} style={{fontSize: fontSize || 24, height: 72, overflow: 'hidden'}}>
+          <Link to={'/' + encodeURIComponent(news.url)} title={news.summary} id={position === 0 ? 'firstLink' : undefined}>{news.title}</Link>
+        </Typography>
+        <Typography className={classes.title} color="textSecondary" gutterBottom style={{display: 'flex', height: 28}}>
+          <div style={{height: '1.2rm', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', flexGrow: 1 }}>{top}</div>
+          <div>
+              {news.summary && (
+                <Tooltip disableFocusListener title={news.summary} aria-label="add">
+                  <Button aria-label="Leer resumen"><img src={brief} alt='Leer resumen' style={{height: 26}} /></Button>
+                </Tooltip>
+              )}
+              <Button onClick={() => dispatch(addURL(news.url))} style={{marginTop: -8}} aria-label="archivar"><MoveToInboxIcon /></Button>
+          </div>
         </Typography>
       </CardContent>
     </Card>
