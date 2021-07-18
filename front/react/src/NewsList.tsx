@@ -43,7 +43,7 @@ function NewsList() {
   const news = (searchCriteria ? searchNews : allNews.filter((n: NewsItem) => (
     !archived.includes(n.url) &&
     !selectedSections.includes(n.section)
-  ))).slice(0, 11)
+  ))).slice(0, 16)
   const selected = useSelector(selectedValue)
 
   const newsStatus = useSelector((state: RootState) => state.newsList.status)
@@ -119,7 +119,7 @@ function NewsList() {
       {(searchCriteria === '' || searchNewsStatus !== 'loading') && (
         <GridList cols={2}>
             {news.map((n: NewsItem, i: number) => (
-              <GridListTile key={n.url} cols={i > 0 && matches ? 1 : 2}>
+              <GridListTile key={n.url} cols={matches ? 1 : 2}>
                   <NewsListItem news={n} selected={i === selected} position={i} />
               </GridListTile>
             ))}
