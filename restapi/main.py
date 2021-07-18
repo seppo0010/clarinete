@@ -5,7 +5,6 @@ import urllib
 
 from flask import Flask, jsonify, request, g
 from waitress import serve
-from elasticsearch import Elasticsearch
 
 
 def get_db():
@@ -37,13 +36,29 @@ def last_updated():
 
 @app.route("/api/search")
 def search():
-    es = Elasticsearch(['news-search'])
-    res = es.search(index="news", body={"query": {
-        "query_string": {
-          "query": request.args.get('criteria')
-        }
-    }})
-    return jsonify([x['_source'] for x in res['hits']['hits']])
+    criteria = request.args.get('criteria')
+    con = get_db()
+    cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute('''
+        SELECT url, title, volanta, section, date, source, country, summary
+        FROM (
+            SELECT url, title, volanta, COALESCE(section.category, 'Otros') AS section, date, source.name AS source, source.country, summary, ts_rank_cd(to_tsvector('spanish', title), query) AS rank
+            FROM news
+                LEFT JOIN section ON news.section_id = section.id
+                JOIN source ON news.source_id = source.id
+                , to_tsquery('spanish', %s) query
+            WHERE to_tsvector('spanish', title) @@ query
+            UNION
+            SELECT url, title, volanta, COALESCE(section.category, 'Otros') AS section, date, source.name AS source, source.country, summary, ts_rank_cd(to_tsvector('spanish', content), query) AS rank
+            FROM news
+                LEFT JOIN section ON news.section_id = section.id
+                JOIN source ON news.source_id = source.id
+                , to_tsquery('spanish', %s) query
+            WHERE to_tsvector('spanish', content) @@ query
+        ) t
+        ORDER BY rank DESC
+    ''', [criteria, criteria])
+    return jsonify(cur.fetchall())
 
 @app.route("/api/news")
 def news_list():
