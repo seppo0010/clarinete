@@ -75,7 +75,7 @@ function Menu() {
           (searchNewsStatus === 'idle'|| searchNewsStatus === 'succeeded') && (<Button>
           <RefreshIcon htmlColor="white" onClick={refresh} />
         </Button>)}
-        {(newsStatus === 'loading' || searchNewsStatus === 'loading') && (<Button>
+        {newsStatus === 'loading' && (<Button>
           <CircularProgress color="secondary" size={20} />
         </Button>)}
       </Toolbar>

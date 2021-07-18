@@ -59,6 +59,7 @@ const newsSlice = createSlice({
     search: {
       reducer(state, action) {
         state.searchCriteria = action.payload
+        state.searchNews = []
       },
       prepare(data: any) { return { id: nanoid(), payload: data } as any },
     },

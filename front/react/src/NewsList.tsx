@@ -10,6 +10,7 @@ import useMediaQuery from '@material-ui/core/useMediaQuery';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 import TextField from '@material-ui/core/TextField';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import { NewsItem, selectAllNews, hiddenSections, selectSearchNews, search } from './newsSlice'
 import { fetchNews, fetchSearchNews } from './fetchNewsSlice'
@@ -38,10 +39,11 @@ function NewsList() {
   const news = (searchCriteria ? searchNews : allNews).filter((n: NewsItem) => (
     !archived.includes(n.url) &&
     !selectedSections.includes(n.section)
-  )).slice(0, 51)
+  )).slice(0, 11)
   const selected = useSelector(selectedValue)
 
   const newsStatus = useSelector((state: RootState) => state.newsList.status)
+  const searchNewsStatus = useSelector((state: RootState) => state.newsList.searchStatus)
   const lastUpdate = useSelector((state: RootState) => state.newsList.updateDate)
 
   const handlers = {
@@ -78,13 +80,18 @@ function NewsList() {
       <div style={{marginTop: 80, marginLeft: 10, marginRight: 10}}>
         <TextField fullWidth label="Search" onKeyPress={keyPress} />
       </div>
-      <GridList cols={2}>
-          {news.map((n: NewsItem, i: number) => (
-            <GridListTile key={n.url} cols={i > 0 && matches ? 1 : 2}>
-                <NewsListItem news={n} selected={i === selected} />
-            </GridListTile>
-          ))}
-      </GridList>
+      {searchCriteria !== '' && searchNewsStatus === 'loading' && (<div style={{textAlign: 'center'}}>
+        <CircularProgress style={{marginTop: 50}} />
+      </div>)}
+      {(searchCriteria === '' || searchNewsStatus !== 'loading') && (
+        <GridList cols={2}>
+            {news.map((n: NewsItem, i: number) => (
+              <GridListTile key={n.url} cols={i > 0 && matches ? 1 : 2}>
+                  <NewsListItem news={n} selected={i === selected} />
+              </GridListTile>
+            ))}
+        </GridList>
+      )}
     </GlobalHotKeys>
   );
 }
