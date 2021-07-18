@@ -25,7 +25,7 @@ const useStyles = makeStyles({
 
 
 const MAX_TITLE_HEIGHT = 65
-const NewsListItem: FC<{news: NewsItem, selected: boolean}> = ({news, selected}) => {
+const NewsListItem: FC<{news: NewsItem, selected: boolean, position: number}> = ({news, selected, position}) => {
   const classes = useStyles();
   const dispatch = useDispatch()
 
@@ -82,14 +82,14 @@ const NewsListItem: FC<{news: NewsItem, selected: boolean}> = ({news, selected})
           <div style={{width: 'calc(100% - 100px)', height: '1.2rm', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{top}</div>
           {news.summary && (
             <Tooltip disableFocusListener title={news.summary} aria-label="add">
-              <Button><img src={brief} alt='Leer resumen' style={{height: 26}} /></Button>
+              <Button aria-label="Leer resumen" tabIndex={position * 3 + 6}><img src={brief} alt='Leer resumen' style={{height: 26}} /></Button>
             </Tooltip>
           )}
-          <Button onClick={() => dispatch(addURL(news.url))} style={{marginTop: -8}}><MoveToInboxIcon /></Button>
+          <Button onClick={() => dispatch(addURL(news.url))} style={{marginTop: -8}} aria-label="archivar" tabIndex={position * 3 + 5}><MoveToInboxIcon /></Button>
         </Typography>
         <div style={{height: 72}}>
           <Typography variant="h5" component="h2" ref={titleRef} style={{fontSize: fontSize || 24}}>
-            <Link to={'/' + encodeURIComponent(news.url)} title={news.summary}>{news.title}</Link>
+            <Link to={'/' + encodeURIComponent(news.url)} title={news.summary} id={position === 0 ? 'firstLink' : undefined} tabIndex={position * 3 + 4}>{news.title}</Link>
           </Typography>
         </div>
         <Typography color="textSecondary">

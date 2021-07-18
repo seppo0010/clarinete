@@ -40,10 +40,10 @@ function NewsList() {
   const searchCriteria = useSelector((state: RootState) => state.newsList.searchCriteria)
   const searchNews = useSelector(selectSearchNews)
   const allNews = useSelector(selectAllNews)
-  const news = (searchCriteria ? searchNews.filter((n: NewsItem) => (
+  const news = (searchCriteria ? searchNews : allNews.filter((n: NewsItem) => (
     !archived.includes(n.url) &&
     !selectedSections.includes(n.section)
-  )) : allNews).slice(0, 11)
+  ))).slice(0, 11)
   const selected = useSelector(selectedValue)
 
   const newsStatus = useSelector((state: RootState) => state.newsList.status)
@@ -87,13 +87,14 @@ function NewsList() {
 
   return (
     <GlobalHotKeys handlers={handlers} keyMap={keyMap} allowChanges={true}>
-      <div style={{marginTop: 80, marginLeft: 10, marginRight: 10}}>
+      <div style={{marginTop: 80, marginLeft: 10, marginRight: 10}} id="main">
         <TextField
             fullWidth
-            label="Search"
+            label="Buscar"
             value={searchCriteriaInput}
             onKeyPress={keyPress}
             onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setSearchCriteriaInput((e.target as any).value)}
+            inputProps={{ 'aria-label': 'Buscar' }}
             InputProps={{
                 endAdornment: (
                     <InputAdornment position="end">
@@ -119,7 +120,7 @@ function NewsList() {
         <GridList cols={2}>
             {news.map((n: NewsItem, i: number) => (
               <GridListTile key={n.url} cols={i > 0 && matches ? 1 : 2}>
-                  <NewsListItem news={n} selected={i === selected} />
+                  <NewsListItem news={n} selected={i === selected} position={i} />
               </GridListTile>
             ))}
         </GridList>

@@ -19,6 +19,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Switch from '@material-ui/core/Switch';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import { makeStyles } from '@material-ui/core/styles';
 
 import { NewsItem } from './newsSlice'
 import { images } from './sections'
@@ -26,12 +27,30 @@ import { selectAllNews, hiddenSections, addHiddenSection, removeHiddenSection } 
 import { fetchNews } from './fetchNewsSlice'
 import type { RootState } from './store'
 
+const useStyles = makeStyles((theme) => ({
+  root: {
+    '& .skip-to-content-link': {
+        top: 0,
+        left: '50%',
+        position: 'absolute',
+        transform: 'translateY(-100%)',
+        color: 'white',
+        zIndex: 10000,
+    },
+    '& .skip-to-content-link:focus': {
+        transform: 'translateY(0%)',
+    },
+  },
+}));
+
+
 function Menu() {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const selected = useSelector(hiddenSections)
   const dispatch = useDispatch()
   const lastUpdate = useSelector((state: RootState) => state.newsList.updateDate)
+  const classes = useStyles();
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -57,12 +76,17 @@ function Menu() {
   const refresh = () => {
     dispatch(fetchNews())
   }
-  return (<div>
+  return (<div className={classes.root}>
+    <a href="#main" onClick={() => {
+        setTimeout(() => document.getElementById('firstLink')?.focus(), 0)
+      }} className="skip-to-content-link" aria-label="Saltar a contenido">
+      Saltar a contenido
+    </a>
     <AppBar position="fixed">
       <Toolbar>
         <IconButton
           color="inherit"
-          aria-label="open drawer"
+          aria-label="ver menú"
           onClick={handleDrawerOpen}
           edge="start"
         >
@@ -72,11 +96,11 @@ function Menu() {
           Clarinete
         </Typography>
         {(newsStatus === 'idle' || newsStatus === 'succeeded') &&
-          (searchNewsStatus === 'idle'|| searchNewsStatus === 'succeeded') && (<Button>
+          (searchNewsStatus === 'idle'|| searchNewsStatus === 'succeeded') && (<Button aria-label="actualizar">
           <RefreshIcon htmlColor="white" onClick={refresh} />
         </Button>)}
         {newsStatus === 'loading' && (<Button>
-          <CircularProgress color="secondary" size={20} />
+          <CircularProgress color="secondary" size={20}  aria-label="cargando" />
         </Button>)}
       </Toolbar>
     </AppBar>
