@@ -56,12 +56,10 @@ services:
     depends_on:
       - "news-queue"
       - "news-database"
-      - "news-search"
     restart: on-failure
     networks:
       - queue
       - database
-      - import-search
   summarizer:
     build:
       context: ./summarizer
@@ -117,11 +115,9 @@ services:
       - postgres-password
     depends_on:
       - "news-database"
-      - "news-search"
     networks:
       - database
       - web
-      - restapi-search
   front:
     build: front
     depends_on:
@@ -146,13 +142,6 @@ services:
           - driver: nvidia
             count: 1
             capabilities: [gpu]
-  news-search:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.13.3
-    environment:
-      - discovery.type=single-node
-    networks:
-      - import-search
-      - restapi-search
 
 secrets:
   postgres-password:
@@ -163,8 +152,6 @@ networks:
   queue:
   web:
   translator-summarizer:
-  import-search:
-  restapi-search:
 
 volumes:
   pgdata:

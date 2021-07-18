@@ -7,7 +7,6 @@ import logging
 import sys
 import traceback
 
-from elasticsearch import Elasticsearch
 import requests
 from yoyo import read_migrations
 from yoyo import get_backend
@@ -47,27 +46,6 @@ def publish_to_queue(key, value):
             delivery_mode=1,
         )
     )
-
-def update_search(es, url):
-    cur.execute('''
-    SELECT url, title, volanta, COALESCE(section.category, 'Otros') AS section, date, source.name AS source, source.country, summary, content
-    FROM news
-        LEFT JOIN section ON news.section_id = section.id
-        JOIN source ON news.source_id = source.id
-    WHERE url = %s
-    ''', [url])
-
-    res = cur.fetchone()
-    if res is None:
-        logger.warning(f'data not found for url {url}')
-    keys = ('url', 'title', 'volanta', 'section', 'date', 'source', 'country', 'summary', 'content')
-    d = {k: v for k, v in zip(keys, res)}
-
-    try:
-        es.index(index="news", id=d['url'], body=d)
-        es.indices.refresh(index="news")
-    except:
-        traceback.print_exc()
 
 def enqueue_url(cur, url, force=False):
     if force:
@@ -114,7 +92,7 @@ def enqueue_deduplicator(cur, url):
         'language': language,
     })
 
-def update_article(cur, es, obj):
+def update_article(cur, obj):
     logger.info('updating article ' + obj['url'])
     cur.execute('''INSERT INTO news (url) VALUES (%s) ON CONFLICT DO NOTHING''', [obj['url']])
     changed = set()
@@ -147,7 +125,6 @@ def update_article(cur, es, obj):
 
     if 'title' in changed or 'date' in changed or 'source' in changed:
         enqueue_deduplicator(cur, obj['url'])
-    update_search(es, obj['url'])
     enqueue_url(cur, obj['url'])
 
 def update_homepage(cur, source, urls):
@@ -176,11 +153,9 @@ if __name__ == '__main__':
     with backend.lock():
         backend.apply_migrations(backend.to_apply(migrations))
     pg_connection = psycopg2.connect(dsn)
-    es = Elasticsearch(['news-search'])
 
     if len(sys.argv) == 2:
         cur = pg_connection.cursor()
-        update_search(es, sys.argv[1])
         enqueue_url(cur, sys.argv[1], force=True)
         enqueue_deduplicator(cur, sys.argv[1])
         sys.exit(0)
@@ -189,7 +164,7 @@ if __name__ == '__main__':
         obj = json.loads(body.decode('utf-8'))
         cur = pg_connection.cursor()
         if 'url' in obj:
-            update_article(cur, es, obj)
+            update_article(cur, obj)
         elif 'homepage' in obj:
             update_homepage(cur, obj['source'], obj['homepage'])
             cur.execute('''DELETE FROM updated''')
