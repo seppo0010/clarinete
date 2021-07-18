@@ -8,6 +8,7 @@ yoyo-migrations = "*"
 pika = "*"
 psycopg2-binary = "*"
 requests = "*"
+elasticsearch = "*"
 
 [dev-packages]
 

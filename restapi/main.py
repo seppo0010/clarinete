@@ -2,8 +2,10 @@ import os
 import psycopg2
 import psycopg2.extras
 import urllib
+
 from flask import Flask, jsonify, request, g
 from waitress import serve
+from elasticsearch import Elasticsearch
 
 
 def get_db():
@@ -32,6 +34,16 @@ def last_updated():
     cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute('''SELECT MAX(time) AS time FROM updated''')
     return jsonify(cur.fetchone())
+
+@app.route("/api/search")
+def search():
+    es = Elasticsearch(['news-search'])
+    res = es.search(index="news", body={"query": {
+        "query_string": {
+          "query": request.args.get('criteria')
+        }
+    }})
+    return jsonify([x['_source'] for x in res['hits']['hits']])
 
 @app.route("/api/news")
 def news_list():
