@@ -117,6 +117,7 @@ services:
       - postgres-password
     depends_on:
       - "news-database"
+      - "news-search"
     networks:
       - database
       - web

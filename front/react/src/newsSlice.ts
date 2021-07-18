@@ -1,5 +1,5 @@
 import { createSlice, nanoid } from '@reduxjs/toolkit'
-import { fetchNews } from './fetchNewsSlice'
+import { fetchNews, fetchSearchNews } from './fetchNewsSlice'
 import type { RootState } from './store'
 
 export declare interface NewsItem {
@@ -15,17 +15,23 @@ export declare interface NewsItem {
 
 export interface State {
   news: NewsItem[]
+  searchNews: NewsItem[]
   status: 'idle' | 'succeeded' | 'loading' | 'failed'
+  searchStatus: 'idle' | 'succeeded' | 'loading' | 'failed'
   error: string | undefined | null
   hiddenSections: string[]
   updateDate: number
+  searchCriteria: string
 }
 const initialState: State = {
   news: [],
+  searchNews: [],
   status: 'idle',
+  searchStatus: 'idle',
   error: null,
   hiddenSections: [],
   updateDate: 0,
+  searchCriteria: '',
 }
 
 const newsSlice = createSlice({
@@ -50,6 +56,12 @@ const newsSlice = createSlice({
       },
       prepare(data: any) { return { id: nanoid(), payload: data } as any },
     },
+    search: {
+      reducer(state, action) {
+        state.searchCriteria = action.payload
+      },
+      prepare(data: any) { return { id: nanoid(), payload: data } as any },
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchNews.pending, (state, action) => {
@@ -64,12 +76,23 @@ const newsSlice = createSlice({
       state.status = 'failed'
       state.error = action.error.message
     })
+    builder.addCase(fetchSearchNews.pending, (state, action) => {
+      state.searchStatus = 'loading'
+    })
+    builder.addCase(fetchSearchNews.fulfilled, (state, action) => {
+      state.searchStatus = 'succeeded'
+      state.searchNews = action.payload.newsList
+    })
+    builder.addCase(fetchSearchNews.rejected, (state, action) => {
+      state.searchStatus = 'failed'
+      state.error = action.error.message
+    })
   },
 })
 
-export const { newsFetched, addHiddenSection, removeHiddenSection } = newsSlice.actions
+export const { newsFetched, addHiddenSection, removeHiddenSection, search } = newsSlice.actions
 export const selectAllNews = (state: RootState) => state.newsList.news
+export const selectSearchNews = (state: RootState) => state.newsList.searchNews
 export const hiddenSections  = (state: RootState) => state.newsList.hiddenSections
-
 
 export default newsSlice.reducer

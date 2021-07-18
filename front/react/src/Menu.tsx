@@ -41,6 +41,7 @@ function Menu() {
     setOpen(false);
   };
   const newsStatus = useSelector((state: RootState) => state.newsList.status)
+  const searchNewsStatus = useSelector((state: RootState) => state.newsList.searchStatus)
   const toggleSection = (text: string) => {
     if (!selected.includes(text)) {
       dispatch(addHiddenSection(text))
@@ -70,10 +71,11 @@ function Menu() {
         <Typography variant="h6" noWrap style={{flexGrow: 1}}>
           Clarinete
         </Typography>
-        {(newsStatus === 'idle' || newsStatus === 'succeeded') && (<Button>
+        {(newsStatus === 'idle' || newsStatus === 'succeeded') &&
+          (searchNewsStatus === 'idle'|| searchNewsStatus === 'succeeded') && (<Button>
           <RefreshIcon htmlColor="white" onClick={refresh} />
         </Button>)}
-        {newsStatus === 'loading' && (<Button>
+        {(newsStatus === 'loading' || searchNewsStatus === 'loading') && (<Button>
           <CircularProgress color="secondary" size={20} />
         </Button>)}
       </Toolbar>

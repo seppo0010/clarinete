@@ -9,9 +9,10 @@ import { useTheme } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
+import TextField from '@material-ui/core/TextField';
 
-import { NewsItem, selectAllNews, hiddenSections } from './newsSlice'
-import { fetchNews } from './fetchNewsSlice'
+import { NewsItem, selectAllNews, hiddenSections, selectSearchNews, search } from './newsSlice'
+import { fetchNews, fetchSearchNews } from './fetchNewsSlice'
 import { selectedValue, increment, decrement } from './selectedSlice'
 import { archivedURLs, addURL } from './archivedSlice'
 import NewsListItem from './NewsListItem'
@@ -31,7 +32,10 @@ function NewsList() {
   const dispatch = useDispatch()
   const archived = useSelector(archivedURLs)
   const selectedSections = useSelector(hiddenSections)
-  const news = useSelector(selectAllNews).filter((n: NewsItem) => (
+  const searchCriteria = useSelector((state: RootState) => state.newsList.searchCriteria)
+  const searchNews = useSelector(selectSearchNews)
+  const allNews = useSelector(selectAllNews)
+  const news = (searchCriteria ? searchNews : allNews).filter((n: NewsItem) => (
     !archived.includes(n.url) &&
     !selectedSections.includes(n.section)
   )).slice(0, 51)
@@ -59,9 +63,22 @@ function NewsList() {
     }
   }, [newsStatus, dispatch, lastUpdate])
 
+  const keyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter'){
+      const val = (e.target as any).value
+      dispatch(search(val))
+      if (val) {
+        dispatch(fetchSearchNews(val))
+      }
+    }
+  }
+
   return (
     <GlobalHotKeys handlers={handlers} keyMap={keyMap} allowChanges={true}>
-      <GridList cols={2} style={{paddingTop: 80}}>
+      <div style={{marginTop: 80, marginLeft: 10, marginRight: 10}}>
+        <TextField fullWidth label="Search" onKeyPress={keyPress} />
+      </div>
+      <GridList cols={2}>
           {news.map((n: NewsItem, i: number) => (
             <GridListTile key={n.url} cols={i > 0 && matches ? 1 : 2}>
                 <NewsListItem news={n} selected={i === selected} />
