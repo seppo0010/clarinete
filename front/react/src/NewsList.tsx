@@ -36,10 +36,10 @@ function NewsList() {
   const searchCriteria = useSelector((state: RootState) => state.newsList.searchCriteria)
   const searchNews = useSelector(selectSearchNews)
   const allNews = useSelector(selectAllNews)
-  const news = (searchCriteria ? searchNews : allNews).filter((n: NewsItem) => (
+  const news = (searchCriteria ? searchNews.filter((n: NewsItem) => (
     !archived.includes(n.url) &&
     !selectedSections.includes(n.section)
-  )).slice(0, 11)
+  )) : allNews).slice(0, 11)
   const selected = useSelector(selectedValue)
 
   const newsStatus = useSelector((state: RootState) => state.newsList.status)
