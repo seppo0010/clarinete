@@ -142,6 +142,24 @@ services:
           - driver: nvidia
             count: 1
             capabilities: [gpu]
+  ner:
+    build:
+      context: ./ner
+      target: ner
+    networks:
+      - queue
+    depends_on:
+      - "news-queue"
+  ner_test:
+    build: ner
+    image: ner_test
+    depends_on:
+      - "news-queue"
+    restart: "no"
+    networks:
+      - queue
+    profiles:
+      - donotstart
 
 secrets:
   postgres-password:

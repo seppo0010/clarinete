@@ -47,7 +47,7 @@ def publish_to_queue(key, value):
         )
     )
 
-def enqueue_url(cur, url, force=False):
+def enqueue_summary(cur, url, force=False):
     if force:
         cur.execute('SELECT title, content, source.language FROM news JOIN source ON news.source_id = source.id WHERE url = %s', [url])
     else:
@@ -65,6 +65,18 @@ def enqueue_url(cur, url, force=False):
             'language': language
         })
         cur.execute('UPDATE news SET summary = %s WHERE url = %s', ['', url])
+
+def enqueue_ner(cur, url):
+    cur.execute('SELECT content, source.language FROM news JOIN source ON news.source_id = source.id WHERE url = %s', [url])
+    res = cur.fetchone()
+    if not res:
+        return
+    content, language = res
+    publish_to_queue('ner_item', {
+        'url': url,
+        'content': content,
+        'language': language,
+    })
 
 def enqueue_deduplicator(cur, url):
     cur.execute('SELECT title, source_id, date, canonical_url, source.language FROM news JOIN source ON news.source_id = source.id WHERE url = %s', [url])
@@ -91,6 +103,18 @@ def enqueue_deduplicator(cur, url):
         'canonical_url': canonical_url,
         'language': language,
     })
+
+def update_entities(cur, url, entities):
+    for entity, etype in entities:
+        entity = entity[:511]
+        cur.execute(f'''INSERT INTO entities (name, entity_type) VALUES (%s, %s) ON CONFLICT DO NOTHING''', [
+            entity,
+            etype,
+        ])
+        cur.execute(f'''INSERT INTO news_entities (url, entity_id) SELECT %s, id FROM entities WHERE name = %s ON CONFLICT DO NOTHING''', [
+            url,
+            entity
+        ])
 
 def update_article(cur, obj):
     logger.info('updating article ' + obj['url'])
@@ -123,9 +147,14 @@ def update_article(cur, obj):
         if cur.rowcount > 0:
             changed.add(f)
 
+    if 'entities' in obj:
+        update_entities(cur, obj['url'], obj['entities'])
+    else:
+        enqueue_ner(cur, obj['url'])
+
     if 'title' in changed or 'date' in changed or 'source' in changed:
         enqueue_deduplicator(cur, obj['url'])
-    enqueue_url(cur, obj['url'])
+    enqueue_summary(cur, obj['url'])
 
 def update_homepage(cur, source, urls):
     logger.info(f'updating homepage for source {source} with {len(urls)} elements')
@@ -156,8 +185,9 @@ if __name__ == '__main__':
 
     if len(sys.argv) == 2:
         cur = pg_connection.cursor()
-        enqueue_url(cur, sys.argv[1], force=True)
+        enqueue_summary(cur, sys.argv[1], force=True)
         enqueue_deduplicator(cur, sys.argv[1])
+        enqueue_ner(cur, sys.argv[1])
         sys.exit(0)
 
     for method_frame, properties, body in channel.consume('item'):
