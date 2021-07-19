@@ -70,7 +70,7 @@ const NewsListItem: FC<{news: NewsItem, selected: boolean, position: number}> = 
         </Typography>
         <Typography className={classes.title} color="textSecondary" gutterBottom style={{display: 'flex', height: 28}}>
           <div style={{height: '1.2rm', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', flexGrow: 1 }}>{top}</div>
-          <div>
+          <div style={{display: 'flex', flexShrink: 1}}>
               {news.summary && (
                 <Tooltip disableFocusListener title={news.summary} aria-label="add">
                   <Button aria-label="Leer resumen"><img src={brief} alt='Leer resumen' style={{height: 26}} /></Button>
