@@ -10,4 +10,5 @@ do
     scrapy runspider -L WARNING clarinetear/spiders/pagina12.py -a article_url=$line
     scrapy runspider -L WARNING clarinetear/spiders/elpais.py -a article_url=$line
     scrapy runspider -L WARNING clarinetear/spiders/latercera.py -a article_url=$line
+    scrapy runspider -L WARNING clarinetear/spiders/diariojudicial.py -a article_url=$line
 done < "${1:-/dev/stdin}"
