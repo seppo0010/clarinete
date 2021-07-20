@@ -34,30 +34,64 @@ def last_updated():
     cur.execute('''SELECT MAX(time) AS time FROM updated''')
     return jsonify(cur.fetchone())
 
+@app.route("/api/entities")
+def entities():
+    con = get_db()
+    cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute('''
+    SELECT entities.name, COUNT(*) as q FROM (
+        SELECT name
+        FROM news_entities
+            JOIN entities
+                ON news_entities.entity_id = COALESCE(entities.canonical_id, entities.id)
+                    AND entities.canonical_id IS NULL
+    ) entities
+    GROUP BY entities.name
+    ORDER BY q DESC
+    LIMIT 100
+    ''')
+    return jsonify(cur.fetchall())
+
 @app.route("/api/search")
 def search():
     criteria = request.args.get('criteria')
     con = get_db()
     cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute('''
-        SELECT url, title, volanta, section, date, source, country, summary
-        FROM (
-            SELECT url, title, volanta, COALESCE(section.category, 'Otros') AS section, date, source.name AS source, source.country, summary, ts_rank_cd(to_tsvector('spanish', title), query) AS rank
-            FROM news
-                LEFT JOIN section ON news.section_id = section.id
-                JOIN source ON news.source_id = source.id
-                , to_tsquery('spanish', %s) query
-            WHERE to_tsvector('spanish', title) @@ query
-            UNION
-            SELECT url, title, volanta, COALESCE(section.category, 'Otros') AS section, date, source.name AS source, source.country, summary, ts_rank_cd(to_tsvector('spanish', content), query) AS rank
-            FROM news
-                LEFT JOIN section ON news.section_id = section.id
-                JOIN source ON news.source_id = source.id
-                , to_tsquery('spanish', %s) query
-            WHERE to_tsvector('spanish', content) @@ query
+        SELECT DISTINCT news.url, title, volanta, section.name AS section, date, source.name AS source, country, summary
+        FROM news
+            LEFT JOIN section ON news.section_id = section.id
+            JOIN source ON news.source_id = source.id
+            INNER JOIN news_entities ON news.url = news_entities.url
+            INNER JOIN entities ON news_entities.entity_id IN (
+                SELECT e1.id FROM entities e1 JOIN entities e2 ON e1.canonical_id = e2.id
+                WHERE e2.name = %s
+                UNION
+                SELECT id FROM entities WHERE name = %s
+            )
+        UNION
+        SELECT * FROM (
+            SELECT url, title, volanta, section, date, source, country, summary
+            FROM (
+                SELECT url, title, volanta, COALESCE(section.category, 'Otros') AS section, date, source.name AS source, source.country, summary, ts_rank_cd(to_tsvector('spanish', title), query) AS rank
+                FROM news
+                    LEFT JOIN section ON news.section_id = section.id
+                    JOIN source ON news.source_id = source.id
+                    , plainto_tsquery('spanish', %s) query
+                WHERE to_tsvector('spanish', title) @@ query
+                UNION
+                SELECT url, title, volanta, COALESCE(section.category, 'Otros') AS section, date, source.name AS source, source.country, summary, ts_rank_cd(to_tsvector('spanish', content), query) AS rank
+                FROM news
+                    LEFT JOIN section ON news.section_id = section.id
+                    JOIN source ON news.source_id = source.id
+                    , plainto_tsquery('spanish', %s) query
+                WHERE to_tsvector('spanish', content) @@ query
+                LIMIT 20
+            ) t
+            ORDER BY rank DESC
         ) t
-        ORDER BY rank DESC
-    ''', [criteria, criteria])
+        LIMIT 50
+    ''', [criteria, criteria, criteria, criteria])
     return jsonify(cur.fetchall())
 
 @app.route("/api/news")

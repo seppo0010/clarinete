@@ -15,9 +15,11 @@ import SearchIcon from '@material-ui/icons/Search';
 import ClearIcon from '@material-ui/icons/Clear';
 import IconButton from '@material-ui/core/IconButton';
 import InputAdornment from '@material-ui/core/InputAdornment';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 
 import { NewsItem, selectAllNews, hiddenSections, selectSearchNews, search } from './newsSlice'
 import { fetchNews, fetchSearchNews } from './fetchNewsSlice'
+import { fetchEntities } from './fetchEntitiesSlice'
 import { selectedValue, increment, decrement } from './selectedSlice'
 import { archivedURLs, addURL } from './archivedSlice'
 import NewsListItem from './NewsListItem'
@@ -48,8 +50,10 @@ function NewsList() {
   const selected = useSelector(selectedValue)
 
   const newsStatus = useSelector((state: RootState) => state.newsList.status)
+  const entitiesStatus  = useSelector((state: RootState) => state.entities.status)
   const searchNewsStatus = useSelector((state: RootState) => state.newsList.searchStatus)
   const lastUpdate = useSelector((state: RootState) => state.newsList.updateDate)
+  const entities = useSelector((state: RootState) => state.entities.entities)
   const searchRef = useRef<HTMLInputElement>()
 
   const handlers = {
@@ -69,6 +73,12 @@ function NewsList() {
     },
   };
   const [searchCriteriaInput, setSearchCriteriaInput] = useState('')
+
+  useEffect(() => {
+    if (entitiesStatus === 'idle') {
+      dispatch(fetchEntities())
+    }
+  }, [entitiesStatus, dispatch])
 
   useEffect(() => {
     if (newsStatus === 'idle' || lastUpdate < Date.now() - 60 * 1000) {
@@ -99,31 +109,40 @@ function NewsList() {
   return (
     <GlobalHotKeys handlers={handlers} keyMap={keyMap} allowChanges={true}>
       <div style={{marginTop: 80, marginLeft: 10, marginRight: 10}} id="main">
-        <TextField
+      <Autocomplete
+          options={entities}
+          getOptionLabel={(entity) => entity.name}
+          fullWidth
+          freeSolo
+          renderInput={(params) => <TextField
+            {...params}
             fullWidth
             label="Buscar"
             value={searchCriteriaInput}
             onKeyPress={keyPress}
             onKeyDown={keyDown}
             onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setSearchCriteriaInput((e.target as any).value)}
-            inputProps={{ 'aria-label': 'Buscar', ref: searchRef }}
+            inputProps={{ 'aria-label': 'Buscar', ref: searchRef, ...params.inputProps }}
             InputProps={{
-                endAdornment: (
-                    <InputAdornment position="end">
-                        {searchCriteria && 
-                            <IconButton
-                                onClick={clearSearch}
-                                >
-                                <ClearIcon />
-                            </IconButton>
-                        }
-                        {!searchCriteria && 
-                            <SearchIcon />
-                        }
-                    </InputAdornment>
-                ),
+              ...params.InputProps,
+              endAdornment: (
+                  <InputAdornment position="end">
+                      {searchCriteria && 
+                          <IconButton
+                              onClick={clearSearch}
+                              >
+                              <ClearIcon />
+                          </IconButton>
+                      }
+                      {!searchCriteria && 
+                          <SearchIcon />
+                      }
+                  </InputAdornment>
+              ),
             }}
             />
+          }
+        />
       </div>
       {searchCriteria !== '' && searchNewsStatus === 'loading' && (<div style={{textAlign: 'center'}}>
         <CircularProgress style={{marginTop: 50}} />
