@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 
 import { useSelector, useDispatch } from 'react-redux'
 import { useHistory } from "react-router-dom";
@@ -28,6 +28,7 @@ const keyMap = {
   PREVIOUS: "k",
   OPEN_NEWS: "enter",
   ARCHIVE: "a",
+  SEARCH: "/",
 };
 
 function NewsList() {
@@ -49,6 +50,7 @@ function NewsList() {
   const newsStatus = useSelector((state: RootState) => state.newsList.status)
   const searchNewsStatus = useSelector((state: RootState) => state.newsList.searchStatus)
   const lastUpdate = useSelector((state: RootState) => state.newsList.updateDate)
+  const searchRef = useRef<HTMLInputElement>()
 
   const handlers = {
     NEXT: () => dispatch(increment()),
@@ -60,6 +62,10 @@ function NewsList() {
     },
     ARCHIVE: () => {
       dispatch(addURL(news[selected].url))
+    },
+    SEARCH: (e: KeyboardEvent | undefined) => {
+      e?.preventDefault()
+      searchRef?.current?.focus()
     },
   };
   const [searchCriteriaInput, setSearchCriteriaInput] = useState('')
@@ -75,6 +81,11 @@ function NewsList() {
       dispatch(search(''))
   }
 
+  const keyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape'){
+      searchRef?.current?.blur()
+    }
+  }
   const keyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter'){
       const val = (e.target as any).value
@@ -93,8 +104,9 @@ function NewsList() {
             label="Buscar"
             value={searchCriteriaInput}
             onKeyPress={keyPress}
+            onKeyDown={keyDown}
             onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setSearchCriteriaInput((e.target as any).value)}
-            inputProps={{ 'aria-label': 'Buscar' }}
+            inputProps={{ 'aria-label': 'Buscar', ref: searchRef }}
             InputProps={{
                 endAdornment: (
                     <InputAdornment position="end">
