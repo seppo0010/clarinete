@@ -130,7 +130,7 @@ function Menu() {
           </ListItem>
         ))}
         <ListItem>
-          Last update {new Date(lastUpdate).toISOString()}
+          Última actualización {new Date(lastUpdate).toISOString()}
         </ListItem>
       </List>
     </Drawer>
