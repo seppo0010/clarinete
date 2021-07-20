@@ -15,6 +15,7 @@ import {
 } from "react-router-dom";
 import { addURL } from './archivedSlice'
 import type { RootState } from './store'
+import { SingleNewsItem } from './singleNewsSlice'
 
 const keyMap = {
   ARCHIVE: "a",
@@ -38,7 +39,7 @@ function NewsDetails() {
             maybeNews.news[0].url :
             null
           )
-  const sources = maybeNews && maybeNews.news ? maybeNews.news.map((news) => news.source) : []
+  const sources = maybeNews && maybeNews.news ? maybeNews.news.map((news: SingleNewsItem) => news.source) : []
   if (source) {
     let selectedIndex = sources.indexOf(source)
     if (selectedIndex === -1) {

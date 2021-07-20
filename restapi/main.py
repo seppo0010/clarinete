@@ -5,9 +5,16 @@ import urllib
 
 from flask import Flask, jsonify, request, g
 from waitress import serve
+import redis
 
 
-def get_db():
+ARCHIVE_KEY = 'archived:{user}'
+ARCHIVE_MAX = 2
+
+def get_archive_db():
+    return redis.Redis(host='userpreferences', port=6379, db=0)
+
+def get_news_db():
     pg_user = os.getenv("POSTGRES_USER")
     pg_host = 'news-database'
     pg_db = os.getenv("POSTGRES_DB")
@@ -29,14 +36,14 @@ app.teardown_appcontext(close_db)
 
 @app.route("/api/last_updated")
 def last_updated():
-    con = get_db()
+    con = get_news_db()
     cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute('''SELECT MAX(time) AS time FROM updated''')
     return jsonify(cur.fetchone())
 
 @app.route("/api/entities")
 def entities():
-    con = get_db()
+    con = get_news_db()
     cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute('''
     SELECT entities.name, COUNT(*) as q FROM (
@@ -55,7 +62,7 @@ def entities():
 @app.route("/api/search")
 def search():
     criteria = request.args.get('criteria')
-    con = get_db()
+    con = get_news_db()
     cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute('''
         SELECT DISTINCT news.url, title, volanta, section.name AS section, date, source.name AS source, country, summary
@@ -96,7 +103,10 @@ def search():
 
 @app.route("/api/news")
 def news_list():
-    con = get_db()
+    con = get_archive_db()
+    key = ARCHIVE_KEY.format(user='user')
+    archived = set(map(lambda x: x.decode('utf-8'), con.lrange(key, 0, -1)))
+    con = get_news_db()
     cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute('''
         SELECT url, title, volanta, COALESCE(section.category, 'Otros') AS section, date, source.name AS source, source.country, summary
@@ -106,11 +116,11 @@ def news_list():
         WHERE position IS NOT NULL AND
             canonical_url IS NULL
         ORDER BY position ASC, date DESC''')
-    return jsonify(cur.fetchall())
+    return jsonify([x for x in cur.fetchall() if x['url'] not in archived])
 
 @app.route("/api/news/details")
 def news_details():
-    con = get_db()
+    con = get_news_db()
     url = request.args.get('url')
     if not url:
         return 400, ''
@@ -124,6 +134,16 @@ def news_details():
         ORDER BY canonical_url IS NULL DESC
         ''', [url, url])
     return jsonify(cur.fetchall())
+
+@app.route("/api/archive", methods=['POST'])
+def archive():
+    con = get_archive_db()
+    url = request.get_json()['url']
+    key = ARCHIVE_KEY.format(user='user')
+    con.rpush(key, url)
+    while con.llen(key) > ARCHIVE_MAX:
+        con.lpop(key)
+    return jsonify(list(map(lambda x: x.decode('utf-8'), con.lrange(key, 0, -1))))
 
 if __name__ == '__main__':
     if os.getenv('FLASK_DEBUG', False):

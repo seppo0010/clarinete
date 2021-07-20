@@ -1,5 +1,16 @@
-import { createSlice } from '@reduxjs/toolkit'
-import type { RootState } from './store'
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import type { RootState, AppDispatch } from './store'
+
+export const archive = createAsyncThunk('archive/singleNews', async (url: string) => {
+  const req = await fetch('/api/archive', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({url})
+  })
+  await req.json()
+})
 
 interface ArchivedState {
   urls: string[]
@@ -17,6 +28,12 @@ const archivedSlice = createSlice({
   },
 })
 
-export const { addURL } = archivedSlice.actions
+const addURL = (url: string) => {
+  return (dispatch: AppDispatch) => {
+    dispatch(archivedSlice.actions.addURL(url))
+    dispatch(archive(url))
+  }
+}
+export { addURL }
 export const archivedURLs = (state: RootState) => state.archived.urls
 export default archivedSlice.reducer

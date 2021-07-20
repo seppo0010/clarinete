@@ -118,6 +118,7 @@ services:
     networks:
       - database
       - web
+      - restapi-userpreferences
   front:
     build: front
     depends_on:
@@ -160,6 +161,13 @@ services:
       - queue
     profiles:
       - donotstart
+  userpreferences:
+    image: redis
+    command: redis-server --appendonly yes
+    networks:
+      - restapi-userpreferences
+    volumes:
+      - userpreferences:/data
 
 secrets:
   postgres-password:
@@ -170,7 +178,9 @@ networks:
   queue:
   web:
   translator-summarizer:
+  restapi-userpreferences:
 
 volumes:
   pgdata:
   rabbitmqdata:
+  userpreferences:
