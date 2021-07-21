@@ -88,6 +88,10 @@ function NewsList() {
     }
   }, [newsStatus, dispatch, lastUpdate])
 
+  useState(() => {
+    setSearchCriteriaInput(searchCriteria)
+  })
+
   const clearSearch = () => {
       setSearchCriteriaInput('')
       dispatch(search(''))
@@ -98,13 +102,16 @@ function NewsList() {
       (document.querySelector('[aria-label="Buscar"]') as HTMLInputElement).blur()
     }
   }
+  const doSearch = () => {
+    const val = searchCriteriaInput
+    dispatch(search(val))
+    if (val) {
+      dispatch(fetchSearchNews(val))
+    }
+  }
   const keyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter'){
-      const val = (e.target as any).value
-      dispatch(search(val))
-      if (val) {
-        dispatch(fetchSearchNews(val))
-      }
+      doSearch()
     }
   }
 
@@ -116,28 +123,32 @@ function NewsList() {
           getOptionLabel={(name) => name}
           fullWidth
           freeSolo
+          value={searchCriteriaInput}
+          onKeyPress={keyPress}
+          onKeyDown={keyDown}
+          onChange={(e: any, value: string | null) => setSearchCriteriaInput(value || '')}
           renderInput={(params) => <TextField
             {...params}
             fullWidth
             label="Buscar"
-            value={searchCriteriaInput}
-            onKeyPress={keyPress}
-            onKeyDown={keyDown}
-            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setSearchCriteriaInput((e.target as any).value)}
             inputProps={{ 'aria-label': 'Buscar',  ...params.inputProps }}
             InputProps={{
               ...params.InputProps,
               endAdornment: (
                   <InputAdornment position="end">
                       {searchCriteria && 
-                          <IconButton
-                              onClick={clearSearch}
-                              >
-                              <ClearIcon />
-                          </IconButton>
+                        <IconButton
+                            onClick={clearSearch}
+                            >
+                          <ClearIcon />
+                        </IconButton>
                       }
                       {!searchCriteria && 
+                        <IconButton
+                            onClick={doSearch}
+                            >
                           <SearchIcon />
+                        </IconButton>
                       }
                   </InputAdornment>
               ),
@@ -151,7 +162,7 @@ function NewsList() {
       </div>)}
       {(searchCriteria === '' || searchNewsStatus !== 'loading') && (
         news.map((n: NewsItem, i: number) => (
-          <NewsListItem news={n} selected={i === selected} position={i} />
+          <NewsListItem key={n.url} news={n} selected={i === selected} position={i} />
         ))
       )}
     </GlobalHotKeys>
