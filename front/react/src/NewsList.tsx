@@ -5,10 +5,6 @@ import { useHistory } from "react-router-dom";
 
 import { GlobalHotKeys } from "react-hotkeys";
 
-import { useTheme } from '@material-ui/core/styles';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
-import GridList from '@material-ui/core/GridList';
-import GridListTile from '@material-ui/core/GridListTile';
 import TextField from '@material-ui/core/TextField';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import SearchIcon from '@material-ui/icons/Search';
@@ -34,8 +30,6 @@ const keyMap = {
 };
 
 function NewsList() {
-  const theme = useTheme();
-  const matches = useMediaQuery(theme.breakpoints.up('md'));
   const history = useHistory()
   const dispatch = useDispatch()
   const archived = useSelector(archivedURLs)
@@ -147,13 +141,9 @@ function NewsList() {
         <CircularProgress style={{marginTop: 50}} />
       </div>)}
       {(searchCriteria === '' || searchNewsStatus !== 'loading') && (
-        <GridList cols={2}>
-            {news.map((n: NewsItem, i: number) => (
-              <GridListTile key={n.url} cols={matches ? 1 : 2}>
-                  <NewsListItem news={n} selected={i === selected} position={i} />
-              </GridListTile>
-            ))}
-        </GridList>
+        news.map((n: NewsItem, i: number) => (
+          <NewsListItem news={n} selected={i === selected} position={i} />
+        ))
       )}
     </GlobalHotKeys>
   );

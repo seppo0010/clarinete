@@ -2,12 +2,12 @@ import React, { FC, useState, useRef } from "react";
 import { useDispatch } from 'react-redux'
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import { Link } from "react-router-dom";
 import MoveToInboxIcon from '@material-ui/icons/MoveToInbox';
 import Tooltip from '@material-ui/core/Tooltip';
+import Paper from '@material-ui/core/Paper';
+import Box from '@material-ui/core/Box';
 
 import { NewsItem } from './newsSlice'
 import { addURL } from './archivedSlice'
@@ -60,12 +60,12 @@ const NewsListItem: FC<{news: NewsItem, selected: boolean, position: number}> = 
     news.date ? new Intl.DateTimeFormat('es').format(new Date(news.date)) : '',
   ].filter((x) => !!x).join(' | ')
   return (
-    <Card className={classes.root} style={{outline: selected ? 'solid': 'none'}} ref={ref}>
-      <CardContent style={{display: 'flex', flexDirection: 'column-reverse'}}>
+    <Paper className={classes.root} style={{margin: 6, outline: selected ? 'solid': 'none'}} ref={ref}>
+      <Box style={{padding: 20, display: 'flex', flexDirection: 'column-reverse'}}>
         <Typography color="textSecondary">
           {bottom}
         </Typography>
-        <Typography variant="h6" component="h2" style={{height: 72, overflow: 'hidden'}}>
+        <Typography variant="h6" component="h2">
           <Link to={'/' + encodeURIComponent(news.url)} title={news.summary} id={position === 0 ? 'firstLink' : undefined}>{news.title}</Link>
         </Typography>
         <Typography className={classes.title} color="textSecondary" gutterBottom style={{display: 'flex', height: 28}}>
@@ -79,8 +79,8 @@ const NewsListItem: FC<{news: NewsItem, selected: boolean, position: number}> = 
               <Button onClick={() => dispatch(addURL(news.url))} style={{marginTop: -8}} aria-label="archivar"><MoveToInboxIcon /></Button>
           </div>
         </Typography>
-      </CardContent>
-    </Card>
+      </Box>
+    </Paper>
   );
 }
 export default NewsListItem
