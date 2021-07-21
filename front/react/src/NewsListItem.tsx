@@ -65,6 +65,9 @@ const NewsListItem: FC<{news: NewsItem, selected: boolean, position: number}> = 
         <Typography color="textSecondary">
           {bottom}
         </Typography>
+        {selected && <Typography color="textPrimary">
+          {news.summary}
+        </Typography>}
         <Typography variant="h6" component="h2">
           <Link to={'/' + encodeURIComponent(news.url)} title={news.summary} id={position === 0 ? 'firstLink' : undefined}>{news.title}</Link>
         </Typography>
