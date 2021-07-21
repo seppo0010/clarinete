@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 
 import { useSelector, useDispatch } from 'react-redux'
 import { useHistory } from "react-router-dom";
@@ -54,7 +54,6 @@ function NewsList() {
   const searchNewsStatus = useSelector((state: RootState) => state.newsList.searchStatus)
   const lastUpdate = useSelector((state: RootState) => state.newsList.updateDate)
   const entities = useSelector((state: RootState) => state.entities.entities)
-  const searchRef = useRef<HTMLInputElement>()
 
   const handlers = {
     NEXT: () => dispatch(increment()),
@@ -68,8 +67,8 @@ function NewsList() {
       dispatch(addURL(news[selected].url))
     },
     SEARCH: (e: KeyboardEvent | undefined) => {
-      e?.preventDefault()
-      searchRef?.current?.focus()
+      e?.preventDefault();
+      (document.querySelector('[aria-label="Buscar"]') as HTMLInputElement).focus()
     },
   };
   const [searchCriteriaInput, setSearchCriteriaInput] = useState('')
@@ -93,7 +92,7 @@ function NewsList() {
 
   const keyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape'){
-      searchRef?.current?.blur()
+      (document.querySelector('[aria-label="Buscar"]') as HTMLInputElement).blur()
     }
   }
   const keyPress = (e: React.KeyboardEvent) => {
@@ -110,8 +109,8 @@ function NewsList() {
     <GlobalHotKeys handlers={handlers} keyMap={keyMap} allowChanges={true}>
       <div style={{marginTop: 80, marginLeft: 10, marginRight: 10}} id="main">
       <Autocomplete
-          options={entities}
-          getOptionLabel={(entity) => entity.name}
+          options={entities.map((e) => e.name)}
+          getOptionLabel={(name) => name}
           fullWidth
           freeSolo
           renderInput={(params) => <TextField
@@ -122,7 +121,7 @@ function NewsList() {
             onKeyPress={keyPress}
             onKeyDown={keyDown}
             onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setSearchCriteriaInput((e.target as any).value)}
-            inputProps={{ 'aria-label': 'Buscar', ref: searchRef, ...params.inputProps }}
+            inputProps={{ 'aria-label': 'Buscar',  ...params.inputProps }}
             InputProps={{
               ...params.InputProps,
               endAdornment: (
