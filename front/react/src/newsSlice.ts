@@ -19,6 +19,7 @@ export interface State {
   status: 'idle' | 'succeeded' | 'loading' | 'failed'
   searchStatus: 'idle' | 'succeeded' | 'loading' | 'failed'
   error: string | undefined | null
+  hiddenSources: string[]
   hiddenSections: string[]
   updateDate: number
   searchCriteria: string
@@ -30,6 +31,7 @@ const initialState: State = {
   searchStatus: 'idle',
   error: null,
   hiddenSections: [],
+  hiddenSources: [],
   updateDate: 0,
   searchCriteria: '',
 }
@@ -38,6 +40,18 @@ const newsSlice = createSlice({
   name: 'news',
   initialState,
   reducers: {
+    addHiddenSource: {
+      reducer(state, action) {
+        state.hiddenSources.push(action.payload)
+      },
+      prepare(data: any) { return { id: nanoid(), payload: data } as any },
+    },
+    removeHiddenSource: {
+      reducer(state, action) {
+        state.hiddenSources.splice(state.hiddenSources.indexOf(action.payload), 1)
+      },
+      prepare(data: any) { return { id: nanoid(), payload: data } as any },
+    },
     addHiddenSection: {
       reducer(state, action) {
         state.hiddenSections.push(action.payload)
@@ -91,9 +105,17 @@ const newsSlice = createSlice({
   },
 })
 
-export const { newsFetched, addHiddenSection, removeHiddenSection, search } = newsSlice.actions
+export const {
+  newsFetched,
+  addHiddenSection,
+  removeHiddenSection,
+  addHiddenSource,
+  removeHiddenSource,
+  search
+} = newsSlice.actions
 export const selectAllNews = (state: RootState) => state.newsList.news
 export const selectSearchNews = (state: RootState) => state.newsList.searchNews
 export const hiddenSections  = (state: RootState) => state.newsList.hiddenSections
+export const hiddenSources  = (state: RootState) => state.newsList.hiddenSources
 
 export default newsSlice.reducer

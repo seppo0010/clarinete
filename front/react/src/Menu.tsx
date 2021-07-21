@@ -18,12 +18,21 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Switch from '@material-ui/core/Switch';
+import Box from '@material-ui/core/Box';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { NewsItem } from './newsSlice'
 import { images } from './sections'
-import { selectAllNews, hiddenSections, addHiddenSection, removeHiddenSection } from './newsSlice'
+import {
+  selectAllNews,
+  hiddenSections,
+  addHiddenSection,
+  removeHiddenSection,
+  hiddenSources,
+  addHiddenSource,
+  removeHiddenSource,
+} from './newsSlice'
 import { fetchNews } from './fetchNewsSlice'
 import type { RootState } from './store'
 
@@ -47,7 +56,8 @@ const useStyles = makeStyles((theme) => ({
 function Menu() {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
-  const selected = useSelector(hiddenSections)
+  const selectedSections = useSelector(hiddenSections)
+  const selectedSources = useSelector(hiddenSources)
   const dispatch = useDispatch()
   const lastUpdate = useSelector((state: RootState) => state.newsList.updateDate)
   const classes = useStyles();
@@ -61,8 +71,15 @@ function Menu() {
   };
   const newsStatus = useSelector((state: RootState) => state.newsList.status)
   const searchNewsStatus = useSelector((state: RootState) => state.newsList.searchStatus)
+  const toggleSource = (text: string) => {
+    if (!selectedSources.includes(text)) {
+      dispatch(addHiddenSource(text))
+    } else {
+      dispatch(removeHiddenSource(text))
+    }
+  }
   const toggleSection = (text: string) => {
-    if (!selected.includes(text)) {
+    if (!selectedSections.includes(text)) {
       dispatch(addHiddenSection(text))
     } else {
       dispatch(removeHiddenSection(text))
@@ -73,6 +90,11 @@ function Menu() {
   ).filter(
     (s: string, i: number, sections: string[]) => s !== 'Otros' && sections.indexOf(s) === i && s
   ).sort().concat(['Otros'])
+  const sources = useSelector(selectAllNews).map(
+    (n: NewsItem) => n.source
+  ).filter(
+    (s: string, i: number, sections: string[]) => sections.indexOf(s) === i && s
+  ).sort()
   const refresh = () => {
     dispatch(fetchNews())
   }
@@ -115,6 +137,31 @@ function Menu() {
         </IconButton>
       </div>
       <Divider />
+      <Box style={{padding: '10px 20px 0'}}>
+        <Typography color="textPrimary">
+          Filtros por origen
+        </Typography>
+      </Box>
+      <List>
+        {sources.map((text: string, index: number) => (
+          <ListItem button key={text}>
+            <ListItemText primary={text} style={{paddingRight: 30}}
+              onClick={() => toggleSection(text)}
+              />
+            <Switch
+              color="primary"
+              checked={!selectedSources.includes(text)}
+              onClick={() => toggleSource(text)}
+              />
+          </ListItem>
+        ))}
+      </List>
+      <Divider />
+      <Box style={{padding: '10px 20px 0'}}>
+        <Typography color="textPrimary">
+          Filtros por sección
+        </Typography>
+      </Box>
       <List>
         {sections.map((text: string, index: number) => (
           <ListItem button key={text}>
@@ -124,15 +171,17 @@ function Menu() {
               />
             <Switch
               color="primary"
-              checked={!selected.includes(text)}
+              checked={!selectedSections.includes(text)}
               onClick={() => toggleSection(text)}
               />
           </ListItem>
         ))}
-        <ListItem>
-          Última actualización {new Date(lastUpdate).toISOString()}
-        </ListItem>
       </List>
+      <Box style={{padding: '10px 20px 0'}}>
+        <Typography color="textSecondary">
+          Última actualización {new Date(lastUpdate).toISOString()}
+        </Typography>
+      </Box>
     </Drawer>
   </div>)
 }

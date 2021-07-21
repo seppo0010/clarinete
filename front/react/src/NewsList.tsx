@@ -13,7 +13,14 @@ import IconButton from '@material-ui/core/IconButton';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 
-import { NewsItem, selectAllNews, hiddenSections, selectSearchNews, search } from './newsSlice'
+import {
+  NewsItem,
+  selectAllNews,
+  hiddenSections,
+  hiddenSources,
+  selectSearchNews,
+  search,
+} from './newsSlice'
 import { fetchNews, fetchSearchNews } from './fetchNewsSlice'
 import { fetchEntities } from './fetchEntitiesSlice'
 import { selectedValue, increment, decrement } from './selectedSlice'
@@ -34,12 +41,14 @@ function NewsList() {
   const dispatch = useDispatch()
   const archived = useSelector(archivedURLs)
   const selectedSections = useSelector(hiddenSections)
+  const selectedSources = useSelector(hiddenSources)
   const searchCriteria = useSelector((state: RootState) => state.newsList.searchCriteria)
   const searchNews = useSelector(selectSearchNews)
   const allNews = useSelector(selectAllNews)
   const news = (searchCriteria ? searchNews : allNews.filter((n: NewsItem) => (
     !archived.includes(n.url) &&
-    !selectedSections.includes(n.section)
+    !selectedSections.includes(n.section) &&
+    !selectedSources.includes(n.source)
   ))).slice(0, 16)
   const selected = useSelector(selectedValue)
 
