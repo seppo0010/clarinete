@@ -31,8 +31,10 @@ class Pagina12Spider(scrapy.Spider):
             urls.append(url)
 
             maybe_img = article.css('img.show-for-large-only')
+            title = article.css('.article-title a::text, a .title::text').get('')
+            title_suffix = article.css('.article-title .title-separator::text').get('')
             obj = {
-                'title': article.css('.article-title a::text, a .title::text').get(),
+                'title': title + title_suffix,
                 'volanta': (article.css('.article-title a .title-prefix::text').get() or '').strip(),
                 'url': url,
                 'image': maybe_img.attrib['src'] if maybe_img else None,
