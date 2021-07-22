@@ -97,7 +97,7 @@ function NewsDetails() {
               5: 2,
               6: 2,
             }[sources.length] || 1) as GridSize}>
-              <Link to={`/${encodeURIComponent(canonicalURL)}/${source}`} title={news.summary}>{source}</Link>
+              <Link to={`/url/${encodeURIComponent(canonicalURL)}/${source}`} title={news.summary}>{source}</Link>
             </Grid>
             ))}
           </Grid>}
