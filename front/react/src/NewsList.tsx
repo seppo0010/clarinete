@@ -66,7 +66,7 @@ function NewsList() {
     PREVIOUS: () => dispatch(decrement()),
     OPEN_NEWS: () => {
       if (!['BUTTON', 'A'].includes((document.activeElement || {}).tagName || '')) {
-        history.push(encodeURIComponent(news[selected].url))
+        history.push('/url/' + encodeURIComponent(news[selected].url))
       }
     },
     ARCHIVE: () => {
