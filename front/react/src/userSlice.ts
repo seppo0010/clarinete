@@ -46,7 +46,7 @@ export const getUserId = (state: RootState) => state.user.user.id
 
 export const merge = (newUserId: string, oldUserId: string) => {
   return async (dispatch: AppDispatch) => {
-    await dispatch(mergeUser([newUserId, oldUserId]))
+    await dispatch(mergeUser({newUserId, oldUserId}))
     await dispatch(userSlice.actions.merge(newUserId))
     await dispatch(flush(null))
   }

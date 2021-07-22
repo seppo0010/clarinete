@@ -146,6 +146,17 @@ def archive():
         con.lpop(key)
     return jsonify(list(map(lambda x: x.decode('utf-8'), con.lrange(key, 0, -1))))
 
+@app.route("/api/merge", methods=['POST'])
+def merge():
+    con = get_archive_db()
+    params = request.get_json()
+    newKey = ARCHIVE_KEY.format(user=params['newUserId'])
+    oldKey = ARCHIVE_KEY.format(user=params['oldUserId'])
+    if newKey != oldKey:
+        while con.rpoplpush(oldKey, newKey) is not None:
+            pass
+    return jsonify({})
+
 if __name__ == '__main__':
     if os.getenv('FLASK_DEBUG', False):
         app.run('0.0.0.0', debug=True)
