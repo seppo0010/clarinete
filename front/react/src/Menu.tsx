@@ -182,7 +182,7 @@ function Menu() {
       </List>
       <Box style={{padding: '10px 20px 0'}}>
         <Typography color="textSecondary">
-          <Link to={'/agregardispositivo'}>Agregar dispositivo</Link>
+          <Link to={'/agregardispositivo'} onClick={handleDrawerClose}>Agregar dispositivo</Link>
         </Typography>
       </Box>
       <Box style={{padding: '10px 20px 0'}}>
