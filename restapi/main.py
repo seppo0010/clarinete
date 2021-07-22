@@ -105,7 +105,7 @@ def news_list():
             JOIN source ON news.source_id = source.id
         WHERE position IS NOT NULL AND
             canonical_url IS NULL
-        ORDER BY position ASC''')
+        ORDER BY position ASC, date DESC''')
     return jsonify(cur.fetchall())
 
 @app.route("/api/news/details")
