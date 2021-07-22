@@ -1,4 +1,4 @@
-FROM nvidia/cuda:11.2.0-runtime-ubuntu20.04 AS summarizer
+FROM nvidia/cuda:11.4.0-runtime-ubuntu20.04 AS summarizer
 
 RUN apt-get update && apt-get install -y pipenv && rm -rf /var/lib/apt/lists/*
 COPY Pipfile* /summarizer/
