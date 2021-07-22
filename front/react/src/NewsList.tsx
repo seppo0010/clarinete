@@ -35,6 +35,7 @@ const keyMap = {
   OPEN_NEWS: "enter",
   ARCHIVE: "a",
   SEARCH: "/",
+  REFRESH: "r",
 };
 
 function NewsList() {
@@ -76,6 +77,10 @@ function NewsList() {
     SEARCH: (e: KeyboardEvent | undefined) => {
       e?.preventDefault();
       (document.querySelector('[aria-label="Buscar"]') as HTMLInputElement).focus()
+    },
+    REFRESH: (e: KeyboardEvent | undefined) => {
+      e?.preventDefault();
+      dispatch(fetchNews(userId))
     },
   };
   const [searchCriteriaInput, setSearchCriteriaInput] = useState('')
