@@ -1,6 +1,7 @@
 import React from 'react'
 
 import { useSelector, useDispatch } from 'react-redux'
+import { Link } from "react-router-dom";
 import { useTheme } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
@@ -40,15 +41,15 @@ import { getUserId } from './userSlice'
 const useStyles = makeStyles((theme) => ({
   root: {
     '& .skip-to-content-link': {
-        top: 0,
-        left: '50%',
+        left: 0,
+        top: '50%',
         position: 'absolute',
-        transform: 'translateY(-100%)',
+        transform: 'translateX(-100%)',
         color: 'white',
         zIndex: 10000,
     },
     '& .skip-to-content-link:focus': {
-        transform: 'translateY(0%)',
+        transform: 'translateX(0%)',
     },
   },
 }));
@@ -179,6 +180,11 @@ function Menu() {
           </ListItem>
         ))}
       </List>
+      <Box style={{padding: '10px 20px 0'}}>
+        <Typography color="textSecondary">
+          <Link to={'/agregardispositivo'}>Agregar dispositivo</Link>
+        </Typography>
+      </Box>
       <Box style={{padding: '10px 20px 0'}}>
         <Typography color="textSecondary">
           Última actualización {new Date(lastUpdate).toISOString()}

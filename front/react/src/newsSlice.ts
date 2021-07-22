@@ -77,6 +77,12 @@ const newsSlice = createSlice({
       },
       prepare(data: any) { return { id: nanoid(), payload: data } as any },
     },
+    flush: {
+      reducer(state, action) {
+        state.news = []
+      },
+      prepare(data: any) { return { id: nanoid(), payload: data } as any },
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchNews.pending, (state, action) => {
@@ -111,7 +117,8 @@ export const {
   removeHiddenSection,
   addHiddenSource,
   removeHiddenSource,
-  search
+  search,
+  flush,
 } = newsSlice.actions
 export const selectAllNews = (state: RootState) => state.newsList.news
 export const selectSearchNews = (state: RootState) => state.newsList.searchNews
