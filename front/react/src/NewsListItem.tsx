@@ -1,5 +1,5 @@
 import React, { FC, useState, useRef } from "react";
-import { useDispatch } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
@@ -11,6 +11,7 @@ import Box from '@material-ui/core/Box';
 
 import { NewsItem } from './newsSlice'
 import { addURL } from './archivedSlice'
+import { getUserId } from './userSlice'
 import brief from './images/brief.svg'
 
 const useStyles = makeStyles({
@@ -27,6 +28,7 @@ const useStyles = makeStyles({
 const NewsListItem: FC<{news: NewsItem, selected: boolean, position: number}> = ({news, selected, position}) => {
   const classes = useStyles();
   const dispatch = useDispatch()
+  const userId = useSelector(getUserId)
 
   const [wasSelected, setWasSelected] = useState(false)
 
@@ -79,7 +81,7 @@ const NewsListItem: FC<{news: NewsItem, selected: boolean, position: number}> = 
                   <Button aria-label="Leer resumen"><img src={brief} alt='Leer resumen' style={{height: 26}} /></Button>
                 </Tooltip>
               )}
-              <Button onClick={() => dispatch(addURL(news.url))} style={{marginTop: -8}} aria-label="archivar"><MoveToInboxIcon /></Button>
+              <Button onClick={() => userId && dispatch(addURL(news.url, userId))} style={{marginTop: -8}} aria-label="archivar"><MoveToInboxIcon /></Button>
           </div>
         </Typography>
       </Box>

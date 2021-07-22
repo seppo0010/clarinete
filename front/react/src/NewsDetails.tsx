@@ -16,6 +16,7 @@ import {
 import { addURL } from './archivedSlice'
 import type { RootState } from './store'
 import { SingleNewsItem } from './singleNewsSlice'
+import { getUserId } from './userSlice'
 
 const keyMap = {
   ARCHIVE: "a",
@@ -28,6 +29,7 @@ function NewsDetails() {
   const history = useHistory()
   const dispatch = useDispatch()
   const maybeNews = useSelector(selectNews)
+  const userId = useSelector(getUserId)
   const news = (maybeNews.news &&
           maybeNews.news[maybeNews.deduplicatedIndex] &&
           maybeNews.news[0].url === url ?
@@ -52,8 +54,8 @@ function NewsDetails() {
 
   const handlers = {
     ARCHIVE: () => {
-      if (news) {
-        dispatch(addURL(news.url))
+      if (news && userId) {
+        dispatch(addURL(news.url, userId))
         history.push('/')
       }
     },

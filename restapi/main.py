@@ -104,7 +104,7 @@ def search():
 @app.route("/api/news")
 def news_list():
     con = get_archive_db()
-    key = ARCHIVE_KEY.format(user='user')
+    key = ARCHIVE_KEY.format(user=request.args.get('userId', None))
     archived = set(map(lambda x: x.decode('utf-8'), con.lrange(key, 0, -1)))
     con = get_news_db()
     cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -138,8 +138,9 @@ def news_details():
 @app.route("/api/archive", methods=['POST'])
 def archive():
     con = get_archive_db()
-    url = request.get_json()['url']
-    key = ARCHIVE_KEY.format(user='user')
+    params = request.get_json()
+    url = params['url']
+    key = ARCHIVE_KEY.format(user=params.get('userId', ''))
     con.rpush(key, url)
     while con.llen(key) > ARCHIVE_MAX:
         con.lpop(key)

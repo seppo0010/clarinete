@@ -13,6 +13,7 @@ import {
 } from "redux-persist";
 
 
+import user from './userSlice'
 import newsList from './newsSlice'
 import singleNews from './singleNewsSlice'
 import selected from './selectedSlice'
@@ -20,6 +21,10 @@ import archived from './archivedSlice'
 import entities from './entitiesSlice'
 
 const reducer = combineReducers({
+  user: persistReducer({
+    key: 'user',
+    storage
+  }, user),
   newsList: persistReducer({
     key: 'newsList',
     storage

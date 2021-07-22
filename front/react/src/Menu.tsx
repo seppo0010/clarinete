@@ -35,6 +35,7 @@ import {
 } from './newsSlice'
 import { fetchNews } from './fetchNewsSlice'
 import type { RootState } from './store'
+import { getUserId } from './userSlice'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -61,6 +62,7 @@ function Menu() {
   const dispatch = useDispatch()
   const lastUpdate = useSelector((state: RootState) => state.newsList.updateDate)
   const classes = useStyles();
+  const userId = useSelector(getUserId)
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -96,7 +98,7 @@ function Menu() {
     (s: string, i: number, sections: string[]) => sections.indexOf(s) === i && s
   ).sort()
   const refresh = () => {
-    dispatch(fetchNews())
+    dispatch(fetchNews(userId))
   }
   return (<div className={classes.root}>
     <a href="#main" onClick={() => {

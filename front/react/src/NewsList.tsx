@@ -27,6 +27,7 @@ import { selectedValue, increment, decrement } from './selectedSlice'
 import { archivedURLs, addURL } from './archivedSlice'
 import NewsListItem from './NewsListItem'
 import type { RootState } from './store'
+import { getUserId } from './userSlice'
 
 const keyMap = {
   NEXT: "j",
@@ -57,6 +58,7 @@ function NewsList() {
   const searchNewsStatus = useSelector((state: RootState) => state.newsList.searchStatus)
   const lastUpdate = useSelector((state: RootState) => state.newsList.updateDate)
   const entities = useSelector((state: RootState) => state.entities.entities)
+  const userId = useSelector(getUserId)
 
   const handlers = {
     NEXT: () => dispatch(increment()),
@@ -67,7 +69,9 @@ function NewsList() {
       }
     },
     ARCHIVE: () => {
-      dispatch(addURL(news[selected].url))
+      if (userId) {
+        dispatch(addURL(news[selected].url, userId))
+      }
     },
     SEARCH: (e: KeyboardEvent | undefined) => {
       e?.preventDefault();
@@ -83,10 +87,10 @@ function NewsList() {
   }, [entitiesStatus, dispatch])
 
   useEffect(() => {
-    if (newsStatus === 'idle' || lastUpdate < Date.now() - 60 * 1000) {
-      dispatch(fetchNews())
+    if (userId && (newsStatus === 'idle' || lastUpdate < Date.now() - 60 * 1000)) {
+      dispatch(fetchNews(userId))
     }
-  }, [newsStatus, dispatch, lastUpdate])
+  }, [newsStatus, dispatch, lastUpdate, userId])
 
   useState(() => {
     setSearchCriteriaInput(searchCriteria)
