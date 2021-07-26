@@ -5,14 +5,14 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import { Link } from "react-router-dom";
 import MoveToInboxIcon from '@material-ui/icons/MoveToInbox';
-import Tooltip from '@material-ui/core/Tooltip';
+import VisibilityIcon from '@material-ui/icons/Visibility';
 import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
 
 import { NewsItem } from './newsSlice'
 import { addURL } from './archivedSlice'
 import { getUserId } from './userSlice'
-import brief from './images/brief.svg'
+import { setSelected } from './selectedSlice'
 
 const useStyles = makeStyles({
   root: {
@@ -76,11 +76,7 @@ const NewsListItem: FC<{news: NewsItem, selected: boolean, position: number}> = 
         <Typography className={classes.title} color="textSecondary" gutterBottom style={{display: 'flex', height: 28}}>
           <div style={{height: '1.2rm', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', flexGrow: 1 }}>{top}</div>
           <div style={{display: 'flex', flexShrink: 1}}>
-              {news.summary && (
-                <Tooltip disableFocusListener title={news.summary} aria-label="add">
-                  <Button aria-label="Leer resumen"><img src={brief} alt='Leer resumen' style={{height: 26}} /></Button>
-                </Tooltip>
-              )}
+              <Button onClick={() => dispatch(setSelected(position))}><VisibilityIcon /></Button>
               <Button onClick={() => userId && dispatch(addURL(news.url, userId))} style={{marginTop: -8}} aria-label="archivar"><MoveToInboxIcon /></Button>
           </div>
         </Typography>

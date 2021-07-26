@@ -19,6 +19,9 @@ const selectedSlice = createSlice({
     decrement(state) {
       state.value = Math.max(state.value - 1, 0)
     },
+    setSelected(state, action) {
+      state.value = action.payload
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchNews.fulfilled, (state, action) => {
@@ -27,6 +30,6 @@ const selectedSlice = createSlice({
   }
 })
 
-export const { increment, decrement } = selectedSlice.actions
+export const { increment, decrement, setSelected } = selectedSlice.actions
 export const selectedValue = (state: RootState) => state.selected.value
 export default selectedSlice.reducer
