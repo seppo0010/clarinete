@@ -15,6 +15,24 @@ services:
       - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log_levels [{connection,error}]
     volumes:
       - rabbitmqdata:/var/lib/rabbitmq
+  entitier:
+    build:
+      context: ./entitier
+      target: entitier
+    networks:
+      - queue
+    depends_on:
+      - "news-queue"
+  entitier_test:
+    build: entitier
+    image: entitier_test
+    depends_on:
+      - "news-queue"
+    restart: "no"
+    networks:
+      - queue
+    profiles:
+      - donotstart
   deduplicator:
     build:
       context: ./deduplicator

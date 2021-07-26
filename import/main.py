@@ -118,7 +118,6 @@ def update_entities(cur, url, entities):
             url,
             entity
         ])
-        cur.execute('SELECT summary FROM entities WHERE name = %s', [entity])
         enqueue_summary_description(cur, entity)
 
 def update_article(cur, obj):
@@ -171,18 +170,22 @@ def update_homepage(cur, source, urls):
         cur.execute(f'''UPDATE news SET position = %s WHERE url = %s''', [i, url])
 
 def update_entity(cur, obj):
-    logger.info('updating entity ' + obj['name'])
+    logger.info('updating entity ' + obj['entity'])
     if 'summary' in obj:
         cur.execute(f'''UPDATE entities SET summary = %s WHERE name = %s''',
             [
                 obj['summary'],
-                obj['name'],
+                obj['entity'],
             ]
         )
 
 def enqueue_summary_description(cur, entity):
-    cur.execute('SELECT summary FROM entities WHERE name = %s', [entity])
-    summary = cur.fetchone()[0]
+    cur.execute('SELECT summary FROM entities WHERE name = %s AND summary IS NULL', [entity])
+    row = cur.fetchone()
+    if not row:
+        return
+    summary = row[0]
+    cur.execute('UPDATE entities SET summary = %s WHERE name = %s', ['', entity])
     publish_to_queue('entity_item', {
         'entity': entity,
     })
