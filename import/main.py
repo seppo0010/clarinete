@@ -67,6 +67,9 @@ def enqueue_summary(cur, url, force=False):
         cur.execute('UPDATE news SET summary = %s WHERE url = %s', ['', url])
 
 def enqueue_ner(cur, url):
+    cur.execute('SELECT COUNT(*) FROM news_entities WHERE url = %s', [url])
+    if cur.fetchone()[0] > 0:
+        return
     cur.execute('SELECT content, source.language FROM news JOIN source ON news.source_id = source.id WHERE url = %s', [url])
     res = cur.fetchone()
     if not res:
@@ -115,6 +118,8 @@ def update_entities(cur, url, entities):
             url,
             entity
         ])
+        cur.execute('SELECT summary FROM entities WHERE name = %s', [entity])
+        enqueue_summary_description(cur, entity)
 
 def update_article(cur, obj):
     logger.info('updating article ' + obj['url'])
@@ -165,6 +170,22 @@ def update_homepage(cur, source, urls):
     for i, url in enumerate(urls):
         cur.execute(f'''UPDATE news SET position = %s WHERE url = %s''', [i, url])
 
+def update_entity(cur, obj):
+    logger.info('updating entity ' + obj['name'])
+    if 'summary' in obj:
+        cur.execute(f'''UPDATE entities SET summary = %s WHERE name = %s''',
+            [
+                obj['summary'],
+                obj['name'],
+            ]
+        )
+
+def enqueue_summary_description(cur, entity):
+    cur.execute('SELECT summary FROM entities WHERE name = %s', [entity])
+    summary = cur.fetchone()[0]
+    publish_to_queue('entity_item', {
+        'entity': entity,
+    })
 
 if __name__ == '__main__':
     pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='news-queue'))
@@ -203,6 +224,8 @@ if __name__ == '__main__':
         cur = pg_connection.cursor()
         if 'url' in obj:
             update_article(cur, obj)
+        elif 'entity' in obj:
+            update_entity(cur, obj)
         elif 'homepage' in obj:
             update_homepage(cur, obj['source'], obj['homepage'])
             cur.execute('''DELETE FROM updated''')
