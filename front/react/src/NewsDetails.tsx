@@ -4,9 +4,12 @@ import { GlobalHotKeys } from "react-hotkeys";
 
 import Container from '@material-ui/core/Container';
 import Grid, { GridSize } from '@material-ui/core/Grid';
+import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
-import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import MoveToInboxIcon from '@material-ui/icons/MoveToInbox';
+import ShareIcon from '@material-ui/icons/Share';
 import { fetchSingleNews, selectNews, deduplicatedIndex } from './singleNewsSlice'
 import {
   useParams,
@@ -17,6 +20,7 @@ import { addURL } from './archivedSlice'
 import type { RootState } from './store'
 import { SingleNewsItem } from './singleNewsSlice'
 import { getUserId } from './userSlice'
+
 
 const keyMap = {
   ARCHIVE: "a",
@@ -52,13 +56,14 @@ function NewsDetails() {
     }
   }
 
+  const archive = () => {
+    if (news && userId) {
+      dispatch(addURL(news.url, userId))
+      history.push('/')
+    }
+  }
   const handlers = {
-    ARCHIVE: () => {
-      if (news && userId) {
-        dispatch(addURL(news.url, userId))
-        history.push('/')
-      }
-    },
+    ARCHIVE: archive,
   };
 
   const newsStatus = useSelector((state: RootState) => state.singleNews.status)
@@ -68,22 +73,31 @@ function NewsDetails() {
       dispatch(fetchSingleNews(url))
     }
   }, [newsStatus, dispatch, url, news])
+  const canShare = 'share' in navigator
   return (
     <GlobalHotKeys handlers={handlers} keyMap={keyMap} allowChanges={true}>
       <Container maxWidth='sm'>
         {news ? <div style={{marginTop: 10, lineHeight: 1.2, paddingTop: 80}}>
           <Grid container>
-            <Grid item xs={6}>
+            <Grid item xs={!canShare ? 4 : 3} style={{textAlign: 'center'}}>
               <Link to="/">
-                <ArrowLeftIcon />
-                Volver
+                <ArrowBackIcon />
               </Link>
             </Grid>
-            <Grid item xs={6} style={{textAlign: 'right'}}>
-              <a href={news.url} rel="noreferrer" target="_blank">
-                Ver original
+            <Grid item xs={!canShare ? 4 : 3} style={{textAlign: 'center'}}>
+              <Button onClick={archive}>
+                <MoveToInboxIcon />
+              </Button>
+            </Grid>
+            {canShare && <Grid item xs={3} style={{textAlign: 'center'}}>
+              <Button onClick={() => navigator.share({title: news.title, url: news.url}) }>
+                <ShareIcon />
+              </Button>
+            </Grid>}
+            <Grid item xs={!canShare ? 4 : 3} style={{textAlign: 'center'}}>
+              <Button href={news.url} rel="noreferrer" target="_blank">
                 <OpenInNewIcon />
-              </a>
+              </Button>
             </Grid>
           </Grid>
           {canonicalURL && sources.length > 1 && <Grid container style={{marginTop: 20}}>
