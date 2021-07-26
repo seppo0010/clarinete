@@ -6,6 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import { Link } from "react-router-dom";
 import MoveToInboxIcon from '@material-ui/icons/MoveToInbox';
 import VisibilityIcon from '@material-ui/icons/Visibility';
+import ShareIcon from '@material-ui/icons/Share';
 import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
 
@@ -78,6 +79,7 @@ const NewsListItem: FC<{news: NewsItem, selected: boolean, position: number}> = 
           <div style={{display: 'flex', flexShrink: 1}}>
               <Button onClick={() => dispatch(setSelected(position))}><VisibilityIcon /></Button>
               <Button onClick={() => userId && dispatch(addURL(news.url, userId))} style={{marginTop: -8}} aria-label="archivar"><MoveToInboxIcon /></Button>
+              {'share' in navigator && <Button onClick={() => navigator.share({title: news.title, url: news.url}) }><ShareIcon /></Button>}
           </div>
         </Typography>
       </Box>
