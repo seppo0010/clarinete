@@ -74,6 +74,7 @@ function Menu() {
   };
   const newsStatus = useSelector((state: RootState) => state.newsList.status)
   const searchNewsStatus = useSelector((state: RootState) => state.newsList.searchStatus)
+  const searchCriteria = useSelector((state: RootState) => state.newsList.searchCriteria)
   const toggleSource = (text: string) => {
     if (!selectedSources.includes(text)) {
       dispatch(addHiddenSource(text))
@@ -121,7 +122,7 @@ function Menu() {
           Clarinete
         </Typography>
         {(newsStatus === 'idle' || newsStatus === 'succeeded') &&
-          (searchNewsStatus === 'idle'|| searchNewsStatus === 'succeeded') && (<Button aria-label="actualizar">
+          (searchNewsStatus === 'idle'|| searchNewsStatus === 'succeeded' || searchCriteria === '') && (<Button aria-label="actualizar">
           <RefreshIcon htmlColor="white" onClick={refresh} />
         </Button>)}
         {newsStatus === 'loading' && (<Button>
