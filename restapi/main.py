@@ -65,7 +65,7 @@ def search():
     con = get_news_db()
     cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute('''
-        SELECT DISTINCT news.url, title, volanta, section.name AS section, date, source.name AS source, country, summary
+        SELECT DISTINCT news.url, title, volanta, section.name AS section, date, source.name AS source, country, news.summary
         FROM news
             LEFT JOIN section ON news.section_id = section.id
             JOIN source ON news.source_id = source.id
