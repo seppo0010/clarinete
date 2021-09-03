@@ -20,7 +20,11 @@ class ClarinSpider(scrapy.Spider):
     def parse(self, response):
         urls = []
         for article in response.css('article'):
-            url = article.css('a').attrib['href']
+            try:
+                url = article.css('a').attrib['href']
+            except:
+                url = None
+                pass
             if not url:
                 continue
             if not url.startswith('http'):
