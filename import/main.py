@@ -194,6 +194,7 @@ if __name__ == '__main__':
     pika_connection = pika.BlockingConnection(pika.ConnectionParameters(host='news-queue'))
     channel = pika_connection.channel()
     channel.queue_declare(queue='item', durable=True)
+    channel.basic_qos(prefetch_count=1)
 
     pg_user = os.getenv("POSTGRES_USER")
     pg_host = 'news-database'
