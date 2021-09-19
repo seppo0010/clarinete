@@ -5,12 +5,17 @@ services:
     depends_on:
       - "news-queue"
     networks:
-      - queue
+      - scrapy-queue
   news-queue:
     image: rabbitmq:3-management
     restart: on-failure
     networks:
-      - queue
+      - scrapy-queue
+      - entitier-queue
+      - deduplicator-queue
+      - import-queue
+      - summarizer-queue
+      - ner-queue
     environment:
       - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log_levels [{connection,error}]
     volumes:
@@ -20,7 +25,7 @@ services:
       context: ./entitier
       target: entitier
     networks:
-      - queue
+      - entitier-queue
     depends_on:
       - "news-queue"
   entitier_test:
@@ -30,7 +35,7 @@ services:
       - "news-queue"
     restart: "no"
     networks:
-      - queue
+      - entitier-queue
     profiles:
       - donotstart
   deduplicator:
@@ -38,7 +43,7 @@ services:
       context: ./deduplicator
       target: deduplicator
     networks:
-      - queue
+      - deduplicator-queue
     depends_on:
       - "news-queue"
     deploy:
@@ -56,7 +61,7 @@ services:
       - "translator"
     restart: "no"
     networks:
-      - queue
+      - deduplicator-queue
     profiles:
       - donotstart
     deploy:
@@ -76,8 +81,8 @@ services:
       - "news-database"
     restart: on-failure
     networks:
-      - queue
-      - database
+      - import-queue
+      - import-database
   summarizer:
     build:
       context: ./summarizer
@@ -88,7 +93,7 @@ services:
       - "translator"
     restart: on-failure
     networks:
-      - queue
+      - summarizer-queue
       - translator-summarizer
     deploy:
       resources:
@@ -105,7 +110,7 @@ services:
       - "translator"
     restart: "no"
     networks:
-      - queue
+      - summarizer-queue
       - translator-summarizer
     profiles:
       - donotstart
@@ -123,7 +128,8 @@ services:
     secrets:
       - postgres-password
     networks:
-      - database
+      - import-database
+      - restapi-database
     volumes:
       - pgdata:/var/lib/postgresql/data
   restapi:
@@ -134,7 +140,7 @@ services:
     depends_on:
       - "news-database"
     networks:
-      - database
+      - restapi-database
       - web
       - restapi-userpreferences
   front:
@@ -166,7 +172,7 @@ services:
       context: ./ner
       target: ner
     networks:
-      - queue
+      - ner-queue
     depends_on:
       - "news-queue"
   ner_test:
@@ -176,7 +182,7 @@ services:
       - "news-queue"
     restart: "no"
     networks:
-      - queue
+      - ner-queue
     profiles:
       - donotstart
   userpreferences:
@@ -192,8 +198,14 @@ secrets:
     file: ./postgres-password
 
 networks:
-  database:
-  queue:
+  import-database:
+  restapi-database:
+  scrapy-queue:
+  entitier-queue:
+  deduplicator-queue:
+  import-queue:
+  summarizer-queue:
+  ner-queue:
   web:
   translator-summarizer:
   restapi-userpreferences:
