@@ -59,10 +59,31 @@ def entities():
     ''')
     return jsonify(cur.fetchall())
 
+def search_entity(entity_id):
+    con = get_news_db()
+    cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute('''
+    SELECT DISTINCT news.url, title, volanta, section.name AS section, date, source.name AS source, country, news.summary
+    FROM news
+    INNER JOIN news_entities ON news.url = news_entities.url
+    LEFT JOIN section ON news.section_id = section.id
+    JOIN source ON news.source_id = source.id
+    WHERE news_entities.entity_id = %s
+    ''', [entity_id])
+    return jsonify(cur.fetchall())
+
 @app.route("/api/search")
 def search():
     criteria = request.args.get('criteria')
     con = get_news_db()
+    cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute('''
+        SELECT id FROM entities WHERE name = %s
+    ''', [criteria])
+    r = cur.fetchone()
+    if r is not None:
+        return search_entity(r['id'])
+
     cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute('''
         SELECT DISTINCT news.url, title, volanta, section.name AS section, date, source.name AS source, country, news.summary
