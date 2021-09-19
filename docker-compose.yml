@@ -130,6 +130,7 @@ services:
     networks:
       - import-database
       - restapi-database
+      - trends-news-database
     volumes:
       - pgdata:/var/lib/postgresql/data
   restapi:
@@ -190,6 +191,15 @@ services:
     command: redis-server
     networks:
       - trends-database
+  trends:
+    env_file: ./postgres-config
+    build:
+      context: ./trends
+    secrets:
+      - postgres-password
+    networks:
+      - trends-database
+      - trends-news-database
 
 
 secrets:
@@ -200,6 +210,7 @@ networks:
   import-database:
   restapi-database:
   trends-database:
+  trends-news-database:
   scrapy-queue:
   entitier-queue:
   deduplicator-queue:

@@ -5,4 +5,4 @@ COPY Pipfile* /trends/
 RUN pip install pipenv && cd /trends && pipenv install --system --deploy --ignore-pipfile
 
 COPY . /trends
-CMD python3 /trends/main.py
+CMD cd /trends && ./run.sh
