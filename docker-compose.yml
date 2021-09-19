@@ -184,6 +184,12 @@ services:
       - ner-queue
     profiles:
       - donotstart
+  trends-database:
+    image: redis
+    command: redis-server
+    networks:
+      - trends-database
+
 
 secrets:
   postgres-password:
@@ -192,6 +198,7 @@ secrets:
 networks:
   import-database:
   restapi-database:
+  trends-database:
   scrapy-queue:
   entitier-queue:
   deduplicator-queue:
