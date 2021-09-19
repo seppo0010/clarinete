@@ -60,7 +60,7 @@ def search_entity(entity_id):
     con = get_news_db()
     cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute('''
-    SELECT DISTINCT news.url, title, volanta, section.name AS section, date, source.name AS source, country, news.summary
+    SELECT DISTINCT news.url, title, volanta, section.name AS section, date, source.name AS source, country, news.summary, news.created_at
     FROM news
     INNER JOIN news_entities ON news.url = news_entities.url
     LEFT JOIN section ON news.section_id = section.id
@@ -84,7 +84,7 @@ def search():
 
     cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute('''
-        SELECT DISTINCT news.url, title, volanta, section.name AS section, date, source.name AS source, country, news.summary
+        SELECT DISTINCT news.url, title, volanta, section.name AS section, date, source.name AS source, country, news.summary, news.created_at
         FROM news
             LEFT JOIN section ON news.section_id = section.id
             JOIN source ON news.source_id = source.id
@@ -97,16 +97,16 @@ def search():
             )
         UNION
         SELECT * FROM (
-            SELECT url, title, volanta, section, date, source, country, summary
+            SELECT url, title, volanta, section, date, source, country, summary, created_at
             FROM (
-                SELECT url, title, volanta, COALESCE(section.category, 'Otros') AS section, date, source.name AS source, source.country, summary, ts_rank_cd(to_tsvector('spanish', title), query) AS rank
+                SELECT url, title, volanta, COALESCE(section.category, 'Otros') AS section, date, source.name AS source, source.country, summary, ts_rank_cd(to_tsvector('spanish', title), query) AS rank, created_at
                 FROM news
                     LEFT JOIN section ON news.section_id = section.id
                     JOIN source ON news.source_id = source.id
                     , plainto_tsquery('spanish', %s) query
                 WHERE to_tsvector('spanish', title) @@ query
                 UNION
-                SELECT url, title, volanta, COALESCE(section.category, 'Otros') AS section, date, source.name AS source, source.country, summary, ts_rank_cd(to_tsvector('spanish', content), query) AS rank
+                SELECT url, title, volanta, COALESCE(section.category, 'Otros') AS section, date, source.name AS source, source.country, summary, ts_rank_cd(to_tsvector('spanish', content), query) AS rank, created_at
                 FROM news
                     LEFT JOIN section ON news.section_id = section.id
                     JOIN source ON news.source_id = source.id
