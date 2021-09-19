@@ -12,6 +12,7 @@ import ClearIcon from '@material-ui/icons/Clear';
 import IconButton from '@material-ui/core/IconButton';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Autocomplete from '@material-ui/lab/Autocomplete';
+import Chip from '@material-ui/core/Chip';
 
 import {
   NewsItem,
@@ -25,6 +26,7 @@ import { fetchNews, fetchSearchNews } from './fetchNewsSlice'
 import { fetchEntities } from './fetchEntitiesSlice'
 import { selectedValue, increment, decrement } from './selectedSlice'
 import { archivedURLs, addURL } from './archivedSlice'
+import { fetchTrends } from './fetchTrendsSlice'
 import NewsListItem from './NewsListItem'
 import type { RootState } from './store'
 import { getUserId } from './userSlice'
@@ -56,9 +58,11 @@ function NewsList() {
 
   const newsStatus = useSelector((state: RootState) => state.newsList.status)
   const entitiesStatus  = useSelector((state: RootState) => state.entities.status)
+  const trendsStatus  = useSelector((state: RootState) => state.trends.status)
   const searchNewsStatus = useSelector((state: RootState) => state.newsList.searchStatus)
   const lastUpdate = useSelector((state: RootState) => state.newsList.updateDate)
   const entities = useSelector((state: RootState) => state.entities.entities)
+  const trends = useSelector((state: RootState) => state.trends.trends)
   const userId = useSelector(getUserId)
 
   const handlers = {
@@ -92,6 +96,12 @@ function NewsList() {
   }, [entitiesStatus, dispatch])
 
   useEffect(() => {
+    if (trendsStatus === 'idle') {
+      dispatch(fetchTrends())
+    }
+  }, [trendsStatus, dispatch])
+
+  useEffect(() => {
     if (userId && (newsStatus === 'idle' || lastUpdate < Date.now() - 60 * 1000)) {
       dispatch(fetchNews(userId))
     }
@@ -111,8 +121,11 @@ function NewsList() {
       (document.querySelector('[aria-label="Buscar"]') as HTMLInputElement).blur()
     }
   }
-  const doSearch = () => {
-    const val = searchCriteriaInput
+  const doSearch = (val?: string) => {
+    val = val || searchCriteriaInput
+    if (val !== searchCriteriaInput) {
+        setSearchCriteriaInput(val)
+    }
     dispatch(search(val))
     if (val) {
       dispatch(fetchSearchNews(val))
@@ -127,6 +140,7 @@ function NewsList() {
   return (
     <GlobalHotKeys handlers={handlers} keyMap={keyMap} allowChanges={true}>
       <div style={{marginTop: 80, marginLeft: 10, marginRight: 10}} id="main">
+      {trends.map((t) => <Chip key={t} label={t} style={{marginRight: 4}} onClick={() => doSearch(t)} />)}
       <Autocomplete
           options={entities.map((e) => e.name)}
           getOptionLabel={(name) => name}
@@ -154,7 +168,7 @@ function NewsList() {
                       }
                       {!searchCriteria && 
                         <IconButton
-                            onClick={doSearch}
+                            onClick={() => doSearch()}
                             >
                           <SearchIcon />
                         </IconButton>

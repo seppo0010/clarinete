@@ -19,6 +19,7 @@ import singleNews from './singleNewsSlice'
 import selected from './selectedSlice'
 import archived from './archivedSlice'
 import entities from './entitiesSlice'
+import trends from './trendsSlice'
 
 const reducer = combineReducers({
   user: persistReducer({
@@ -32,6 +33,7 @@ const reducer = combineReducers({
   singleNews,
   selected,
   entities,
+  trends,
   archived: persistReducer({
     key: 'archived',
     storage

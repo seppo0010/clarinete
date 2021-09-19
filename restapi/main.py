@@ -66,6 +66,7 @@ def search_entity(entity_id):
     LEFT JOIN section ON news.section_id = section.id
     JOIN source ON news.source_id = source.id
     WHERE news_entities.entity_id = %s
+    ORDER BY created_at DESC
     ''', [entity_id])
     return jsonify(cur.fetchall())
 
@@ -115,6 +116,7 @@ def search():
             ) t
             ORDER BY rank DESC
         ) t
+        ORDER BY created_at DESC
         LIMIT 50
     ''', [criteria, criteria, criteria, criteria])
     return jsonify(cur.fetchall())
