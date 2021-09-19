@@ -25,6 +25,9 @@ def close_db(e=None):
     if db is not None:
         db.close()
 
+def get_trends_db():
+    return redis.Redis(host='trends-database', port=6379, db=0)
+
 app = Flask(__name__)
 app.teardown_appcontext(close_db)
 
@@ -146,6 +149,19 @@ def news_details():
         ORDER BY canonical_url IS NULL DESC
         ''', [url, url])
     return jsonify(cur.fetchall())
+
+@app.route("/api/trends")
+def trends():
+    con = get_trends_db()
+    trends = [int(x.decode('utf-8')) for x in con.zrangebyscore('trends', '-inf', 0, start=0, num=5)]
+
+    con = get_news_db()
+    cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute('''
+        SELECT id, name FROM entities WHERE id = ANY(%s)
+        ''', [trends])
+    entity_by_id = {x['id']: x['name'] for x in cur.fetchall()}
+    return jsonify([entity_by_id[x] for x in trends])
 
 if __name__ == '__main__':
     if os.getenv('FLASK_DEBUG', False):
