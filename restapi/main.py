@@ -8,12 +8,6 @@ from waitress import serve
 import redis
 
 
-ARCHIVE_KEY = 'archived:{user}'
-ARCHIVE_MAX = 2
-
-def get_archive_db():
-    return redis.Redis(host='userpreferences', port=6379, db=0)
-
 def get_news_db():
     pg_user = os.getenv("POSTGRES_USER")
     pg_host = 'news-database'
@@ -124,9 +118,6 @@ def search():
 
 @app.route("/api/news")
 def news_list():
-    con = get_archive_db()
-    key = ARCHIVE_KEY.format(user=request.args.get('userId', None))
-    archived = set(map(lambda x: x.decode('utf-8'), con.lrange(key, 0, -1)))
     con = get_news_db()
     cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute('''
@@ -137,7 +128,7 @@ def news_list():
         WHERE position IS NOT NULL AND
             canonical_url IS NULL
         ORDER BY position ASC, date DESC''')
-    return jsonify([x for x in cur.fetchall() if x['url'] not in archived])
+    return jsonify(cur.fetchall())
 
 @app.route("/api/news/details")
 def news_details():
@@ -155,28 +146,6 @@ def news_details():
         ORDER BY canonical_url IS NULL DESC
         ''', [url, url])
     return jsonify(cur.fetchall())
-
-@app.route("/api/archive", methods=['POST'])
-def archive():
-    con = get_archive_db()
-    params = request.get_json()
-    url = params['url']
-    key = ARCHIVE_KEY.format(user=params.get('userId', ''))
-    con.rpush(key, url)
-    while con.llen(key) > ARCHIVE_MAX:
-        con.lpop(key)
-    return jsonify(list(map(lambda x: x.decode('utf-8'), con.lrange(key, 0, -1))))
-
-@app.route("/api/merge", methods=['POST'])
-def merge():
-    con = get_archive_db()
-    params = request.get_json()
-    newKey = ARCHIVE_KEY.format(user=params['newUserId'])
-    oldKey = ARCHIVE_KEY.format(user=params['oldUserId'])
-    if newKey != oldKey:
-        while con.rpoplpush(oldKey, newKey) is not None:
-            pass
-    return jsonify({})
 
 if __name__ == '__main__':
     if os.getenv('FLASK_DEBUG', False):
