@@ -24,6 +24,7 @@ services:
     build:
       context: ./entitier
       target: entitier
+    restart: on-failure
     networks:
       - entitier-queue
     depends_on:
@@ -179,6 +180,7 @@ services:
       - ner-queue
     depends_on:
       - "news-queue"
+    restart: on-failure
   ner_test:
     build: ner
     image: ner_test
