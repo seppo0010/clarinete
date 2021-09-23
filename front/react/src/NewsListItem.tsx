@@ -78,7 +78,7 @@ const NewsListItem: FC<{news: NewsItem, selected: boolean, position: number}> = 
           <div style={{height: '1.2rm', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', flexGrow: 1 }}>{top}</div>
           <div style={{display: 'flex', flexShrink: 1}}>
               <Button onClick={() => dispatch(setSelected(position))}><VisibilityIcon /></Button>
-              <Button onClick={() => userEmail && dispatch(addURL(news.url, userEmail))} style={{marginTop: -8}} aria-label="archivar"><MoveToInboxIcon /></Button>
+              <Button onClick={() => dispatch(addURL(news.url, userEmail))} style={{marginTop: -8}} aria-label="archivar"><MoveToInboxIcon /></Button>
               {'share' in navigator && <Button onClick={() => navigator.share({title: news.title, url: news.url}) }><ShareIcon /></Button>}
           </div>
         </Typography>

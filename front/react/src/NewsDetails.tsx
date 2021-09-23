@@ -57,7 +57,7 @@ function NewsDetails() {
   }
 
   const archive = () => {
-    if (news && userEmail) {
+    if (news) {
       dispatch(addURL(news.url, userEmail))
       history.push('/')
     }

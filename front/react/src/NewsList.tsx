@@ -74,9 +74,7 @@ function NewsList() {
       }
     },
     ARCHIVE: () => {
-      if (userEmail) {
-        dispatch(addURL(news[selected].url, userEmail))
-      }
+      dispatch(addURL(news[selected].url, userEmail))
     },
     SEARCH: (e: KeyboardEvent | undefined) => {
       e?.preventDefault();
