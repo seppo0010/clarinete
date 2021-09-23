@@ -135,7 +135,9 @@ services:
       - pgdata:/var/lib/postgresql/data
   restapi:
     build: restapi
-    env_file: ./postgres-config
+    env_file:
+      - ./postgres-config
+      - ./google-config
     secrets:
       - postgres-password
     depends_on:

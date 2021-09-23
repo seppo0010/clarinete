@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
-export const fetchNews = createAsyncThunk('news/fetchNews', async (userId: string) => {
-  const req = await fetch('/api/news?userId=' + userId)
+export const fetchNews = createAsyncThunk('news/fetchNews', async (userEmail: string) => {
+  const req = await fetch('/api/news?userEmail=' + userEmail)
   const res = await req.json()
   return {
     date: Date.now(),

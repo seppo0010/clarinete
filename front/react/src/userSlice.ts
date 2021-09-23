@@ -40,14 +40,7 @@ const getApiKey = async () => {
 }
 
 const getEmailAddress = async () => {
-  const res = await gapi.client.people.people.get({
-    'resourceName': 'people/me',
-    'requestMask.includeField': 'person.emailAddresses'
-  })
-  const emailAddresses = res?.result?.emailAddresses
-  if (emailAddresses) {
-    return emailAddresses[0].value
-  }
+  return gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile().getEmail()
 }
 
 export const login = () => async (dispatch: any) => {
@@ -58,6 +51,7 @@ export const login = () => async (dispatch: any) => {
         await gapi.client.init({
           apiKey,
           clientId,
+          scope: 'https://www.googleapis.com/auth/userinfo.email',
           'discoveryDocs': ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest']
         })
 

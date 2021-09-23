@@ -5,3 +5,4 @@ database.db
 __pycache__
 database
 postgres-password
+google-config

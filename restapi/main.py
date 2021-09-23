@@ -131,7 +131,7 @@ def search():
 @app.route("/api/news")
 def news_list():
     con = get_archive_db()
-    key = ARCHIVE_KEY.format(user=request.args.get('userId', None))
+    key = ARCHIVE_KEY.format(user=request.args.get('userEmail', None))
     archived = set(map(lambda x: x.decode('utf-8'), con.lrange(key, 0, -1)))
     con = get_news_db()
     cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -180,11 +180,18 @@ def archive():
     con = get_archive_db()
     params = request.get_json()
     url = params['url']
-    key = ARCHIVE_KEY.format(user=params.get('userId', ''))
+    key = ARCHIVE_KEY.format(user=params.get('userEmail', ''))
     con.rpush(key, url)
     while con.llen(key) > ARCHIVE_MAX:
         con.lpop(key)
     return jsonify(list(map(lambda x: x.decode('utf-8'), con.lrange(key, 0, -1))))
+
+@app.route("/api/googleTokens", methods=['GET'])
+def google_tokens():
+    return jsonify({
+        'apiKey': os.getenv("GOOGLE_API_KEY"),
+        'clientId': os.getenv("GOOGLE_CLIENT_ID"),
+    })
 
 if __name__ == '__main__':
     if os.getenv('FLASK_DEBUG', False):
