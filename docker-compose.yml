@@ -144,6 +144,7 @@ services:
       - restapi-database
       - web
       - trends-database
+      - restapi-userpreferences
   front:
     build: front
     depends_on:
@@ -200,7 +201,13 @@ services:
     networks:
       - trends-database
       - trends-news-database
-
+  userpreferences:
+    image: redis
+    command: redis-server --appendonly yes
+    networks:
+      - restapi-userpreferences
+    volumes:
+      - userpreferences:/data
 
 secrets:
   postgres-password:
@@ -219,7 +226,9 @@ networks:
   ner-queue:
   web:
   translator-summarizer:
+  restapi-userpreferences:
 
 volumes:
   pgdata:
   rabbitmqdata:
+  userpreferences:

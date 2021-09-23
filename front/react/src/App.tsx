@@ -9,8 +9,6 @@ import {
 import NewsList from './NewsList'
 import NewsDetails from './NewsDetails'
 import Menu from './Menu'
-import AddDevice from './AddDevice'
-import AddDeviceConfirmation from './AddDeviceConfirmation'
 
 
 function App() {
@@ -21,12 +19,6 @@ function App() {
         <Switch>
           <Route path="/" exact>
             <NewsList />
-          </Route>
-          <Route path="/agregardispositivo" exact>
-            <AddDevice />
-          </Route>
-          <Route path="/agregardispositivo/:userId" exact>
-            <AddDeviceConfirmation />
           </Route>
           <Route path="/url/:url" exact>
             <NewsDetails />
