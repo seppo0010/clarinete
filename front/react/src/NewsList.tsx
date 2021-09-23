@@ -100,7 +100,7 @@ function NewsList() {
   }, [trendsStatus, dispatch])
 
   useEffect(() => {
-    if (userEmail && (newsStatus === 'idle' || lastUpdate < Date.now() - 60 * 1000)) {
+    if ((newsStatus === 'idle' || lastUpdate < Date.now() - 60 * 1000)) {
       dispatch(fetchNews(userEmail))
     }
   }, [newsStatus, dispatch, lastUpdate, userEmail])
