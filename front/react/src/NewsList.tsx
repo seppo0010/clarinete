@@ -29,7 +29,7 @@ import { archivedURLs, addURL } from './archivedSlice'
 import { fetchTrends } from './fetchTrendsSlice'
 import NewsListItem from './NewsListItem'
 import type { RootState } from './store'
-import { getUserId } from './userSlice'
+import { getUserEmail } from './userSlice'
 
 const keyMap = {
   NEXT: "j",
@@ -63,7 +63,7 @@ function NewsList() {
   const lastUpdate = useSelector((state: RootState) => state.newsList.updateDate)
   const entities = useSelector((state: RootState) => state.entities.entities)
   const trends = useSelector((state: RootState) => state.trends.trends)
-  const userId = useSelector(getUserId)
+  const userEmail = useSelector(getUserEmail)
 
   const handlers = {
     NEXT: () => dispatch(increment()),
@@ -74,8 +74,8 @@ function NewsList() {
       }
     },
     ARCHIVE: () => {
-      if (userId) {
-        dispatch(addURL(news[selected].url, userId))
+      if (userEmail) {
+        dispatch(addURL(news[selected].url, userEmail))
       }
     },
     SEARCH: (e: KeyboardEvent | undefined) => {
@@ -84,7 +84,7 @@ function NewsList() {
     },
     REFRESH: (e: KeyboardEvent | undefined) => {
       e?.preventDefault();
-      dispatch(fetchNews(userId))
+      dispatch(fetchNews(userEmail))
     },
   };
   const [searchCriteriaInput, setSearchCriteriaInput] = useState('')
@@ -102,10 +102,10 @@ function NewsList() {
   }, [trendsStatus, dispatch])
 
   useEffect(() => {
-    if (userId && (newsStatus === 'idle' || lastUpdate < Date.now() - 60 * 1000)) {
-      dispatch(fetchNews(userId))
+    if (userEmail && (newsStatus === 'idle' || lastUpdate < Date.now() - 60 * 1000)) {
+      dispatch(fetchNews(userEmail))
     }
-  }, [newsStatus, dispatch, lastUpdate, userId])
+  }, [newsStatus, dispatch, lastUpdate, userEmail])
 
   useState(() => {
     setSearchCriteriaInput(searchCriteria)

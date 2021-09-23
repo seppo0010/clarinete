@@ -1,42 +1,34 @@
 import { createSlice, nanoid } from '@reduxjs/toolkit'
-import { REHYDRATE } from 'redux-persist'
 
 import type { RootState } from './store'
 
 export declare interface User {
-  id: string
+  email: string
 }
 
 export interface State {
   user: User
 }
 const initialState: State = {
-  user: {id: ''},
+  user: {email: ''},
 }
 
 const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    setUserId: {
+    setUserEmail: {
       reducer(state, action) {
-        state.user = {id: action.payload}
+        state.user = {email: action.payload}
       },
-      prepare(data: any) { return { id: nanoid(), payload: data } as any },
+      prepare(data: any) { return { email: nanoid(), payload: data } as any },
     },
-  },
-  extraReducers: (builder) => {
-    builder.addCase(REHYDRATE, (state, action: any) => {
-      if (action?.key === 'user' && !action?.payload?.user?.id) {
-        state.user.id = nanoid()
-      }
-    })
   },
 })
 
-export const getUserId = (state: RootState) => state.user.user.id
+export const getUserEmail = (state: RootState) => state.user.user.email
 
 export default userSlice.reducer
 export const {
-  setUserId,
+  setUserEmail,
 } = userSlice.actions

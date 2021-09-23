@@ -12,7 +12,7 @@ import Box from '@material-ui/core/Box';
 
 import { NewsItem } from './newsSlice'
 import { addURL } from './archivedSlice'
-import { getUserId } from './userSlice'
+import { getUserEmail } from './userSlice'
 import { setSelected } from './selectedSlice'
 
 const useStyles = makeStyles({
@@ -29,7 +29,7 @@ const useStyles = makeStyles({
 const NewsListItem: FC<{news: NewsItem, selected: boolean, position: number}> = ({news, selected, position}) => {
   const classes = useStyles();
   const dispatch = useDispatch()
-  const userId = useSelector(getUserId)
+  const userEmail = useSelector(getUserEmail)
 
   const [wasSelected, setWasSelected] = useState(false)
 
@@ -78,7 +78,7 @@ const NewsListItem: FC<{news: NewsItem, selected: boolean, position: number}> = 
           <div style={{height: '1.2rm', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', flexGrow: 1 }}>{top}</div>
           <div style={{display: 'flex', flexShrink: 1}}>
               <Button onClick={() => dispatch(setSelected(position))}><VisibilityIcon /></Button>
-              <Button onClick={() => userId && dispatch(addURL(news.url, userId))} style={{marginTop: -8}} aria-label="archivar"><MoveToInboxIcon /></Button>
+              <Button onClick={() => userEmail && dispatch(addURL(news.url, userEmail))} style={{marginTop: -8}} aria-label="archivar"><MoveToInboxIcon /></Button>
               {'share' in navigator && <Button onClick={() => navigator.share({title: news.title, url: news.url}) }><ShareIcon /></Button>}
           </div>
         </Typography>

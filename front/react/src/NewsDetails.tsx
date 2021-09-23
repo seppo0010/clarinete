@@ -19,7 +19,7 @@ import {
 import { addURL } from './archivedSlice'
 import type { RootState } from './store'
 import { SingleNewsItem } from './singleNewsSlice'
-import { getUserId } from './userSlice'
+import { getUserEmail } from './userSlice'
 
 
 const keyMap = {
@@ -33,7 +33,7 @@ function NewsDetails() {
   const history = useHistory()
   const dispatch = useDispatch()
   const maybeNews = useSelector(selectNews)
-  const userId = useSelector(getUserId)
+  const userEmail = useSelector(getUserEmail)
   const news = (maybeNews.news &&
           maybeNews.news[maybeNews.deduplicatedIndex] &&
           maybeNews.news[0].url === url ?
@@ -57,8 +57,8 @@ function NewsDetails() {
   }
 
   const archive = () => {
-    if (news && userId) {
-      dispatch(addURL(news.url, userId))
+    if (news && userEmail) {
+      dispatch(addURL(news.url, userEmail))
       history.push('/')
     }
   }
