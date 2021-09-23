@@ -32,12 +32,15 @@ def get_apriori_topics(now):
     cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute(f'''
     SELECT entities.id, entities.name, COUNT(*) AS q FROM (
-    SELECT entities.id, name
+    SELECT entities.id, entities.name
     FROM news_entities
         INNER JOIN entities ON news_entities.entity_id = COALESCE(entities.canonical_id, entities.id)
             AND entities.canonical_id is null
         INNER JOIN news USING (url)
-    WHERE created_at BETWEEN %s AND %s
+        INNER JOIN source ON news.source_id = source.id
+        WHERE created_at BETWEEN %s AND %s
+        AND (source.name != 'Ámbito Financiero' OR entities.name != 'Ámbito')
+        AND (source.name != 'El País' OR entities.name != 'El País')
     ) entities
     GROUP BY entities.id, entities.name
     ORDER BY q DESC
