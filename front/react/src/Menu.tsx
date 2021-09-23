@@ -36,7 +36,7 @@ import {
 } from './newsSlice'
 import { fetchNews } from './fetchNewsSlice'
 import type { RootState } from './store'
-import { getUserEmail } from './userSlice'
+import { login, getUserEmail } from './userSlice'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -140,6 +140,12 @@ function Menu() {
           {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
         </IconButton>
       </div>
+      <Divider />
+      <Box style={{padding: '10px 20px'}}>
+        <Typography color="textPrimary">
+          <Button onClick={() => dispatch(login())}>Ingresar con cuenta de Google</Button>
+        </Typography>
+      </Box>
       <Divider />
       <Box style={{padding: '10px 20px 0'}}>
         <Typography color="textPrimary">
