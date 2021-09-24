@@ -101,6 +101,7 @@ def search():
                 UNION
                 SELECT id FROM entities WHERE name = %s
             )
+            WHERE news.date IS NOT NULL
         UNION
         SELECT * FROM (
             SELECT url, title, volanta, section, date, source, country, summary, created_at
@@ -111,6 +112,7 @@ def search():
                     JOIN source ON news.source_id = source.id
                     , plainto_tsquery('spanish', %s) query
                 WHERE to_tsvector('spanish', title) @@ query
+                AND news.date IS NOT NULL
                 UNION
                 SELECT url, title, volanta, COALESCE(section.category, 'Otros') AS section, date, source.name AS source, source.country, summary, ts_rank_cd(to_tsvector('spanish', content), query) AS rank, created_at
                 FROM news
@@ -118,11 +120,12 @@ def search():
                     JOIN source ON news.source_id = source.id
                     , plainto_tsquery('spanish', %s) query
                 WHERE to_tsvector('spanish', content) @@ query
+                AND news.date IS NOT NULL
                 LIMIT 20
             ) t
             ORDER BY rank DESC
         ) t
-        ORDER BY created_at DESC
+        ORDER BY date DESC
         LIMIT 50
     ''', [criteria, criteria, criteria, criteria])
     return jsonify(cur.fetchall())
