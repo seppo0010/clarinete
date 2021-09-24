@@ -90,7 +90,7 @@ def search():
 
     cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute('''
-        SELECT DISTINCT news.url, title, volanta, section.name AS section, date, source.name AS source, country, news.summary, news.created_at
+        SELECT DISTINCT news.url, title, volanta, section.name AS section, date, source.name AS source, country, news.summary, COALESCE(news.created_at, '1970-01-01') AS created_at
         FROM news
             LEFT JOIN section ON news.section_id = section.id
             JOIN source ON news.source_id = source.id
@@ -122,7 +122,6 @@ def search():
             ) t
             ORDER BY rank DESC
         ) t
-        HAVING created_at IS NOT NULL
         ORDER BY created_at DESC
         LIMIT 50
     ''', [criteria, criteria, criteria, criteria])
