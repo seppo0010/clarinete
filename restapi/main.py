@@ -72,7 +72,7 @@ def search_entity(entity_id):
     LEFT JOIN section ON news.section_id = section.id
     JOIN source ON news.source_id = source.id
     WHERE news_entities.entity_id = %s AND created_at IS NOT NULL
-    ORDER BY created_at DESC
+    ORDER BY date DESC
     ''', [entity_id])
     return jsonify(cur.fetchall())
 
@@ -121,9 +121,10 @@ def search():
                     , plainto_tsquery('spanish', %s) query
                 WHERE to_tsvector('spanish', content) @@ query
                 AND news.date IS NOT NULL
+                ORDER BY date DESC
                 LIMIT 20
             ) t
-            ORDER BY rank DESC
+            ORDER BY date DESC
         ) t
         ORDER BY date DESC
         LIMIT 50
