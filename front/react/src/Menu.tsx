@@ -143,7 +143,7 @@ function Menu() {
       <Divider />
       <Box style={{padding: '10px 20px'}}>
         <Typography color="textPrimary">
-          <Button onClick={() => dispatch(login())}>Ingresar con cuenta de Google</Button>
+          {userEmail || <Button onClick={() => dispatch(login())}>Ingresar con cuenta de Google</Button>}
         </Typography>
       </Box>
       <Divider />
