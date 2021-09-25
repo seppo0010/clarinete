@@ -39,8 +39,13 @@ def get_apriori_topics(now):
         INNER JOIN news USING (url)
         INNER JOIN source ON news.source_id = source.id
         WHERE created_at BETWEEN %s AND %s
+        -- blacklist self references
         AND (source.name != 'Ámbito Financiero' OR entities.name != 'Ámbito')
-        AND (source.name != 'El País' OR entities.name != 'El País')
+        AND (LOWER(source.name) != LOWER(entities.name))
+
+        -- blacklist common words, not proper nouns
+        AND LOWER(entities.name) != 'él'
+        AND LOWER(entities.name) != 'nadie'
     ) entities
     GROUP BY entities.id, entities.name
     ORDER BY q DESC
