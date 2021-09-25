@@ -16,6 +16,7 @@ export declare interface NewsItem {
 export interface State {
   news: NewsItem[]
   searchNews: NewsItem[]
+  searchHistoryCount: {count: number, created_at: string}[]
   status: 'idle' | 'succeeded' | 'loading' | 'failed'
   searchStatus: 'idle' | 'succeeded' | 'loading' | 'failed'
   error: string | undefined | null
@@ -27,6 +28,7 @@ export interface State {
 const initialState: State = {
   news: [],
   searchNews: [],
+  searchHistoryCount: [],
   status: 'idle',
   searchStatus: 'idle',
   error: null,
@@ -74,6 +76,7 @@ const newsSlice = createSlice({
       reducer(state, action) {
         state.searchCriteria = action.payload
         state.searchNews = []
+        state.searchHistoryCount = []
       },
       prepare(data: any) { return { id: nanoid(), payload: data } as any },
     },
@@ -103,6 +106,7 @@ const newsSlice = createSlice({
     builder.addCase(fetchSearchNews.fulfilled, (state, action) => {
       state.searchStatus = 'succeeded'
       state.searchNews = action.payload.newsList
+      state.searchHistoryCount = action.payload.historyResults
     })
     builder.addCase(fetchSearchNews.rejected, (state, action) => {
       state.searchStatus = 'failed'

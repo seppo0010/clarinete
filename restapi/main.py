@@ -2,6 +2,7 @@ import datetime
 import os
 import psycopg2
 import psycopg2.extras
+import time
 import urllib
 
 from flask import Flask, jsonify, request, g
@@ -202,7 +203,7 @@ def history():
     con = get_news_db()
     entity = request.args.get('entity')
     sql = '''
-    SELECT DATE(created_at) AS created_at, COUNT(*)
+    SELECT DATE(created_at + %s) AS created_at, COUNT(*)
     FROM news
         JOIN news_entities ON news.url = news_entities.url
         JOIN entities ON news_entities.entity_id = entities.id
@@ -212,14 +213,16 @@ def history():
         AND COALESCE(entities.canonical_id, entities.id) = (
 		SELECT id FROM entities WHERE name = %s
         )
-    GROUP BY DATE(created_at)
+    GROUP BY DATE(created_at + %s)
     '''
     cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    now = datetime.date.today()
+    now = datetime.datetime.now()
     cur.execute(sql, [
+        time.strftime("%H:%M:%S", time.localtime()),
         now + datetime.timedelta(days=-28),
-        now + datetime.timedelta(days=0),
-        entity
+        now + datetime.timedelta(days=-1),
+        entity,
+        time.strftime("%H:%M:%S", time.localtime()),
     ])
     return jsonify(cur.fetchall())
 

@@ -13,6 +13,10 @@ import IconButton from '@material-ui/core/IconButton';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import Chip from '@material-ui/core/Chip';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
+
+import { TimeSeries } from "pondjs";
+import { Charts, ChartContainer, ChartRow, YAxis, LineChart } from "react-timeseries-charts";
 
 import {
   NewsItem,
@@ -41,6 +45,7 @@ const keyMap = {
 };
 
 function NewsList() {
+  const wide = useMediaQuery('(min-width:960px)');
   const history = useHistory()
   const dispatch = useDispatch()
   const archived = useSelector(archivedURLs)
@@ -48,6 +53,13 @@ function NewsList() {
   const selectedSources = useSelector(hiddenSources)
   const searchCriteria = useSelector((state: RootState) => state.newsList.searchCriteria)
   const searchNews = useSelector(selectSearchNews)
+  const searchHistoryCount = useSelector((state: RootState) => state.newsList.searchHistoryCount)
+  const series1 = new TimeSeries({
+    name: 'Tendencia',
+    columns: ["time", "value"],
+    points: searchHistoryCount.map((row) => [new Date(row.created_at), row.count]),
+  });
+  const maxSeries = Math.max.apply(null, searchHistoryCount.map((x) => x.count))
   const allNews = useSelector(selectAllNews)
   const news = (searchCriteria ? searchNews : allNews.filter((n: NewsItem) => (
     !archived.includes(n.url) &&
@@ -181,6 +193,16 @@ function NewsList() {
       {searchCriteria !== '' && searchNewsStatus === 'loading' && (<div style={{textAlign: 'center'}}>
         <CircularProgress style={{marginTop: 50}} />
       </div>)}
+      {searchHistoryCount.length > 0 && wide &&
+        <ChartContainer timeRange={series1.timerange()} width={900} style={{marginTop: 20}}>
+            <ChartRow height="200">
+                <YAxis id="axis1" width="60" type="linear" min={0} max={maxSeries * 1.2} />
+                <Charts>
+                    <LineChart axis="axis1" series={series1}/>
+                </Charts>
+            </ChartRow>
+        </ChartContainer>
+      }
       {(searchCriteria === '' || searchNewsStatus !== 'loading') && (
         news.map((n: NewsItem, i: number) => (
           <NewsListItem key={n.url} news={n} selected={i === selected} position={i} />

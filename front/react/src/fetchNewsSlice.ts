@@ -9,10 +9,13 @@ export const fetchNews = createAsyncThunk('news/fetchNews', async (userEmail: st
 })
 
 export const fetchSearchNews = createAsyncThunk('news/fetchSearchNews', async (criteria: string) => {
-  const req = await fetch('/api/search?criteria=' + encodeURIComponent(criteria))
-  const res = await req.json()
+  const [searchResults, historyResults] = await Promise.all([
+    fetch('/api/search?criteria=' + encodeURIComponent(criteria)).then((res) => res.json()),
+    fetch('/api/history?entity=' + encodeURIComponent(criteria)).then((res) => res.json()),
+  ]);
   return {
     date: Date.now(),
-    newsList: res.slice(0, 200),
+    newsList: searchResults.slice(0, 200),
+    historyResults,
   }
 })
