@@ -1,3 +1,4 @@
+import datetime
 import os
 import psycopg2
 import psycopg2.extras
@@ -195,6 +196,33 @@ def google_tokens():
         'apiKey': os.getenv("GOOGLE_API_KEY"),
         'clientId': os.getenv("GOOGLE_CLIENT_ID"),
     })
+
+@app.route("/api/history", methods=['GET'])
+def history():
+    con = get_news_db()
+    entity = request.args.get('entity')
+    sql = '''
+    SELECT DATE(created_at) AS created_at, COUNT(*)
+    FROM news
+        JOIN news_entities ON news.url = news_entities.url
+        JOIN entities ON news_entities.entity_id = entities.id
+    WHERE
+        created_at IS NOT NULL
+        AND created_at BETWEEN %s AND %s
+        AND COALESCE(entities.canonical_id, entities.id) = (
+		SELECT id FROM entities WHERE name = %s
+        )
+    GROUP BY DATE(created_at)
+    '''
+    cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    now = datetime.date.today()
+    cur.execute(sql, [
+        now + datetime.timedelta(days=-28),
+        now + datetime.timedelta(days=0),
+        entity
+    ])
+    return jsonify(cur.fetchall())
+
 
 if __name__ == '__main__':
     if os.getenv('FLASK_DEBUG', False):
