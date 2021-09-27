@@ -11,7 +11,7 @@ import redis
 
 
 ARCHIVE_KEY = 'archived:{user}'
-ARCHIVE_MAX = 2
+ARCHIVE_MAX = 2000
 
 def get_archive_db():
     return redis.Redis(host='userpreferences', port=6379, db=0)
