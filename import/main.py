@@ -70,13 +70,14 @@ def enqueue_ner(cur, url):
     cur.execute('SELECT COUNT(*) FROM news_entities WHERE url = %s', [url])
     if cur.fetchone()[0] > 0:
         return
-    cur.execute('SELECT content, source.language FROM news JOIN source ON news.source_id = source.id WHERE url = %s', [url])
+    cur.execute('SELECT title, content, source.language FROM news JOIN source ON news.source_id = source.id WHERE url = %s', [url])
     res = cur.fetchone()
     if not res:
         return
-    content, language = res
+    title, content, language = res
     publish_to_queue('ner_item', {
         'url': url,
+        'title': title,
         'content': content,
         'language': language,
     })

@@ -44,7 +44,7 @@ def run_once(channel):
         channel.basic_ack(method_frame.delivery_tag)
         obj = json.loads(body.decode('utf-8'))
         url = obj['url']
-        content = obj['content']
+        content = (obj['title'] or '') + '.\n' + (obj['content'] or '')
         language = obj.get('language', 'es')
         if not content:
             logger.warning('no title in object ' + json.dumps(obj))
