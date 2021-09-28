@@ -26,10 +26,7 @@ const reducer = combineReducers({
     key: 'user',
     storage
   }, user),
-  newsList: persistReducer({
-    key: 'newsList',
-    storage
-  }, newsList),
+  newsList,
   singleNews,
   selected,
   entities,

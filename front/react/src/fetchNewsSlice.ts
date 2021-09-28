@@ -1,4 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
+import type { RootState } from './store'
+
 export const fetchNews = createAsyncThunk('news/fetchNews', async (userEmail: string) => {
   const req = await fetch('/api/news?userEmail=' + userEmail)
   const res = await req.json()
@@ -6,6 +8,11 @@ export const fetchNews = createAsyncThunk('news/fetchNews', async (userEmail: st
     date: Date.now(),
     newsList: res.slice(0, 200),
   }
+}, {
+  condition: (userEmail: string, { getState, extra }: { getState: () => RootState, extra: any }) => {
+    const state = getState().newsList
+    return state.userEmail !== userEmail || state.status === 'idle' || (state.updateDate < Date.now() - 60 * 1000)
+  },
 })
 
 export const fetchSearchNews = createAsyncThunk('news/fetchSearchNews', async (criteria: string) => {

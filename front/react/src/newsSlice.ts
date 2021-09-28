@@ -17,6 +17,7 @@ export interface State {
   news: NewsItem[]
   searchNews: NewsItem[]
   searchHistoryCount: {count: number, created_at: string}[]
+  userEmail: string
   status: 'idle' | 'succeeded' | 'loading' | 'failed'
   searchStatus: 'idle' | 'succeeded' | 'loading' | 'failed'
   error: string | undefined | null
@@ -29,6 +30,7 @@ const initialState: State = {
   news: [],
   searchNews: [],
   searchHistoryCount: [],
+  userEmail: '',
   status: 'idle',
   searchStatus: 'idle',
   error: null,
@@ -89,11 +91,14 @@ const newsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(fetchNews.pending, (state, action) => {
+      state.userEmail = action.meta.arg
       state.status = 'loading'
     })
     builder.addCase(fetchNews.fulfilled, (state, action) => {
       state.status = 'succeeded'
-      state.news = action.payload.newsList
+      if (state.userEmail === action.meta.arg) {
+        state.news = action.payload.newsList
+      }
       state.updateDate = action.payload.date
     })
     builder.addCase(fetchNews.rejected, (state, action) => {

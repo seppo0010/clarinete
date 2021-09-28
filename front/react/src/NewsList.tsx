@@ -68,11 +68,9 @@ function NewsList() {
   ))).slice(0, 16)
   const selected = useSelector(selectedValue)
 
-  const newsStatus = useSelector((state: RootState) => state.newsList.status)
   const entitiesStatus  = useSelector((state: RootState) => state.entities.status)
   const trendsStatus  = useSelector((state: RootState) => state.trends.status)
   const searchNewsStatus = useSelector((state: RootState) => state.newsList.searchStatus)
-  const lastUpdate = useSelector((state: RootState) => state.newsList.updateDate)
   const entities = useSelector((state: RootState) => state.entities.entities)
   const trends = useSelector((state: RootState) => state.trends.trends)
   const userEmail = useSelector(getUserEmail)
@@ -112,10 +110,8 @@ function NewsList() {
   }, [trendsStatus, dispatch])
 
   useEffect(() => {
-    if ((newsStatus === 'idle' || lastUpdate < Date.now() - 60 * 1000)) {
-      dispatch(fetchNews(userEmail))
-    }
-  }, [newsStatus, dispatch, lastUpdate, userEmail])
+    dispatch(fetchNews(userEmail))
+  }, [dispatch, userEmail])
 
   useState(() => {
     setSearchCriteriaInput(searchCriteria)
