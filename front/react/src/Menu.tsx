@@ -35,6 +35,7 @@ import {
   removeHiddenSource,
 } from './newsSlice'
 import { fetchNews } from './fetchNewsSlice'
+import { fetchTrends } from './fetchTrendsSlice'
 import type { RootState } from './store'
 import { login, getUserEmail } from './userSlice'
 
@@ -101,6 +102,7 @@ function Menu() {
   ).sort()
   const refresh = () => {
     dispatch(fetchNews(userEmail))
+    dispatch(fetchTrends())
   }
   return (<div className={classes.root}>
     <a href="#main" onClick={() => {

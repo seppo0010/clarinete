@@ -93,6 +93,7 @@ function NewsList() {
     REFRESH: (e: KeyboardEvent | undefined) => {
       e?.preventDefault();
       dispatch(fetchNews(userEmail))
+      dispatch(fetchTrends())
     },
   };
   const [searchCriteriaInput, setSearchCriteriaInput] = useState('')
