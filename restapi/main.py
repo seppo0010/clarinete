@@ -202,8 +202,9 @@ def google_tokens():
 def history():
     con = get_news_db()
     entity = request.args.get('entity')
+    now = datetime.datetime.now()
     sql = '''
-    SELECT DATE(created_at + %s) AS created_at, COUNT(*)
+    SELECT DATE(created_at + '1 day' - time %s) AS created_at, COUNT(*)
     FROM news
         JOIN news_entities ON news.url = news_entities.url
         JOIN entities ON news_entities.entity_id = entities.id
@@ -213,14 +214,13 @@ def history():
         AND COALESCE(entities.canonical_id, entities.id) = (
 		SELECT id FROM entities WHERE name = %s
         )
-    GROUP BY DATE(created_at + %s)
+    GROUP BY DATE(created_at + '1 day' - time %s)
     '''
     cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    now = datetime.datetime.now()
     cur.execute(sql, [
         time.strftime("%H:%M:%S", time.localtime()),
         now + datetime.timedelta(days=-28),
-        now + datetime.timedelta(days=-1),
+        now + datetime.timedelta(days=0),
         entity,
         time.strftime("%H:%M:%S", time.localtime()),
     ])
