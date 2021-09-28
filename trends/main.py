@@ -32,20 +32,22 @@ def get_apriori_topics(now):
     cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute(f'''
     SELECT entities.id, entities.name, COUNT(*) AS q FROM (
-    SELECT entities.id, entities.name
+    SELECT e2.id, e2.name
     FROM news_entities
-        INNER JOIN entities ON news_entities.entity_id = COALESCE(entities.canonical_id, entities.id)
-            AND entities.canonical_id is null
+        INNER JOIN entities e1 ON news_entities.entity_id = e1.id
+        INNER JOIN entities e2 ON COALESCE(e1.canonical_id, e1.id) = e2.id
         INNER JOIN news USING (url)
         INNER JOIN source ON news.source_id = source.id
         WHERE created_at BETWEEN %s AND %s
         -- blacklist self references
-        AND (source.name != 'Ámbito Financiero' OR entities.name != 'Ámbito')
-        AND (LOWER(source.name) != LOWER(entities.name))
+        AND (source.name != 'Ámbito Financiero' OR e2.name != 'Ámbito')
+        AND (LOWER(source.name) != LOWER(e2.name))
 
-        -- blacklist common words, not proper nouns
-        AND LOWER(entities.name) != 'él'
-        AND LOWER(entities.name) != 'nadie'
+        -- blacklist common meaningless words
+        AND LOWER(e2.name) != 'él'
+        AND LOWER(e2.name) != 'nadie'
+        AND LOWER(e2.name) != 'el dt'
+        AND LOWER(e2.name) != 'el estado'
     ) entities
     GROUP BY entities.id, entities.name
     ORDER BY q DESC
