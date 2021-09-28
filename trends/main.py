@@ -10,7 +10,7 @@ import pmdarima as pm
 
 A_PRIORI_LENGTH = 40
 PERIOD_LENGTH = datetime.timedelta(days=1)
-NUM_PERIODS = 14
+NUM_PERIODS = 28
 CONFIDENCE = 0.6
 
 def get_news_db():
