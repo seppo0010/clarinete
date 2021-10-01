@@ -35,7 +35,6 @@ class TestDeduplicator(unittest.TestCase):
 
     def test_ner(self):
         url = 'http://fake-url/es'
-        title = 'Preámbulo de la Constición de la Nación Argentina'
         content = '''
         Nos los representantes del pueblo de la Nación Argentina, reunidos en Congreso General Constituyente por voluntad y elección de las provincias que la componen, en cumplimiento de pactos preexistentes, con el objeto de constituir la unión nacional, afianzar la justicia, consolidar la paz interior
         '''
@@ -46,7 +45,6 @@ class TestDeduplicator(unittest.TestCase):
             routing_key=QUEUE_KEY,
             body=json.dumps({
                 'url': url,
-                'title': title,
                 'content': content,
                 'language': language,
             }),
@@ -64,7 +62,7 @@ class TestDeduplicator(unittest.TestCase):
             obj = json.loads(body.decode('utf-8'))
             self.assertEqual(obj['url'], url)
             self.assertEqual(obj['entities'], [['la Nación Argentina', 'LOC'], ['Congreso General Constituyente', 'MISC']])
-            self.assertEqual(obj['title_entities'], [['Preámbulo de la Constición de la Nación Argentina', 'MISC']])
             break
         channel.close()
         conn.close()
+
