@@ -48,6 +48,7 @@ def get_apriori_topics(now):
         AND LOWER(e2.name) != 'nadie'
         AND LOWER(e2.name) != 'el dt'
         AND LOWER(e2.name) != 'el estado'
+        AND STRPOS(news.title, e1.name) > 0
     ) entities
     GROUP BY entities.id, entities.name
     ORDER BY q DESC
@@ -59,7 +60,7 @@ def get_apriori_topics(now):
 def get_max_count_expected(id, now):
     con = get_news_db()
     data = []
-    for dt in range(-NUM_PERIODS, 0):
+    for dt in range(-NUM_PERIODS, -1):
         sql = '''
         SELECT COUNT(*)
         FROM news
@@ -69,6 +70,7 @@ def get_max_count_expected(id, now):
             created_at IS NOT NULL
             AND created_at BETWEEN %s AND %s
             AND COALESCE(entities.canonical_id, entities.id) = %s
+            AND STRPOS(news.title, entities.name) > 0
         '''
         cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cur.execute(sql, [

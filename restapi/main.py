@@ -211,8 +211,9 @@ def history():
     WHERE
         created_at IS NOT NULL
         AND created_at BETWEEN %s AND %s
+        AND STRPOS(news.title, entities.name) > 0
         AND COALESCE(entities.canonical_id, entities.id) = (
-		SELECT id FROM entities WHERE name = %s
+            SELECT id FROM entities WHERE name = %s
         )
     GROUP BY DATE(created_at + '1 day' - time %s)
     '''
