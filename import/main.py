@@ -108,14 +108,26 @@ def enqueue_deduplicator(cur, url):
         'language': language,
     })
 
-def update_entities(cur, url, entities):
+def update_entities(cur, url, entities, title_entities):
+    # this should not be copy pasted, but I'm feeling lazy
+    for entity, etype in title_entities:
+        entity = entity[:511]
+        cur.execute(f'''INSERT INTO entities (name, entity_type) VALUES (%s, %s) ON CONFLICT DO NOTHING''', [
+            entity,
+            etype,
+        ])
+        cur.execute(f'''INSERT INTO news_entities (url, entity_id, is_title) SELECT %s, id, 1 FROM entities WHERE name = %s ON CONFLICT DO NOTHING''', [
+            url,
+            entity
+        ])
+        enqueue_summary_description(cur, entity)
     for entity, etype in entities:
         entity = entity[:511]
         cur.execute(f'''INSERT INTO entities (name, entity_type) VALUES (%s, %s) ON CONFLICT DO NOTHING''', [
             entity,
             etype,
         ])
-        cur.execute(f'''INSERT INTO news_entities (url, entity_id) SELECT %s, id FROM entities WHERE name = %s ON CONFLICT DO NOTHING''', [
+        cur.execute(f'''INSERT INTO news_entities (url, entity_id, is_title) SELECT %s, id, 0 FROM entities WHERE name = %s ON CONFLICT DO NOTHING''', [
             url,
             entity
         ])
@@ -153,7 +165,7 @@ def update_article(cur, obj):
             changed.add(f)
 
     if 'entities' in obj:
-        update_entities(cur, obj['url'], obj['entities'])
+        update_entities(cur, obj['url'], obj['entities'], obj.get('title_entities', []))
     else:
         enqueue_ner(cur, obj['url'])
 

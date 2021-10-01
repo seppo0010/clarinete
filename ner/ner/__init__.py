@@ -44,22 +44,20 @@ def run_once(channel):
         channel.basic_ack(method_frame.delivery_tag)
         obj = json.loads(body.decode('utf-8'))
         url = obj['url']
-        content = (obj['title'] or '') + '.\n' + (obj['content'] or '')
         language = obj.get('language', 'es')
-        if not content:
-            logger.warning('no title in object ' + json.dumps(obj))
-            continue
         logger.debug('ner ' + url)
+        title = obj['title'] or ''
+        content = obj['content'] or ''
+        channel.queue_declare(queue=RESPONSE_KEY, durable=True)
         try:
-            entities = ner(content, language=language)
-            logger.debug('entities: ' + str(entities or 'None'))
-            channel.queue_declare(queue=RESPONSE_KEY, durable=True)
+            title_entities = ner(title, language=language)
             channel.basic_publish(
                 exchange='',
                 routing_key=RESPONSE_KEY,
                 body=json.dumps({
                     'url': url,
-                    'entities': entities,
+                    'entities': ner(content, language=language),
+                    'title_entities': ner(title, language=language),
                 }),
                 properties=pika.BasicProperties(
                     content_type='application/json',
