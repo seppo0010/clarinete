@@ -37,7 +37,7 @@ import {
 import { fetchNews } from './fetchNewsSlice'
 import { fetchTrends } from './fetchTrendsSlice'
 import type { RootState } from './store'
-import { login, getUserEmail } from './userSlice'
+import { login, logout, getUserEmail } from './userSlice'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -146,6 +146,7 @@ function Menu() {
       <Box style={{padding: '10px 20px'}}>
         <Typography color="textPrimary">
           {userEmail || <Button onClick={() => dispatch(login())}>Ingresar con cuenta de Google</Button>}
+          {userEmail && <Button onClick={() => dispatch(logout())}>Salir</Button>}
         </Typography>
       </Box>
       <Divider />

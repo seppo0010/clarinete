@@ -71,3 +71,25 @@ export const login = () => async (dispatch: any) => {
     })
   })
 }
+
+export const logout = () => async (dispatch: any) => {
+  const {apiKey, clientId} = await getApiKey()
+  return new Promise((resolve, reject) => {
+    gapi.load('client:auth2', async () => {
+      try {
+        await gapi.client.init({
+          apiKey,
+          clientId,
+          scope: 'https://www.googleapis.com/auth/userinfo.email',
+          'discoveryDocs': ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest']
+        })
+
+        await gapi.auth2.getAuthInstance().signOut()
+        dispatch(setUserEmail(''))
+      } catch (e) {
+        console.error(e)
+        reject(e)
+      }
+    })
+  })
+}
