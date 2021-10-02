@@ -240,14 +240,24 @@ def history():
     GROUP BY DATE(created_at + '1 day' - time %s)
     '''
     cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    num_days = 28
     cur.execute(sql, [
         time.strftime("%H:%M:%S", time.localtime()),
-        now + datetime.timedelta(days=-28),
+        now + datetime.timedelta(days=-num_days),
         now + datetime.timedelta(days=0),
         entity,
         time.strftime("%H:%M:%S", time.localtime()),
     ])
-    return jsonify(cur.fetchall())
+    data = cur.fetchall()
+    for i in range(num_days):
+        date = now.date() + datetime.timedelta(days=-i)
+        if not any(map(lambda x: x['created_at'] == date, data)):
+            data.append({
+                'count': 0,
+                'created_at': date,
+            })
+    data = sorted(data, key=lambda x: x['created_at'].isoformat())
+    return jsonify(data)
 
 
 if __name__ == '__main__':
