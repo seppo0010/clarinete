@@ -33,7 +33,7 @@ import { archivedURLs, addURL } from './archivedSlice'
 import { fetchTrends } from './fetchTrendsSlice'
 import NewsListItem from './NewsListItem'
 import type { RootState } from './store'
-import { getUserEmail } from './userSlice'
+import { getUserEmail, getUserToken } from './userSlice'
 
 const keyMap = {
   NEXT: "j",
@@ -74,6 +74,7 @@ function NewsList() {
   const entities = useSelector((state: RootState) => state.entities.entities)
   const trends = useSelector((state: RootState) => state.trends.trends)
   const userEmail = useSelector(getUserEmail)
+  const userToken = useSelector(getUserToken)
 
   const handlers = {
     NEXT: () => dispatch(increment()),
@@ -84,7 +85,7 @@ function NewsList() {
       }
     },
     ARCHIVE: () => {
-      dispatch(addURL(news[selected].url, userEmail))
+      dispatch(addURL(news[selected].url, { userEmail, userToken }))
     },
     SEARCH: (e: KeyboardEvent | undefined) => {
       e?.preventDefault();
@@ -92,7 +93,7 @@ function NewsList() {
     },
     REFRESH: (e: KeyboardEvent | undefined) => {
       e?.preventDefault();
-      dispatch(fetchNews(userEmail))
+      dispatch(fetchNews({userEmail, userToken}))
       dispatch(fetchTrends())
     },
   };
@@ -111,8 +112,8 @@ function NewsList() {
   }, [trendsStatus, dispatch])
 
   useEffect(() => {
-    dispatch(fetchNews(userEmail))
-  }, [dispatch, userEmail])
+    dispatch(fetchNews({userEmail, userToken}))
+  }, [dispatch, userEmail, userToken])
 
   useState(() => {
     setSearchCriteriaInput(searchCriteria)

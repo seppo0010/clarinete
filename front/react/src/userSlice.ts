@@ -4,33 +4,35 @@ import type { RootState } from './store'
 
 export declare interface User {
   email: string
+  token: string
 }
 
 export interface State {
-  user: User
+  user: User | null
 }
 const initialState: State = {
-  user: {email: ''},
+  user: null
 }
 
 const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    setUserEmail: {
+    setUser: {
       reducer(state, action) {
-        state.user = {email: action.payload}
+        state.user = action.payload
       },
       prepare(data: any) { return { email: nanoid(), payload: data } as any },
     },
   },
 })
 
-export const getUserEmail = (state: RootState) => state.user.user.email
+export const getUserEmail = (state: RootState) => state.user.user?.email
+export const getUserToken = (state: RootState) => state.user.user?.token
 
 export default userSlice.reducer
 export const {
-  setUserEmail,
+  setUser,
 } = userSlice.actions
 
 const getApiKey = async () => {
@@ -39,8 +41,11 @@ const getApiKey = async () => {
   return {apiKey, clientId}
 }
 
-const getEmailAddress = async () => {
-  return gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile().getEmail()
+const getUser = async () => {
+  return {
+    email: gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile().getEmail(),
+    token: gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().id_token,
+  }
 }
 
 export const login = () => async (dispatch: any) => {
@@ -58,11 +63,11 @@ export const login = () => async (dispatch: any) => {
         const status = gapi.auth2.getAuthInstance().isSignedIn.get()
         if (!status) {
           gapi.auth2.getAuthInstance().isSignedIn.listen(async (status: boolean) => {
-            resolve(dispatch(setUserEmail(await getEmailAddress())))
+            resolve(dispatch(setUser(await getUser())))
           })
           await gapi.auth2.getAuthInstance().signIn()
         } else {
-          resolve(dispatch(setUserEmail(await getEmailAddress())))
+          resolve(dispatch(setUser(await getUser())))
         }
       } catch (e) {
         console.error(e)
@@ -85,7 +90,7 @@ export const logout = () => async (dispatch: any) => {
         })
 
         await gapi.auth2.getAuthInstance().signOut()
-        dispatch(setUserEmail(''))
+        dispatch(setUser(null))
       } catch (e) {
         console.error(e)
         reject(e)

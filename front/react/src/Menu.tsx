@@ -37,7 +37,7 @@ import {
 import { fetchNews } from './fetchNewsSlice'
 import { fetchTrends } from './fetchTrendsSlice'
 import type { RootState } from './store'
-import { login, logout, getUserEmail } from './userSlice'
+import { login, logout, getUserEmail, getUserToken } from './userSlice'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -65,6 +65,7 @@ function Menu() {
   const lastUpdate = useSelector((state: RootState) => state.newsList.updateDate)
   const classes = useStyles();
   const userEmail = useSelector(getUserEmail)
+  const userToken = useSelector(getUserToken)
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -101,7 +102,7 @@ function Menu() {
     (s: string, i: number, sections: string[]) => sections.indexOf(s) === i && s
   ).sort()
   const refresh = () => {
-    dispatch(fetchNews(userEmail))
+    dispatch(fetchNews({userEmail, userToken}))
     dispatch(fetchTrends())
   }
   return (<div className={classes.root}>

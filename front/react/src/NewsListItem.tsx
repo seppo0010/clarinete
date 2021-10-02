@@ -12,7 +12,7 @@ import Box from '@material-ui/core/Box';
 
 import { NewsItem } from './newsSlice'
 import { addURL } from './archivedSlice'
-import { getUserEmail } from './userSlice'
+import { getUserEmail, getUserToken } from './userSlice'
 import { setSelected } from './selectedSlice'
 
 const useStyles = makeStyles({
@@ -30,6 +30,7 @@ const NewsListItem: FC<{news: NewsItem, selected: boolean, position: number}> = 
   const classes = useStyles();
   const dispatch = useDispatch()
   const userEmail = useSelector(getUserEmail)
+  const userToken = useSelector(getUserToken)
 
   const [wasSelected, setWasSelected] = useState(false)
 
@@ -78,7 +79,7 @@ const NewsListItem: FC<{news: NewsItem, selected: boolean, position: number}> = 
           <div style={{height: '1.2rm', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', flexGrow: 1 }}>{top}</div>
           <div style={{display: 'flex', flexShrink: 1}}>
               <Button onClick={() => dispatch(setSelected(position))}><VisibilityIcon /></Button>
-              <Button onClick={() => dispatch(addURL(news.url, userEmail))} style={{marginTop: -8}} aria-label="archivar"><MoveToInboxIcon /></Button>
+              <Button onClick={() => dispatch(addURL(news.url, { userEmail, userToken }))} style={{marginTop: -8}} aria-label="archivar"><MoveToInboxIcon /></Button>
               {'share' in navigator && <Button onClick={() => navigator.share({title: news.title, url: news.url}) }><ShareIcon /></Button>}
           </div>
         </Typography>

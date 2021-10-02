@@ -3,8 +3,9 @@ import type { RootState, AppDispatch } from './store'
 
 export const archive = createAsyncThunk('archive/singleNews', async ({
     url,
-    userEmail
-}: {url: string, userEmail: string}) => {
+    userEmail,
+    userToken
+}: {url: string, userEmail?: string, userToken?: string }) => {
   if (userEmail) {
     const req = await fetch('/api/archive', {
       method: 'POST',
@@ -14,6 +15,7 @@ export const archive = createAsyncThunk('archive/singleNews', async ({
       body: JSON.stringify({
         url,
         userEmail,
+        userToken,
       })
     })
     await req.json()
@@ -36,10 +38,10 @@ const archivedSlice = createSlice({
   },
 })
 
-const addURL = (url: string, userEmail: string) => {
+const addURL = (url: string, {userEmail, userToken}: {userEmail?: string, userToken?: string}) => {
   return (dispatch: AppDispatch) => {
     dispatch(archivedSlice.actions.addURL(url))
-    dispatch(archive({url, userEmail}))
+    dispatch(archive({url, userEmail, userToken}))
   }
 }
 export { addURL }

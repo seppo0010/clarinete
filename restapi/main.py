@@ -8,6 +8,8 @@ import urllib
 from flask import Flask, jsonify, request, g
 from waitress import serve
 import redis
+from google.auth.transport import requests
+from google.oauth2 import id_token
 
 
 ARCHIVE_KEY = 'archived:{user}'
@@ -35,6 +37,16 @@ def close_db(e=None):
 
 def get_trends_db():
     return redis.Redis(host='trends-database', port=6379, db=0)
+
+def validate_user(user_email, user_token):
+    if user_email is None or user_email == '':
+        return True
+    request = requests.Request()
+    try:
+        id_info = id_token.verify_oauth2_token(user_token, request, os.getenv("GOOGLE_CLIENT_ID"))
+    except ValueError:
+        return False
+    return id_info['email'] == user_email
 
 app = Flask(__name__)
 app.teardown_appcontext(close_db)
@@ -136,7 +148,10 @@ def search():
 @app.route("/api/news")
 def news_list():
     con = get_archive_db()
-    key = ARCHIVE_KEY.format(user=request.args.get('userEmail', None))
+    user_email = request.args.get('userEmail', None)
+    if not validate_user(user_email, request.args.get('userToken', None)):
+        return '{}', 403
+    key = ARCHIVE_KEY.format(user=user_email)
     archived = set(map(lambda x: x.decode('utf-8'), con.lrange(key, 0, -1)))
     con = get_news_db()
     cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -185,7 +200,10 @@ def archive():
     con = get_archive_db()
     params = request.get_json()
     url = params['url']
-    key = ARCHIVE_KEY.format(user=params.get('userEmail', ''))
+    user_email = params.get('userEmail', None)
+    if not validate_user(user_email, params.get('userToken', None)):
+        return '{}', 403
+    key = ARCHIVE_KEY.format(user=user_email)
     con.rpush(key, url)
     while con.llen(key) > ARCHIVE_MAX:
         con.lpop(key)

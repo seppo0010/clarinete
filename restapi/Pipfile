@@ -8,6 +8,9 @@ flask = "*"
 psycopg2-binary = "*"
 waitress = "*"
 redis = "*"
+google-auth = "*"
+requests = "*"
+google-api-python-client = "*"
 
 [dev-packages]
 
