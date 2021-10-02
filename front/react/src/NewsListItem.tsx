@@ -56,6 +56,7 @@ const NewsListItem: FC<{news: NewsItem, selected: boolean, position: number}> = 
     'AR': '🇦🇷',
     'UY': '🇺🇾',
     'CL': '🇨🇱',
+    'US': '🇺🇸',
   } as {[key: string]: string})[news.country], news.volanta].filter((x) => !!x).join(' | ')
 
   const bottom = [
