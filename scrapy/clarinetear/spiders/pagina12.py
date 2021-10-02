@@ -11,6 +11,7 @@ cleaner = Cleaner(allow_tags=['p', 'br', 'b', 'a', 'strong', 'i', 'em'])
 class Pagina12Spider(scrapy.Spider):
     name = 'pagina12'
     allowed_domains = ['www.pagina12.com.ar']
+    download_delay = 0.5
 
     def start_requests(self):
         url = getattr(self, 'article_url', None)
