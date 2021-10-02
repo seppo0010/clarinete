@@ -170,7 +170,7 @@ def news_details():
 @app.route("/api/trends")
 def trends():
     con = get_trends_db()
-    trends = [int(x.decode('utf-8')) for x in con.zrangebyscore('trends', '-inf', 0, start=0, num=5)]
+    trends = [int(x.decode('utf-8')) for x in con.zrangebyscore('trends', '-inf', 0, start=0, num=10)]
 
     con = get_news_db()
     cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
