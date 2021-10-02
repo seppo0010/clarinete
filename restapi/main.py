@@ -85,9 +85,13 @@ def search_entity(entity_id):
     INNER JOIN news_entities ON news.url = news_entities.url
     LEFT JOIN section ON news.section_id = section.id
     JOIN source ON news.source_id = source.id
-    WHERE news_entities.entity_id = %s AND created_at IS NOT NULL
+    WHERE news_entities.entity_id IN (
+        SELECT %s
+        UNION
+        SELECT id FROM entities WHERE canonical_id = %s
+    ) AND created_at IS NOT NULL
     ORDER BY date DESC
-    ''', [entity_id])
+    ''', [entity_id, entity_id])
     return jsonify(cur.fetchall())
 
 @app.route("/api/search")
