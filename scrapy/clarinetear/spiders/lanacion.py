@@ -73,8 +73,8 @@ class LanacionSpider(scrapy.Spider):
         day = int(date_fragments.group(1))
         month = months[date_fragments.group(2)]
         year = int(date_fragments.group(3))
-        hour = int(time_fragments.group(1))
-        minute = int(time_fragments.group(2))
+        hour = int(time_fragments.group(1)) if time_fragments is not None else 0
+        minute = int(time_fragments.group(2)) if time_fragments is not None else 0
         date = datetime(year, month, day, hour, minute)
 
         obj = {
