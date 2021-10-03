@@ -45,6 +45,7 @@ services:
       target: deduplicator
     networks:
       - deduplicator-queue
+    restart: on-failure
     depends_on:
       - "news-queue"
     deploy:
