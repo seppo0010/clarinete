@@ -54,7 +54,7 @@ class LanacionSpider(scrapy.Spider):
 
         date = response.css('time.com-date::text').get().strip()
         date_fragments = re.match(r'^([0-9]{1,2}) de ([a-z]+) de ([0-9]{4})$', date)
-        time = response.css('time.com-hour::text').get().strip()
+        time = (response.css('time.com-hour::text').get() or '').strip()
         time_fragments = re.match(r'^([0-9]{1,2}):([0-9]{2})$', time)
         months = {
             'enero': 1,
