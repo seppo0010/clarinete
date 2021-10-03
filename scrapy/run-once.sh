@@ -10,3 +10,4 @@ scrapy runspider -L WARNING clarinetear/spiders/elpais.py
 scrapy runspider -L WARNING clarinetear/spiders/latercera.py
 scrapy runspider -L WARNING clarinetear/spiders/diariojudicial.py
 scrapy runspider -L WARNING clarinetear/spiders/newyorktimes.py
+scrapy runspider -L WARNING clarinetear/spiders/elmundo.py
