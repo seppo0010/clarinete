@@ -51,12 +51,14 @@ class ClarinSpider(scrapy.Spider):
         html = ''.join(response.xpath('//article//p').extract())
         if not html:
             return
+        title = response.css('h1::text').get()
         content = lxml.html.tostring(cleaner.clean_html(lxml.html.fromstring(html))).decode('utf-8')
         time = response.css('time')
         date = time.attrib['datetime'] if 'datetime' in time.attrib else None
 
         obj = {
             'url': url,
+            'title': title,
             'content': content,
             'date': date,
         }
