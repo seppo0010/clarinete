@@ -3,6 +3,7 @@ import os
 import psycopg2
 import psycopg2.extras
 import time
+import json
 import urllib
 
 from flask import Flask, jsonify, request, g
@@ -190,15 +191,7 @@ def news_details():
 @app.route("/api/trends")
 def trends():
     con = get_trends_db()
-    trends = [int(x.decode('utf-8')) for x in con.zrangebyscore('trends', '-inf', 0, start=0, num=10)]
-
-    con = get_news_db()
-    cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cur.execute('''
-        SELECT id, name FROM entities WHERE id = ANY(%s)
-        ''', [trends])
-    entity_by_id = {x['id']: x['name'] for x in cur.fetchall()}
-    return jsonify([entity_by_id[x] for x in trends])
+    return jsonify([json.loads(x.decode('utf-8')) for x in con.zrangebyscore('trends', '-inf', 0, start=0, num=10)])
 
 @app.route("/api/archive", methods=['POST'])
 def archive():

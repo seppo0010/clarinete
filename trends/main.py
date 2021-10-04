@@ -1,9 +1,10 @@
 import datetime
+import json
 import os
-import psycopg2
-import psycopg2.extras
 import urllib
 
+import psycopg2
+import psycopg2.extras
 import pandas as pd
 import redis
 import pmdarima as pm
@@ -91,7 +92,12 @@ def update_trends(now):
     topic = get_apriori_topics(now)
     topic.loc[:, 'max_expected'] = topic['id'].apply(lambda id: get_max_count_expected(id, now))
 
-    vals = {x['id']: x['max_expected'] - x['q'] for x in topic.T.to_dict().values()}
+    vals = {
+        json.dumps({
+            'id': x['id'],
+            'name': x['name'],
+        }): x['max_expected'] - x['q'] for x in topic.T.to_dict().values()
+    }
     con = get_trends_db()
     con.delete('trends')
     con.zadd('trends', vals)

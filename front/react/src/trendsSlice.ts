@@ -3,7 +3,7 @@ import { fetchTrends } from './fetchTrendsSlice'
 import type { RootState } from './store'
 
 export interface State {
-  trends: string[]
+  trends: {id: number, name: string}[]
   status: 'idle' | 'succeeded' | 'loading' | 'failed'
   error: undefined | string,
 }
