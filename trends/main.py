@@ -114,7 +114,7 @@ def update_trends(now):
         ])
         row = cur.fetchone()
         if row is None:
-            return pd.Series()
+            return pd.Series({'url': None, 'title': None})
         return pd.Series(row)
     topic = topic.join(topic['id'].apply(get_topic_news))
 
