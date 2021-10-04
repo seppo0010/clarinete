@@ -13,6 +13,8 @@ import IconButton from '@material-ui/core/IconButton';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import Chip from '@material-ui/core/Chip';
+import Snackbar from '@material-ui/core/Snackbar';
+import Alert from '@material-ui/lab/Alert';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 import { TimeSeries } from "pondjs";
@@ -145,10 +147,21 @@ function NewsList() {
     }
   }
 
+  const [trendTitle, setTrendTitle] = useState('')
+
   return (
     <GlobalHotKeys handlers={handlers} keyMap={keyMap} allowChanges={true}>
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        open={trendTitle !== ''}
+        onClose={() => setTrendTitle('')}
+        >
+        <Alert onClose={() => setTrendTitle('')} icon={false} color="info">
+          {trendTitle}
+        </Alert>
+      </Snackbar>
       <div style={{marginTop: 80, marginLeft: 10, marginRight: 10}} id="main">
-      {trends.slice(0, 10).map((t) => <Chip key={t.name} label={t.name} style={{marginRight: 4, marginBottom: 4}} onClick={() => doSearch(t.name)}  title={t.title || ''} />)}
+      {trends.slice(0, 10).map((t) => <Chip key={t.name} label={t.name} style={{marginRight: 4, marginBottom: 4}} onClick={() => setTrendTitle(t.title || '')} />)}
       <Autocomplete
           options={entities.map((e) => e.name)}
           getOptionLabel={(name) => name}
