@@ -8,6 +8,7 @@ psycopg2-binary = "*"
 redis = "*"
 pandas = "*"
 pmdarima = "*"
+mlxtend = "*"
 
 [dev-packages]
 

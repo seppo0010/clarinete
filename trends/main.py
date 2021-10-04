@@ -8,6 +8,8 @@ import psycopg2.extras
 import pandas as pd
 import redis
 import pmdarima as pm
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori
 
 A_PRIORI_LENGTH = 40
 PERIOD_LENGTH = datetime.timedelta(days=1)
@@ -28,12 +30,8 @@ def get_trends_db():
     return redis.Redis(host='trends-database', port=6379, db=0)
 
 
-def get_apriori_topics(now):
-    con = get_news_db()
-    cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cur.execute(f'''
-    SELECT entities.id, entities.name, COUNT(*) AS q FROM (
-    SELECT e2.id, e2.name
+news_entities_sql = '''
+    SELECT e2.id, e2.name, news.url
     FROM news_entities
         INNER JOIN entities e1 ON news_entities.entity_id = e1.id
         INNER JOIN entities e2 ON COALESCE(e1.canonical_id, e1.id) = e2.id
@@ -53,7 +51,12 @@ def get_apriori_topics(now):
         AND LOWER(e2.name) != 'nueva'
         AND LOWER(e2.name) != 'minuto'
         AND STRPOS(news.title, e1.name) > 0
-    ) entities
+'''
+def get_apriori_topics(now):
+    con = get_news_db()
+    cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute(f'''
+    SELECT entities.id, entities.name, COUNT(*) AS q FROM ({news_entities_sql}) entities
     GROUP BY entities.id, entities.name
     ORDER BY q DESC
     LIMIT {A_PRIORI_LENGTH}
@@ -115,11 +118,39 @@ def update_trends(now):
         return row['title']
     topic.loc[:, 'title'] = topic['id'].apply(get_title)
 
+    def get_news_entities():
+        con = get_news_db()
+        cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cur.execute(news_entities_sql, [now - PERIOD_LENGTH, now])
+        df = pd.DataFrame(cur.fetchall())
+        return df[df['id'].apply(lambda id: id in topic['id'].tolist())]
+
+    news_entities = get_news_entities()
+    dataset = list(map(lambda url: news_entities['name'][news_entities['url'] == url].tolist(), news_entities['url'].unique()))
+
+    def get_related_topics(name):
+        te = TransactionEncoder()
+        te_ary = te.fit(dataset).transform(dataset)
+        df = pd.DataFrame(te_ary, columns=te.columns_)
+        df = df[df[name]]
+        frequent_itemsets = apriori(df, min_support=0.5, use_colnames=True)
+        frequent_itemsets['length'] = frequent_itemsets['itemsets'].apply(lambda x: len(x))
+        frequent_itemsets = frequent_itemsets[frequent_itemsets['length'] > 1].sort_values('support')
+        topics = set()
+        topics.add(name)
+        for res in frequent_itemsets['itemsets'].tolist():
+            for topic in res:
+                topics.add(topic)
+        topics.remove(name)
+        return json.dumps(list(topics))
+    topic.loc[:, 'related_topics'] = topic['name'].apply(get_related_topics)
+
     vals = {
         json.dumps({
             'id': x['id'],
             'name': x['name'],
             'title': x['title'],
+            'related_topics': json.loads(x['related_topics']),
         }): x['max_expected'] - x['q'] for x in topic.T.to_dict().values()
     }
     con = get_trends_db()
