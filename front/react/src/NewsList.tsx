@@ -15,6 +15,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import Chip from '@material-ui/core/Chip';
 import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
+import Button from '@material-ui/core/Button';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 import { TimeSeries } from "pondjs";
@@ -147,21 +148,29 @@ function NewsList() {
     }
   }
 
-  const [trendTitle, setTrendTitle] = useState('')
+  const [selectedTrend, setSelectedTrend] = useState<null | {name: string, title: string | null, url: string | null}>(null)
 
   return (
     <GlobalHotKeys handlers={handlers} keyMap={keyMap} allowChanges={true}>
       <Snackbar
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        open={trendTitle !== ''}
-        onClose={() => setTrendTitle('')}
+        open={selectedTrend !== null}
+        onClose={() => setSelectedTrend(null)}
         >
-        <Alert onClose={() => setTrendTitle('')} icon={false} color="info">
-          {trendTitle}
+        <Alert onClose={() => setSelectedTrend(null)} icon={false} color="info">
+          {selectedTrend?.title || ''}
+          <>
+          <Button color="inherit" size="small" onClick={() => history.push('/url/' + encodeURIComponent(selectedTrend?.url || ''))}>
+            Ver noticia
+          </Button>
+          <Button color="inherit" size="small" onClick={() => { doSearch(selectedTrend?.name || ''); setSelectedTrend(null) }}>
+            Buscar más
+          </Button>
+          </>
         </Alert>
       </Snackbar>
       <div style={{marginTop: 80, marginLeft: 10, marginRight: 10}} id="main">
-      {trends.slice(0, 10).map((t) => <Chip key={t.name} label={t.name} style={{marginRight: 4, marginBottom: 4}} onClick={() => setTrendTitle(t.title || '')} />)}
+      {trends.slice(0, 10).map((t) => <Chip key={t.name} label={t.name} style={{marginRight: 4, marginBottom: 4}} onClick={() => setSelectedTrend(t)} />)}
       <Autocomplete
           options={entities.map((e) => e.name)}
           getOptionLabel={(name) => name}
