@@ -191,7 +191,7 @@ def news_details():
 @app.route("/api/trends")
 def trends():
     con = get_trends_db()
-    return jsonify([json.loads(x.decode('utf-8')) for x in con.zrangebyscore('trends', '-inf', 0, start=0, num=10)])
+    return jsonify([json.loads(x.decode('utf-8')) for x in con.zrangebyscore('trends', '-inf', '+inf')])
 
 @app.route("/api/archive", methods=['POST'])
 def archive():

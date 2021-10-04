@@ -94,9 +94,9 @@ def get_max_count_expected(id, now):
 def update_trends(now):
     topic = get_apriori_topics(now)
     topic.loc[:, 'max_expected'] = topic['id'].apply(lambda id: get_max_count_expected(id, now))
-    def get_title(id):
+    def get_topic_news(id):
         sql = '''
-        SELECT title, MIN(position)
+        SELECT news.url, news.title, MIN(position)
         FROM news
             JOIN news_entities ON news.url = news_entities.url
             JOIN entities ON news_entities.entity_id = entities.id
@@ -105,7 +105,7 @@ def update_trends(now):
             AND position IS NOT NULL
             AND COALESCE(entities.canonical_id, entities.id) = %s
             AND STRPOS(news.title, entities.name) > 0
-        GROUP BY title
+        GROUP BY news.url, news.title
         '''
         con = get_news_db()
         cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -114,9 +114,9 @@ def update_trends(now):
         ])
         row = cur.fetchone()
         if row is None:
-            return None
-        return row['title']
-    topic.loc[:, 'title'] = topic['id'].apply(get_title)
+            return pd.Series()
+        return pd.Series(row)
+    topic = topic.join(topic['id'].apply(get_topic_news))
 
     def get_news_entities():
         con = get_news_db()
@@ -150,6 +150,7 @@ def update_trends(now):
             'id': x['id'],
             'name': x['name'],
             'title': x['title'],
+            'url': x['url'],
             'related_topics': json.loads(x['related_topics']),
         }): x['max_expected'] - x['q'] for x in topic.T.to_dict().values()
     }
