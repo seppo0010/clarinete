@@ -12,8 +12,8 @@ from mlxtend.preprocessing import TransactionEncoder
 from mlxtend.frequent_patterns import apriori
 
 A_PRIORI_LENGTH = 40
-PERIOD_LENGTH = datetime.timedelta(days=1)
-NUM_PERIODS = 28
+PERIOD_LENGTH = datetime.timedelta(hours=6)
+NUM_PERIODS = 7*4*4
 CONFIDENCE = 0.6
 
 def get_news_db():
