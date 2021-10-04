@@ -91,11 +91,35 @@ def get_max_count_expected(id, now):
 def update_trends(now):
     topic = get_apriori_topics(now)
     topic.loc[:, 'max_expected'] = topic['id'].apply(lambda id: get_max_count_expected(id, now))
+    def get_title(id):
+        sql = '''
+        SELECT title, MIN(position)
+        FROM news
+            JOIN news_entities ON news.url = news_entities.url
+            JOIN entities ON news_entities.entity_id = entities.id
+        WHERE
+            created_at IS NOT NULL
+            AND position IS NOT NULL
+            AND COALESCE(entities.canonical_id, entities.id) = %s
+            AND STRPOS(news.title, entities.name) > 0
+        GROUP BY title
+        '''
+        con = get_news_db()
+        cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cur.execute(sql, [
+            id,
+        ])
+        row = cur.fetchone()
+        if row is None:
+            return None
+        return row['title']
+    topic.loc[:, 'title'] = topic['id'].apply(get_title)
 
     vals = {
         json.dumps({
             'id': x['id'],
             'name': x['name'],
+            'title': x['title'],
         }): x['max_expected'] - x['q'] for x in topic.T.to_dict().values()
     }
     con = get_trends_db()

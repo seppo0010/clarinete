@@ -148,7 +148,7 @@ function NewsList() {
   return (
     <GlobalHotKeys handlers={handlers} keyMap={keyMap} allowChanges={true}>
       <div style={{marginTop: 80, marginLeft: 10, marginRight: 10}} id="main">
-      {trends.map((t) => <Chip key={t.name} label={t.name} style={{marginRight: 4, marginBottom: 4}} onClick={() => doSearch(t.name)} />)}
+      {trends.map((t) => <Chip key={t.name} label={t.name} style={{marginRight: 4, marginBottom: 4}} onClick={() => doSearch(t.name)}  title={t.title || ''} />)}
       <Autocomplete
           options={entities.map((e) => e.name)}
           getOptionLabel={(name) => name}
