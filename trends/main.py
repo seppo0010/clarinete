@@ -50,6 +50,7 @@ def get_apriori_topics(now):
         AND LOWER(e2.name) != 'el estado'
         AND LOWER(e2.name) != 'nuevo'
         AND LOWER(e2.name) != 'nueva'
+        AND LOWER(e2.name) != 'minuto'
         AND STRPOS(news.title, e1.name) > 0
     ) entities
     GROUP BY entities.id, entities.name
