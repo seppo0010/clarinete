@@ -54,6 +54,7 @@ class LaterceraSpider(scrapy.Spider):
             return
         content = lxml.html.tostring(cleaner.clean_html(lxml.html.fromstring(html))).decode('utf-8')
 
+        title = response.css('h1 *::text').get('')
         date = response.css('time').attrib['datetime']
         date_fragments = re.match(r'^.{3} ([A-Za-z]+) ([0-9]{1,2}) ([0-9]{4}) ([0-9]{1,2}):([0-9]{2})', date)
         months = {
@@ -79,6 +80,7 @@ class LaterceraSpider(scrapy.Spider):
 
         obj = {
             'url': url,
+            'title': title,
             'content': content,
             'date': date.isoformat()
         }
