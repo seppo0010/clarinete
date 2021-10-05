@@ -43,6 +43,7 @@ news_entities_sql = '''
         AND (LOWER(source.name) != LOWER(e2.name))
 
         -- blacklist common meaningless words
+        AND LOWER(e2.name) != 'the'
         AND LOWER(e2.name) != 'él'
         AND LOWER(e2.name) != 'nadie'
         AND LOWER(e2.name) != 'el dt'
