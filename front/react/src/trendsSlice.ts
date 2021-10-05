@@ -2,8 +2,16 @@ import { createSlice, nanoid } from '@reduxjs/toolkit'
 import { fetchTrends } from './fetchTrendsSlice'
 import type { RootState } from './store'
 
+export interface Trend {
+  id: number
+  name: string
+  title: string | null
+  url: string | null
+  related_topics: string[]
+}
+
 export interface State {
-  trends: {id: number, name: string, title: string | null, url: string | null}[]
+  trends: Trend[]
   status: 'idle' | 'succeeded' | 'loading' | 'failed'
   error: undefined | string,
 }

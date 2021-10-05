@@ -34,6 +34,7 @@ import { fetchEntities } from './fetchEntitiesSlice'
 import { selectedValue, increment, decrement } from './selectedSlice'
 import { archivedURLs, addURL } from './archivedSlice'
 import { fetchTrends } from './fetchTrendsSlice'
+import { Trend } from './trendsSlice'
 import NewsListItem from './NewsListItem'
 import type { RootState } from './store'
 import { getUserEmail, getUserToken } from './userSlice'
@@ -57,6 +58,7 @@ function NewsList() {
   const searchCriteria = useSelector((state: RootState) => state.newsList.searchCriteria)
   const searchNews = useSelector(selectSearchNews)
   const searchHistoryCount = useSelector((state: RootState) => state.newsList.searchHistoryCount)
+  const showSearchHistoryCount = searchHistoryCount.reduce((a, b) => a + b.count, 0) > 0
   const series1 = new TimeSeries({
     name: 'Tendencia',
     columns: ["time", "value"],
@@ -75,7 +77,14 @@ function NewsList() {
   const trendsStatus  = useSelector((state: RootState) => state.trends.status)
   const searchNewsStatus = useSelector((state: RootState) => state.newsList.searchStatus)
   const entities = useSelector((state: RootState) => state.entities.entities)
-  const trends = useSelector((state: RootState) => state.trends.trends)
+  const trends = useSelector((state: RootState) => state.trends.trends).reduce(({ result, used }: { result: Trend[], used: string[]}, t) => {
+    if (used.indexOf(t.name) === -1) {
+      result.push(Object.assign({}, t, {name: [t.name].concat(t.related_topics).join(', ')}))
+      used.push(t.name)
+      used = used.concat(t.related_topics)
+    }
+    return { result, used }
+  }, { result: [], used: []}).result
   const userEmail = useSelector(getUserEmail)
   const userToken = useSelector(getUserToken)
 
@@ -163,7 +172,7 @@ function NewsList() {
           <Button color="inherit" size="small" onClick={() => history.push('/url/' + encodeURIComponent(selectedTrend?.url || ''))}>
             Ver noticia
           </Button>
-          <Button color="inherit" size="small" onClick={() => { doSearch(selectedTrend?.name || ''); setSelectedTrend(null) }}>
+          <Button color="inherit" size="small" onClick={() => { doSearch(selectedTrend?.name.split(',')[0] || ''); setSelectedTrend(null) }}>
             Buscar más
           </Button>
           </>
@@ -213,7 +222,7 @@ function NewsList() {
       {searchCriteria !== '' && searchNewsStatus === 'loading' && (<div style={{textAlign: 'center'}}>
         <CircularProgress style={{marginTop: 50}} />
       </div>)}
-      {searchHistoryCount.length > 0 && wide &&
+      {showSearchHistoryCount && wide &&
         <ChartContainer timeRange={series1.timerange()} width={900} style={{marginTop: 20}}>
             <ChartRow height="200">
                 <YAxis id="axis1" width="60" type="linear" min={0} max={maxSeries * 1.2} />
