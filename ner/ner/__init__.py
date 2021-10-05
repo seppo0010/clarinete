@@ -12,6 +12,7 @@ RESPONSE_KEY = 'item'
 QUEUE_KEY = 'ner_item'
 
 nlp_es = spacy.load('es_core_news_lg')
+nlp_en = spacy.load('en_core_web_lg')
 
 def cleanhtml(raw_html):
   cleantext = re.sub('<.*?>', '', re.sub('</p.*?>', '\n', raw_html))
@@ -35,7 +36,12 @@ def get_module_logger(mod_name):
 logger = get_module_logger(__name__)
 
 def ner(content, language='es'):
-    doc = nlp_es(cleanhtml(content))
+    if language == 'es':
+        doc = nlp_es(cleanhtml(content))
+    elif language == 'en':
+        doc = nlp_en(cleanhtml(content))
+    else:
+        raise ValueError('unsupported language: ' + language)
     return [(chunk.text, chunk.ents[0].label_) for chunk in doc.noun_chunks if len(chunk.ents)]
 
 def run_once(channel):
