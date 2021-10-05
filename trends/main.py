@@ -12,7 +12,7 @@ from mlxtend.preprocessing import TransactionEncoder
 from mlxtend.frequent_patterns import apriori
 
 A_PRIORI_LENGTH = 40
-PERIOD_LENGTH = datetime.timedelta(hours=6)
+PERIOD_LENGTH = datetime.timedelta(hours=12)
 NUM_PERIODS = 7*4*4
 CONFIDENCE = 0.6
 
