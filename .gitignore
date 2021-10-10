@@ -6,3 +6,7 @@ __pycache__
 database
 postgres-password
 google-config
+telegram-token
+telegram-api-token
+telegram-bot-token
+telegram-config

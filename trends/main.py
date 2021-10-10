@@ -156,8 +156,11 @@ def update_trends(now):
         }): x['max_expected'] - x['q'] for x in topic.T.to_dict().values()
     }
     con = get_trends_db()
-    con.delete('trends')
-    con.zadd('trends', vals)
+    multi = con.pipeline()
+    multi.delete('trends')
+    multi.zadd('trends', vals)
+    multi.publish('new_trends', json.dumps(vals))
+    multi.execute()
     return topic
 
 if __name__ == '__main__':

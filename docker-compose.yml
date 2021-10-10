@@ -197,6 +197,7 @@ services:
     command: redis-server
     networks:
       - trends-database
+      - publish-trends
   trends:
     env_file: ./postgres-config
     build:
@@ -206,6 +207,7 @@ services:
     networks:
       - trends-database
       - trends-news-database
+      - publish-trends
   userpreferences:
     image: redis
     command: redis-server --appendonly yes
@@ -213,10 +215,29 @@ services:
       - restapi-userpreferences
     volumes:
       - userpreferences:/data
+  publish-topic:
+    build:
+      context: ./publish-topic
+      target: publish-topic
+    env_file: ./telegram-config
+    secrets:
+      - telegram-api-token
+      - telegram-bot-token
+    restart: on-failure
+    networks:
+      - publish-trends
+    depends_on:
+      - "trends-database"
 
 secrets:
   postgres-password:
     file: ./postgres-password
+  telegram-api-token:
+    file: ./telegram-api-token
+  postgres-password:
+    file: ./postgres-password
+  telegram-bot-token:
+    file: ./telegram-bot-token
 
 networks:
   import-database:
@@ -232,6 +253,7 @@ networks:
   web:
   translator-summarizer:
   restapi-userpreferences:
+  publish-trends:
 
 volumes:
   pgdata:
