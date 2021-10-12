@@ -208,6 +208,7 @@ services:
       - trends-database
       - trends-news-database
       - publish-trends
+    restart: on-failure
   userpreferences:
     image: redis
     command: redis-server --appendonly yes
