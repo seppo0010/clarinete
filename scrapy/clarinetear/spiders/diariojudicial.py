@@ -44,6 +44,7 @@ class DiariojudicialSpider(scrapy.Spider):
         yield {'source': SOURCE, 'homepage': urls}
 
     def parse_article(self, response, url):
+        bajada = response.css('article.nota-detalle .bajada p::text').get() or ''
         html = ''.join(response.xpath('//div[@id="cuerpo-texto"]/p').extract())
         if not html:
             return
@@ -53,7 +54,7 @@ class DiariojudicialSpider(scrapy.Spider):
 
         obj = {
             'url': url,
-            'content': content,
+            'content': bajada + '\n' + content,
             'date': datetime.fromisoformat(datestr).isoformat()
         }
 
