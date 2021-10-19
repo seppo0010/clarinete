@@ -9,6 +9,8 @@ from telethon import TelegramClient
 TREND_CAN_REPEAT_AFTER = timedelta(days=1)
 NEW_TRENDS_KEY = 'new_trends'
 CAN_REPEAT_KEY = 'trends_publish_history'
+LAST_PUBLISH = 'last_publish'
+MAX_FREQUENCY = timedelta(minutes=60)
 
 def get_trends_db():
     return redis.Redis(host='trends-database', port=6379, db=0)
@@ -25,13 +27,20 @@ def get_telegram_client():
         api_hash=api_hash,
     ).start(bot_token=bot_token)
 
-
 def wait_for_new_trends(con):
     pubsub = con.pubsub()
     pubsub.subscribe(NEW_TRENDS_KEY)
     for message in pubsub.listen():
         if message['type'] == 'message':
             return [json.loads(x) for x in json.loads(message['data']).keys()]
+
+def should_publish(con, now):
+    last_publish_t = con.get(LAST_PUBLISH)
+    if last_publish_t is None:
+        return True
+    last_publish = datetime.utcfromtimestamp(float(last_publish_t))
+    print(now, last_publish, MAX_FREQUENCY)
+    return now - last_publish > MAX_FREQUENCY
 
 def clean_old_topics(con, now):
     con.zremrangebyscore(CAN_REPEAT_KEY, '-inf', (now - TREND_CAN_REPEAT_AFTER).strftime('%s'))
@@ -48,6 +57,7 @@ def choose_topic(topics, published_topics):
             published_topics.append(rtopic)
 
 async def publish_topic(con, telegram_client, topic, now):
+    con.set(LAST_PUBLISH, now.timestamp())
     con.zadd(CAN_REPEAT_KEY, {topic['name']: now.strftime('%s')})
     await telegram_client.send_message(os.getenv('TELEGRAM_CHANNEL'), topic['url'])
 
@@ -56,6 +66,8 @@ async def main(telegram_client):
     redis_con = get_trends_db()
     topics = wait_for_new_trends(redis_con)
     clean_old_topics(redis_con, now)
+    if not should_publish(redis_con, now):
+        return
     published_topics = get_published_topics(redis_con)
     topic = choose_topic(topics, published_topics)
     if topic is None:
