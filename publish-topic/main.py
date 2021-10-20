@@ -32,14 +32,14 @@ def wait_for_new_trends(con):
     pubsub.subscribe(NEW_TRENDS_KEY)
     for message in pubsub.listen():
         if message['type'] == 'message':
-            return [json.loads(x) for x in json.loads(message['data']).keys()]
+            topics = sorted(json.loads(message['data']).items(), key=lambda kv: kv[1])
+            return [json.loads(x[0]) for x in topics]
 
 def should_publish(con, now):
     last_publish_t = con.get(LAST_PUBLISH)
     if last_publish_t is None:
         return True
     last_publish = datetime.utcfromtimestamp(float(last_publish_t))
-    print(now, last_publish, MAX_FREQUENCY)
     return now - last_publish > MAX_FREQUENCY
 
 def clean_old_topics(con, now):
