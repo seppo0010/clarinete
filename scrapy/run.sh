@@ -3,5 +3,5 @@ set -Eeux
 
 while true; do
     /scrapy/run-once.sh
-    sleep 900
+    sleep 1800
 done
