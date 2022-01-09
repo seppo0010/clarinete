@@ -92,6 +92,7 @@ def search_entity(entity_id):
         UNION
         SELECT id FROM entities WHERE canonical_id = %s
     ) AND created_at IS NOT NULL
+    AND date > NOW() - 48 * INTERVAL '1 HOUR'
     ORDER BY date DESC
     ''', [entity_id, entity_id])
     return jsonify(cur.fetchall())
@@ -122,6 +123,7 @@ def search():
                 SELECT id FROM entities WHERE name = %s
             )
             WHERE news.date IS NOT NULL
+            AND date > NOW() - 48 * INTERVAL '1 HOUR'
         UNION
         SELECT * FROM (
             SELECT url, title, volanta, section, date, source, country, summary, created_at
@@ -141,6 +143,7 @@ def search():
                     , plainto_tsquery('spanish', %s) query
                 WHERE to_tsvector('spanish', content) @@ query
                 AND news.date IS NOT NULL
+                AND date > NOW() - 48 * INTERVAL '1 HOUR'
                 ORDER BY date DESC
                 LIMIT 20
             ) t
