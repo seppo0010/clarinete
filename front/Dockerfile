@@ -1,4 +1,4 @@
-FROM node:18.12-slim as build
+FROM node:16.19-slim as build
 WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
 COPY react/package.json ./
