@@ -52,7 +52,7 @@ class AmbitofinancieroSpider(scrapy.Spider):
             return
         content = lxml.html.tostring(cleaner.clean_html(lxml.html.fromstring(html))).decode('utf-8')
 
-        date = response.css('time.date::text').get().strip()
+        date = (response.css('time.date::text').get() or '').strip()
         date_fragments = re.match(r'^([0-9]{1,2}) ([A-Za-z]+) ([0-9]{4})(?: - ([0-9]{1,2}):([0-9]{2}))?$', date)
         months = {
             'enero': 1,
