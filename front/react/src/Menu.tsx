@@ -2,26 +2,26 @@ import React from 'react'
 
 import { useSelector, useDispatch } from 'react-redux'
 import { Link } from "react-router-dom";
-import { useTheme } from '@material-ui/core/styles';
-import Drawer from '@material-ui/core/Drawer';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import List from '@material-ui/core/List';
-import Typography from '@material-ui/core/Typography';
-import Divider from '@material-ui/core/Divider';
-import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
-import RefreshIcon from '@material-ui/icons/Refresh';
-import MenuIcon from '@material-ui/icons/Menu';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import Switch from '@material-ui/core/Switch';
-import Box from '@material-ui/core/Box';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import { makeStyles } from '@material-ui/core/styles';
+import { useTheme } from '@mui/material/styles';
+import Drawer from '@mui/material/Drawer';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import List from '@mui/material/List';
+import Typography from '@mui/material/Typography';
+import Divider from '@mui/material/Divider';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import MenuIcon from '@mui/icons-material/Menu';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import ListItem from '@mui/material/ListItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import Switch from '@mui/material/Switch';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import { styled } from "@mui/system";
 
 import { NewsItem } from './newsSlice'
 import { images } from './sections'
@@ -39,22 +39,19 @@ import { fetchTrends } from './fetchTrendsSlice'
 import type { RootState } from './store'
 import { login, logout, getUserEmail, getUserToken } from './userSlice'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    '& .skip-to-content-link': {
-        left: 0,
-        top: '50%',
-        position: 'absolute',
-        transform: 'translateX(-100%)',
-        color: 'white',
-        zIndex: 10000,
-    },
-    '& .skip-to-content-link:focus': {
-        transform: 'translateX(0%)',
+const SkipLink = styled('a')({
+  skip: {
+    left: 0,
+    top: '50%',
+    position: 'absolute',
+    transform: 'translateX(-100%)',
+    color: 'white',
+    zIndex: 10000,
+    "&:focus": {
+      transform: 'translateX(0%)',
     },
   },
-}));
-
+});
 
 function Menu() {
   const theme = useTheme();
@@ -63,7 +60,6 @@ function Menu() {
   const selectedSources = useSelector(hiddenSources)
   const dispatch = useDispatch()
   const lastUpdate = useSelector((state: RootState) => state.newsList.updateDate)
-  const classes = useStyles();
   const userEmail = useSelector(getUserEmail)
   const userToken = useSelector(getUserToken)
 
@@ -105,12 +101,12 @@ function Menu() {
     dispatch(fetchNews({userEmail, userToken}))
     dispatch(fetchTrends())
   }
-  return (<div className={classes.root}>
-    <a href="#main" onClick={() => {
+  return (<div>
+    <SkipLink href="#main" onClick={() => {
         setTimeout(() => document.getElementById('firstLink')?.focus(), 0)
-      }} className="skip-to-content-link" aria-label="Saltar a contenido">
+      }} aria-label="Saltar a contenido">
       Saltar a contenido
-    </a>
+    </SkipLink>
     <AppBar position="fixed">
       <Toolbar>
         <IconButton

@@ -2,14 +2,14 @@ import React, { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { GlobalHotKeys } from "react-hotkeys";
 
-import Container from '@material-ui/core/Container';
-import Grid, { GridSize } from '@material-ui/core/Grid';
-import Button from '@material-ui/core/Button';
-import Paper from '@material-ui/core/Paper';
-import OpenInNewIcon from '@material-ui/icons/OpenInNew';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import MoveToInboxIcon from '@material-ui/icons/MoveToInbox';
-import ShareIcon from '@material-ui/icons/Share';
+import Container from '@mui/material/Container';
+import Grid, { GridSize } from '@mui/material/Grid';
+import Button from '@mui/material/Button';
+import Paper from '@mui/material/Paper';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import MoveToInboxIcon from '@mui/icons-material/MoveToInbox';
+import ShareIcon from '@mui/icons-material/Share';
 import { fetchSingleNews, selectNews, deduplicatedIndex } from './singleNewsSlice'
 import {
   useParams,
