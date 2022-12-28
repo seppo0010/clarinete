@@ -48,24 +48,24 @@ class ClarinSpider(scrapy.Spider):
         yield {'source': SOURCE, 'homepage': urls}
 
     def parse_article(self, response, url):
-        html = ''.join(response.xpath('//div[@class="body-nota"]/p').extract())
+        html = ''.join(response.xpath('//article/p').extract())
         if not html:
             return
         content = lxml.html.tostring(cleaner.clean_html(lxml.html.fromstring(html))).decode('utf-8')
 
+        date = None
         modificated_date = response.css('.modificatedDate::text').get().strip()
         if not modificated_date:
             raise ValueError('no modificated date')
         modificated_date_prefix = 'Actualizado al '
-        if not modificated_date.startswith(modificated_date_prefix):
-            raise ValueError('modificated date does not start with ' + modificated_date_prefix)
-        modificated_date = modificated_date[len(modificated_date_prefix):]
-        date = datetime.strptime(modificated_date, '%d/%m/%Y %H:%M')
+        if modificated_date.startswith(modificated_date_prefix):
+            modificated_date = modificated_date[len(modificated_date_prefix):]
+            date = datetime.strptime(modificated_date, '%d/%m/%Y %H:%M').isoformat()
 
         obj = {
             'url': url,
             'content': content,
-            'date': date.isoformat()
+            'date': date,
         }
 
         yield obj

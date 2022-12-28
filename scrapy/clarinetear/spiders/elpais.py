@@ -1,7 +1,9 @@
 from datetime import datetime
+import json
 import scrapy
 import lxml
 from lxml.html.clean import Cleaner
+import dateutil.parser
 import re
 
 
@@ -21,7 +23,7 @@ class ElpaisSpider(scrapy.Spider):
 
     def parse(self, response):
         urls = []
-        for article in response.css('article'):
+        for article in response.css('.PromoBasic, .PromoVisual'):
             link = article.css('a')
             url = link.attrib['href']
             if not url:
@@ -30,11 +32,10 @@ class ElpaisSpider(scrapy.Spider):
                 url = 'https://www.elpais.com.uy' + url
             urls.append(url)
 
-            maybe_img = article.css('.image-container img')
+            maybe_img = article.css('picture img')
             obj = {
-                'title': article.css('.title a::text').get(''),
-                'volanta': article.css('.supratitle a::text').get('').strip(),
-                'section': article.css('.category a::text').get('').strip(),
+                'title': article.css('.Promo-title a::text').get(''),
+                'section': article.css('.Promo-category a::text').get('').strip(),
                 'url': url,
                 'image': maybe_img.attrib['src'] if maybe_img else None,
                 'source': SOURCE,
@@ -47,43 +48,18 @@ class ElpaisSpider(scrapy.Spider):
         yield {'homepage': urls, 'source': SOURCE}
 
     def parse_article(self, response, url):
-        html = ''.join(response.xpath('//div[@class="article-content"]//p').extract())
-        if not html:
-            return
-        content = lxml.html.tostring(cleaner.clean_html(lxml.html.fromstring(html))).decode('utf-8')
-
-        date = response.css('#article-published-at-date').attrib['data-published-at-date']
-        date_fragments = re.match(r'^.+, ([0-9]{1,2}) ([a-z]+) ([0-9]{4}) ([0-9]{1,2}):([0-9]{2})$', date)
-        months = {
-            'enero': 1,
-            'febrero': 2,
-            'marzo': 3,
-            'abril': 4,
-            'mayo': 5,
-            'junio': 6,
-            'julio': 7,
-            'agosto': 8,
-            'septiembre': 9,
-            'octubre': 10,
-            'noviembre': 11,
-            'diciembre': 12,
-        }
-        if date_fragments is not None:
-            day = int(date_fragments.group(1))
-            month = months[date_fragments.group(2)]
-            year = int(date_fragments.group(3))
-            hour = int(date_fragments.group(4))
-            minute = int(date_fragments.group(5))
-            date = datetime(year, month, day, hour, minute)
+        doc = response.body.decode("utf-8")
+        for line in doc.split('\n'):
+            if '"@type":"NewsArticle"' not in line: continue
+            line = line.replace('<script type="application/ld+json">', '')
+            line = line.replace('</script>', '')
+            data = json.loads(line)
+            date = dateutil.parser.isoparse(data['dateModified'])
             obj = {
                 'url': url,
-                'content': content,
+                'content': data['articleBody'],
+                'volanta': data.get('description', None),
                 'date': date.isoformat()
             }
-        else:
-            obj = {
-                'url': url,
-                'content': content,
-            }
-
-        yield obj
+            yield obj
+            break
