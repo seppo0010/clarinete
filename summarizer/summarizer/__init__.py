@@ -23,8 +23,12 @@ def get_module_logger(mod_name):
     return logger
 logger = get_module_logger(__name__)
 
+def cleanhtml(raw_html):
+  cleantext = re.sub('<.*?>', '', re.sub('</p.*?>', '\n', raw_html))
+  return html.unescape(cleantext)
+
 def get_summary(text, language='es'):
-    return summarizer(text, max_length=130, min_length=30, do_sample=False)
+    return summarizer(cleanhtml(text), max_length=130, min_length=30, do_sample=False)
 
 def run_once(channel):
     for method_frame, properties, body in channel.consume(QUEUE_KEY):
