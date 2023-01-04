@@ -5,12 +5,13 @@ import traceback
 import logging
 
 import pika
-from transformers import pipeline
-import requests
+from transformers import LEDTokenizer, LEDForConditionalGeneration
+import torch
 
 QUEUE_KEY = 'summary_item'
 RESPONSE_KEY = 'item'
-summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+tokenizer = LEDTokenizer.from_pretrained("hyesunyun/update-summarization-bart-large-longformer")
+model = LEDForConditionalGeneration.from_pretrained("hyesunyun/update-summarization-bart-large-longformer")
 
 def get_module_logger(mod_name):
     logger = logging.getLogger(mod_name)
@@ -28,7 +29,14 @@ def cleanhtml(raw_html):
   return html.unescape(cleantext)
 
 def get_summary(text, language='es'):
-    return summarizer(cleanhtml(text), max_length=130, min_length=30, do_sample=False)[0]['summary_text']
+    inputs_dict = tokenizer(text, padding="max_length", max_length=10240, return_tensors="pt", truncation=True)
+    input_ids = inputs_dict.input_ids
+    attention_mask = inputs_dict.attention_mask
+    global_attention_mask = torch.zeros_like(attention_mask)
+    global_attention_mask[:, 0] = 1
+
+    predicted_summary_ids = model.generate(input_ids, attention_mask=attention_mask, global_attention_mask=global_attention_mask)
+    return tokenizer.batch_decode(predicted_summary_ids, skip_special_tokens=True)
 
 def run_once(channel):
     for method_frame, properties, body in channel.consume(QUEUE_KEY):
