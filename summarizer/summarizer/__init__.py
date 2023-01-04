@@ -10,76 +10,10 @@ import requests
 
 QUEUE_KEY = 'summary_item'
 RESPONSE_KEY = 'item'
-summarizer = pipeline("summarization")
-
-def translate(t, source, target):
-    logger.debug('will request translation')
-    r = requests.post('http://translator/api/translate', json={
-        'from': source,
-        'to': target,
-        'source': t.replace('\n', ' '),
-    })
-    logger.debug('did request translation')
-    r.raise_for_status()
-    return r.json()['translation']
-
-def es_en(t):
-    return translate(t, 'es', 'en')
-
-def en_es(t):
-    return translate(t, 'en', 'es')
-
-def get_module_logger(mod_name):
-    logger = logging.getLogger(mod_name)
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter(
-        '%(asctime)s [%(name)-12s] %(levelname)-8s %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    logger.setLevel(logging.DEBUG)
-    return logger
-logger = get_module_logger(__name__)
-
-
-def cleanhtml(raw_html):
-  cleantext = re.sub('<.*?>', '', re.sub('</p.*?>', '\n', raw_html))
-  return html.unescape(cleantext)
-
-def summary_line(line):
-    MAX_SUMMARY = 40
-    if len(line.split(' ')) < MAX_SUMMARY:
-        return line
-    else:
-        return summarizer(line, truncation=True, max_length=50)[0]['summary_text']
-
-def summarize(text):
-    lines_total = text.split('\n')
-    lines_total = [x.strip() for x in lines_total]
-    lines_total = [x for x in lines_total if x != '']
-    if len(lines_total) == 0:
-        return ''
-    lines_summary = []
-
-    text_summary = ' '.join([summary_line(line) for line in lines_total])
-    return summary_line(text_summary)
+summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
 
 def get_summary(text, language='es'):
-    cleaned = cleanhtml(text)
-    if language == 'es':
-        en = es_en(cleaned)
-    elif language == 'en':
-        en = cleaned
-    else:
-        raise Exception(f'unexpected language {language}')
-    logger.debug(f'en: {en}')
-    summarized = summarize(en)
-    logger.debug(f'summarized: {summarized}')
-    if language == 'es':
-        es = en_es(summarized)
-        logger.debug(f'es: {es}')
-        return es
-    else:
-        return summarized
+    return summarizer(text, max_length=130, min_length=30, do_sample=False)
 
 def run_once(channel):
     for method_frame, properties, body in channel.consume(QUEUE_KEY):

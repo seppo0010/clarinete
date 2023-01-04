@@ -60,7 +60,6 @@ services:
     image: deduplicator_test
     depends_on:
       - "news-queue"
-      - "translator"
     restart: "no"
     networks:
       - deduplicator-queue
@@ -92,11 +91,9 @@ services:
     image: summarizer
     depends_on:
       - "news-queue"
-      - "translator"
     restart: on-failure
     networks:
       - summarizer-queue
-      - translator-summarizer
     deploy:
       resources:
         reservations:
@@ -109,11 +106,9 @@ services:
     image: summarizer_test
     depends_on:
       - "news-queue"
-      - "translator"
     restart: "no"
     networks:
       - summarizer-queue
-      - translator-summarizer
     profiles:
       - donotstart
     deploy:
@@ -162,17 +157,6 @@ services:
     image: opus-mt-base
     profiles:
       - donotstart
-  translator:
-    build: translator
-    networks:
-      - translator-summarizer
-    deploy:
-      resources:
-        reservations:
-          devices:
-          - driver: nvidia
-            count: 1
-            capabilities: [gpu]
   ner:
     build:
       context: ./ner
@@ -252,7 +236,6 @@ networks:
   summarizer-queue:
   ner-queue:
   web:
-  translator-summarizer:
   restapi-userpreferences:
   publish-trends:
 
