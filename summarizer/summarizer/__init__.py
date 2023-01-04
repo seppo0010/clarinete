@@ -12,6 +12,17 @@ QUEUE_KEY = 'summary_item'
 RESPONSE_KEY = 'item'
 summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
 
+def get_module_logger(mod_name):
+    logger = logging.getLogger(mod_name)
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter(
+        '%(asctime)s [%(name)-12s] %(levelname)-8s %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.DEBUG)
+    return logger
+logger = get_module_logger(__name__)
+
 def get_summary(text, language='es'):
     return summarizer(text, max_length=130, min_length=30, do_sample=False)
 
