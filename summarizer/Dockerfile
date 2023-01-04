@@ -3,7 +3,7 @@ FROM nvidia/cuda:11.4.0-runtime-ubuntu20.04 AS summarizer
 RUN apt-get update && apt-get install -y pipenv && rm -rf /var/lib/apt/lists/*
 COPY Pipfile* /summarizer/
 RUN pip install pipenv && cd /summarizer && pipenv install --system --deploy --ignore-pipfile
-RUN python3 -c "from transformers import LEDTokenizer, LEDForConditionalGeneration;tokenizer = LEDTokenizer.from_pretrained('hyesunyun/update-summarization-bart-large-longformer');model = LEDForConditionalGeneration.from_pretrained('hyesunyun/update-summarization-bart-large-longformer')"
+RUN python3 -c "from transformers import pipeline;pipeline('summarization', model='facebook/bart-large-cnn')"
 
 COPY main.py /summarizer
 COPY summarizer /summarizer/summarizer
