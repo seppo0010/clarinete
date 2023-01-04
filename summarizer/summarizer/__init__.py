@@ -28,7 +28,7 @@ def cleanhtml(raw_html):
   return html.unescape(cleantext)
 
 def get_summary(text, language='es'):
-    return summarizer(cleanhtml(text), max_length=130, min_length=30, do_sample=False)
+    return summarizer(cleanhtml(text), max_length=130, min_length=30, do_sample=False)[0]['summary_text']
 
 def run_once(channel):
     for method_frame, properties, body in channel.consume(QUEUE_KEY):
