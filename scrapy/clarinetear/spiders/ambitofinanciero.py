@@ -22,7 +22,7 @@ class AmbitofinancieroSpider(scrapy.Spider):
     def parse(self, response):
         urls = []
         for article in response.css('article'):
-            link = article.css('.title a')
+            link = article.css('.news-article__title a')
             url = link.attrib.get('href', None)
             if not url:
                 continue
@@ -32,7 +32,7 @@ class AmbitofinancieroSpider(scrapy.Spider):
 
             maybe_img = article.css('figure img')
             obj = {
-                'title': article.css('.title a::text').get(),
+                'title': article.css('.news-article__title a::text').get(),
                 'volanta': (article.css('span.article-kicker::text').get() or '').strip(),
                 'section': url.split('/')[3],
                 'url': url,
