@@ -3,7 +3,7 @@ import scrapy
 import lxml
 from lxml.html.clean import Cleaner
 
-SOURCE = 'New York Tomes'
+SOURCE = 'New York Times'
 LANGUAGE = 'en'
 cleaner = Cleaner(allow_tags=['p', 'br', 'b', 'a', 'strong', 'i', 'em'])
 class ClarinSpider(scrapy.Spider):
