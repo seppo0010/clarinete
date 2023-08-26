@@ -164,7 +164,10 @@ def update_article(cur, obj):
 def update_homepage(cur, source, urls):
     logger.info(f'updating homepage for source {source} with {len(urls)} elements')
     cur.execute('SELECT id FROM source WHERE name = %s', [source])
-    source_id = cur.fetchone()[0]
+    s = cur.fetchone()
+    if s is None:
+      return
+    source_id = s[0]
     cur.execute(f'''UPDATE news SET position = NULL WHERE source_id = %s''', [source_id])
 
     for i, url in enumerate(urls):
