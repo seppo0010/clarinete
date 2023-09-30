@@ -94,6 +94,7 @@ def get_max_count_expected(id, now):
 
 def update_trends(now):
     topic = get_apriori_topics(now)
+    if topic.shape[0] == 0: return
     topic.loc[:, 'max_expected'] = topic['id'].apply(lambda id: get_max_count_expected(id, now))
     def get_topic_news(id):
         sql = '''

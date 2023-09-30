@@ -48,6 +48,7 @@ def publish_to_queue(key, value):
     )
 
 def enqueue_summary(cur, url, force=False):
+    return
     if force:
         cur.execute('SELECT title, content, source.language FROM news JOIN source ON news.source_id = source.id WHERE url = %s', [url])
     else:
@@ -83,6 +84,7 @@ def enqueue_ner(cur, url):
     })
 
 def enqueue_deduplicator(cur, url):
+    return
     cur.execute('SELECT title, source_id, date, canonical_url, source.language FROM news JOIN source ON news.source_id = source.id WHERE url = %s', [url])
     res = cur.fetchone()
     if not res:
@@ -184,6 +186,7 @@ def update_entity(cur, obj):
         )
 
 def enqueue_summary_description(cur, entity):
+    return
     cur.execute('SELECT summary FROM entities WHERE name = %s AND summary IS NULL', [entity])
     row = cur.fetchone()
     if not row:

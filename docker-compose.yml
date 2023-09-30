@@ -11,67 +11,67 @@ services:
     restart: on-failure
     networks:
       - scrapy-queue
-      - entitier-queue
-      - deduplicator-queue
+      # - entitier-queue
+      # - deduplicator-queue
       - import-queue
-      - summarizer-queue
+      # - summarizer-queue
       - ner-queue
     environment:
       - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log_levels [{connection,error}]
     volumes:
       - rabbitmqdata:/var/lib/rabbitmq
-  entitier:
-    build:
-      context: ./entitier
-      target: entitier
-    restart: on-failure
-    networks:
-      - entitier-queue
-    depends_on:
-      - "news-queue"
-  entitier_test:
-    build: entitier
-    image: entitier_test
-    depends_on:
-      - "news-queue"
-    restart: "no"
-    networks:
-      - entitier-queue
-    profiles:
-      - donotstart
-  deduplicator:
-    build:
-      context: ./deduplicator
-      target: deduplicator
-    networks:
-      - deduplicator-queue
-    restart: on-failure
-    depends_on:
-      - "news-queue"
-    deploy:
-      resources:
-        reservations:
-          devices:
-          - driver: nvidia
-            count: 1
-            capabilities: [gpu]
-  deduplicator_test:
-    build: deduplicator
-    image: deduplicator_test
-    depends_on:
-      - "news-queue"
-    restart: "no"
-    networks:
-      - deduplicator-queue
-    profiles:
-      - donotstart
-    deploy:
-      resources:
-        reservations:
-          devices:
-          - driver: nvidia
-            count: 1
-            capabilities: [gpu]
+  #entitier:
+  #  build:
+  #    context: ./entitier
+  #    target: entitier
+  #  restart: on-failure
+  #  networks:
+  #    - entitier-queue
+  #  depends_on:
+  #    - "news-queue"
+  #entitier_test:
+  #  build: entitier
+  #  image: entitier_test
+  #  depends_on:
+  #    - "news-queue"
+  #  restart: "no"
+  #  networks:
+  #    - entitier-queue
+  #  profiles:
+  #    - donotstart
+  #deduplicator:
+  #  build:
+  #    context: ./deduplicator
+  #    target: deduplicator
+  #  networks:
+  #    - deduplicator-queue
+  #  restart: on-failure
+  #  depends_on:
+  #    - "news-queue"
+  #  deploy:
+  #    resources:
+  #      reservations:
+  #        devices:
+  #        - driver: nvidia
+  #          count: 1
+  #          capabilities: [gpu]
+  #deduplicator_test:
+  #  build: deduplicator
+  #  image: deduplicator_test
+  #  depends_on:
+  #    - "news-queue"
+  #  restart: "no"
+  #  networks:
+  #    - deduplicator-queue
+  #  profiles:
+  #    - donotstart
+  #  deploy:
+  #    resources:
+  #      reservations:
+  #        devices:
+  #        - driver: nvidia
+  #          count: 1
+  #          capabilities: [gpu]
   import:
     build: import
     env_file: ./postgres-config
@@ -84,40 +84,40 @@ services:
     networks:
       - import-queue
       - import-database
-  summarizer:
-    build:
-      context: ./summarizer
-      target: summarizer
-    image: summarizer
-    depends_on:
-      - "news-queue"
-    restart: on-failure
-    networks:
-      - summarizer-queue
-    deploy:
-      resources:
-        reservations:
-          devices:
-          - driver: nvidia
-            count: 1
-            capabilities: [gpu]
-  summarizer_test:
-    build: summarizer
-    image: summarizer_test
-    depends_on:
-      - "news-queue"
-    restart: "no"
-    networks:
-      - summarizer-queue
-    profiles:
-      - donotstart
-    deploy:
-      resources:
-        reservations:
-          devices:
-          - driver: nvidia
-            count: 1
-            capabilities: [gpu]
+  #summarizer:
+  #  build:
+  #    context: ./summarizer
+  #    target: summarizer
+  #  image: summarizer
+  #  depends_on:
+  #    - "news-queue"
+  #  restart: on-failure
+  #  networks:
+  #    - summarizer-queue
+  #  deploy:
+  #    resources:
+  #      reservations:
+  #        devices:
+  #        - driver: nvidia
+  #          count: 1
+  #          capabilities: [gpu]
+  #summarizer_test:
+  #  build: summarizer
+  #  image: summarizer_test
+  #  depends_on:
+  #    - "news-queue"
+  #  restart: "no"
+  #  networks:
+  #    - summarizer-queue
+  #  profiles:
+  #    - donotstart
+  #  deploy:
+  #    resources:
+  #      reservations:
+  #        devices:
+  #        - driver: nvidia
+  #          count: 1
+  #          capabilities: [gpu]
 
   news-database:
     image: postgres
@@ -152,11 +152,11 @@ services:
       - "8001:80"
     networks:
       - web
-  opus-mt:
-    build: Opus-MT
-    image: opus-mt-base
-    profiles:
-      - donotstart
+  #opus-mt:
+  #  build: Opus-MT
+  #  image: opus-mt-base
+  #  profiles:
+  #    - donotstart
   ner:
     build:
       context: ./ner
@@ -166,22 +166,22 @@ services:
     depends_on:
       - "news-queue"
     restart: on-failure
-  ner_test:
-    build: ner
-    image: ner_test
-    depends_on:
-      - "news-queue"
-    restart: "no"
-    networks:
-      - ner-queue
-    profiles:
-      - donotstart
+  #ner_test:
+  #  build: ner
+  #  image: ner_test
+  #  depends_on:
+  #    - "news-queue"
+  #  restart: "no"
+  #  networks:
+  #    - ner-queue
+  #  profiles:
+  #    - donotstart
   trends-database:
     image: redis
     command: redis-server
     networks:
       - trends-database
-      - publish-trends
+      # - publish-trends
   trends:
     env_file: ./postgres-config
     build:
@@ -191,7 +191,7 @@ services:
     networks:
       - trends-database
       - trends-news-database
-      - publish-trends
+      # - publish-trends
     restart: on-failure
   userpreferences:
     image: redis
@@ -200,19 +200,19 @@ services:
       - restapi-userpreferences
     volumes:
       - userpreferences:/data
-  publish-topic:
-    build:
-      context: ./publish-topic
-      target: publish-topic
-    env_file: ./telegram-config
-    secrets:
-      - telegram-api-token
-      - telegram-bot-token
-    restart: on-failure
-    networks:
-      - publish-trends
-    depends_on:
-      - "trends-database"
+  #publish-topic:
+  #  build:
+  #    context: ./publish-topic
+  #    target: publish-topic
+  #  env_file: ./telegram-config
+  #  secrets:
+  #    - telegram-api-token
+  #    - telegram-bot-token
+  #  restart: on-failure
+  #  networks:
+  #    - publish-trends
+  #  depends_on:
+  #    - "trends-database"
 
 secrets:
   postgres-password:
@@ -230,14 +230,14 @@ networks:
   trends-database:
   trends-news-database:
   scrapy-queue:
-  entitier-queue:
-  deduplicator-queue:
+  # entitier-queue:
+  # deduplicator-queue:
   import-queue:
-  summarizer-queue:
+  # summarizer-queue:
   ner-queue:
   web:
   restapi-userpreferences:
-  publish-trends:
+  # publish-trends:
 
 volumes:
   pgdata:

@@ -47,7 +47,7 @@ class AmbitofinancieroSpider(scrapy.Spider):
         yield {'homepage': urls, 'source': SOURCE}
 
     def parse_article(self, response, url):
-        html = ''.join(response.xpath('//section[contains(@class, \'detail-body\')]').extract())
+        html = ''.join(response.xpath('//article[contains(@class, \'article-body\')]').extract())
         if not html:
             return
         content = lxml.html.tostring(cleaner.clean_html(lxml.html.fromstring(html))).decode('utf-8')
