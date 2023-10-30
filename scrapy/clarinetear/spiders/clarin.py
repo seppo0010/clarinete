@@ -48,7 +48,7 @@ class ClarinSpider(scrapy.Spider):
         yield {'source': SOURCE, 'homepage': urls}
 
     def parse_article(self, response, url):
-        html = ''.join(response.xpath('//article/p').extract())
+        html = ''.join(response.xpath('//article//p').extract())
         if not html:
             return
         content = lxml.html.tostring(cleaner.clean_html(lxml.html.fromstring(html))).decode('utf-8')
